@@ -5,13 +5,13 @@ s06_sidecar_server.py - Sidecar Server Architecture
 
 Simulates WorkBuddy's Sidecar process: a JSON-RPC server over Unix Socket
 that manages agent sessions, captures logs in a RingBuffer, and routes
-RPC calls across 35+ domains.
+RPC calls across many domains (teaching-scale sample).
 
 Production harnesses often use:
     - sidecar-entry.js: SidecarServer class, net.createServer() on Unix Socket
     - 8MB RingBuffer for stdout/stderr capture (circular buffer)
     - Newline-delimited JSON-RPC protocol
-    - 35+ RPC domains: session/*, sidecar/*, tool/*, memory/*, mcp/*, skill/*
+    - Domain-based RPC routing: session/*, sidecar/*, tool/*, memory/*, mcp/*, skill/*
     - PTY backend for interactive commands, pipe for non-interactive
     - Main Process spawns Sidecar as child process, connects via socket
 
@@ -158,7 +158,7 @@ class RPCConnection:
 
 
 # ═══════════════════════════════════════════════════════════════
-# SidecarServer — RPC server with 35+ domains
+# SidecarServer — RPC server with domain-based routing
 # ═══════════════════════════════════════════════════════════════
 
 class SidecarServer:
@@ -167,7 +167,7 @@ class SidecarServer:
 
     Responsibilities:
     1. Listen on Unix Socket for RPC connections
-    2. Route RPC calls to registered handlers (35+ domains)
+    2. Route RPC calls to registered handlers, grouped by domain
     3. Capture all subprocess output in RingBuffer
     4. Manage session processes (spawn, monitor, kill)
 
@@ -185,7 +185,7 @@ class SidecarServer:
         self._register_channels()
 
     def _register_channels(self):
-        """Register all RPC handlers — mirrors WorkBuddy's 35+ domains."""
+        """Register RPC handlers — a teaching-scale sample of the domain-routing pattern."""
         # sidecar/* — self-management
         self.rpc_handlers["sidecar/ping"] = self._handle_ping
         self.rpc_handlers["sidecar/status"] = self._handle_status
@@ -290,7 +290,12 @@ class SidecarServer:
         communicates via ACP HTTP endpoints.
         """
         client = Anthropic(base_url=os.getenv("ANTHROPIC_BASE_URL"))
-        MODEL = os.environ["MODEL_ID"]
+        MODEL = os.environ.get("MODEL_ID")
+        if not MODEL:
+            raise SystemExit(
+                "MODEL_ID is not set. Copy .env.example to .env and fill in "
+                "ANTHROPIC_API_KEY and MODEL_ID (see README quick start)."
+            )
 
         system = f"You are a coding agent at {session['cwd']}. Be concise."
         tools = [{

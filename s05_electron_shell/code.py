@@ -97,13 +97,18 @@ def main_process(recv_queue: mp.Queue, send_queue: mp.Queue, renderer_queue: mp.
     - Route to agent (simulated Sidecar)
     - Send results back to renderer (via send_queue)
     
-    In real WorkBuddy, this is main/index.js (132KB) with 35+ RPC domains.
+    In a production desktop harness, this main-process router grows into many RPC domains (teaching abstraction; not a claim about any private bundle).
     """
     from anthropic import Anthropic
     import os
     
     client = Anthropic(base_url=os.getenv("ANTHROPIC_BASE_URL"))
-    MODEL = os.environ["MODEL_ID"]
+    MODEL = os.environ.get("MODEL_ID")
+    if not MODEL:
+        raise SystemExit(
+            "MODEL_ID is not set. Copy .env.example to .env and fill in "
+            "ANTHROPIC_API_KEY and MODEL_ID (see README quick start)."
+        )
     
     SYSTEM = f"You are a coding agent at {WORKDIR}. Use bash to solve tasks. Act, don't explain."
     TOOLS = [{

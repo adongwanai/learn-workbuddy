@@ -37,6 +37,8 @@ flowchart LR
 - 用危险词黑名单假装安全, 很容易被路径、shell 组合和间接命令绕过。
 - 每一步都问用户会让 agent 失去价值。
 - Hook 没有审计日志, 事后就无法解释为什么放行或拦截。
+
+> ⚠️ 本章的字符串匹配是"安全带"，不是"沙盒"。它拦得住 `rm -rf`、`sudo` 这类直白写法，拦不住 `find -delete`、`xargs`、脚本间接执行等绕过手段。生产环境必须把隔离下沉到操作系统层（容器 / seccomp / 命名空间）。完整的边界说明见 [`docs/security-boundaries.md`](../docs/security-boundaries.md)，配套回归测试见 `tests/test_permission_gates.py`。
 ## 问题
 
 s02 的 agent 能读写文件、执行命令。但如果模型决定 `rm -rf /` 呢？如果它想写工作区外的文件呢？如果它想执行一个需要用户确认的操作呢？

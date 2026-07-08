@@ -48,14 +48,20 @@ class ToolRegistry:
 
     def _bash(self, command: str, session: SessionRecord) -> ToolResult:
         self._check_command(command)
-        completed = subprocess.run(
-            command,
-            cwd=session.cwd,
-            shell=True,
-            text=True,
-            capture_output=True,
-            timeout=30,
-        )
+        try:
+            completed = subprocess.run(
+                command,
+                cwd=session.cwd,
+                shell=True,
+                text=True,
+                capture_output=True,
+                timeout=30,
+            )
+        except subprocess.TimeoutExpired as exc:
+            # NB: subprocess.TimeoutExpired is NOT a subclass of builtin TimeoutError.
+            # Convert it so MiniAgent's error boundary (which catches TimeoutError)
+            # reports "Tool failed" instead of crashing the whole prompt.
+            raise TimeoutError(f"command timed out after {exc.timeout:.0f}s: {command[:80]}") from exc
         content = completed.stdout
         if completed.stderr:
             content += ("\n--- stderr ---\n" + completed.stderr)
@@ -81,7 +87,12 @@ class ToolRegistry:
         return ToolResult(tool_call_id=self._tool_call_id("tool_search"), name="tool_search", content="\n".join(rows))
 
     def _check_command(self, command: str) -> None:
-        tokens = shlex.split(command)
+        try:
+            tokens = shlex.split(command)
+        except ValueError as exc:
+            # Unparseable input (e.g. unbalanced quotes) is denied, not crashed on.
+            # Fail-closed: if the harness cannot understand a command, it must not run it.
+            raise PermissionError(f"command could not be parsed safely: {exc}") from exc
         denied = {"rm", "sudo", "shutdown", "reboot", "mkfs", "dd"}
         if tokens and tokens[0] in denied:
             raise PermissionError(f"command denied by mini harness policy: {tokens[0]}")

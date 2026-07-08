@@ -189,6 +189,8 @@ pip install -r requirements.txt
 python3 s03_deferred_loading/code.py
 python3 s08_model_routing/code.py
 MINI_WORKBUDDY_HOME=.tmp/mini python3 examples/mini_workbuddy_demo/code.py --mode offline
+# 一次跑遍所有 harness 层（provider/session/记忆/权限/外部化/JSONL/HTTP/审计），产出 artifacts：
+python3 examples/full_tour/code.py
 python3 scripts/verify.py
 ```
 
@@ -234,6 +236,31 @@ curl --noproxy '*' \
 - `mini_workbuddy.audit`: append-only hash chain audit log
 - `mini_workbuddy.server`: REST + ACP-like JSON-RPC
 - `mini_workbuddy.sidecar`: session runtime 启停管理示例
+- `mini_workbuddy.providers`: 双 provider 适配层（Anthropic / OpenAI / 离线 mock）
+
+### 为什么教程同时支持 OpenAI 和 Anthropic 双 provider
+
+learn-claude-code 用 Anthropic SDK 很自然，因为 Claude 的 `tool_use/tool_result`
+形状和 Claude Code 教程天然贴合。但本项目叫 **learn-workbuddy**，重点是
+**桌面 agent harness**，不该绑定某一家模型。所以我们做了一个 Provider Adapter：
+把 Anthropic 的 `tool_use/tool_result` 和 OpenAI Responses API 的
+`function_call/function_call_output` 归一成同一个 `ToolCall`/`ModelTurn` 形状，
+**agent loop 对两家完全一致**。这本身就是 harness 教学的一课：loop 稳定，provider 可换。
+
+```sh
+# 离线 mock（无需 key，确定性，CI 与无 key 读者用）
+python3 examples/mini_workbuddy_demo/code.py --mode real --provider offline
+
+# 真实 Anthropic / OpenAI
+python3 examples/mini_workbuddy_demo/code.py --mode real --provider anthropic
+python3 examples/mini_workbuddy_demo/code.py --mode real --provider openai
+
+# 一键真实 API 冒烟（可选，需 key）
+python3 scripts/run_real_smoke.py --provider openai --targets mini
+```
+
+配置见 `.env.example`（`PROVIDER=anthropic|openai|offline|auto`）。协议对照与设计
+说明见 [docs/appendix/provider-adapter.md](./docs/appendix/provider-adapter.md)。
 
 ## 记忆系统重点
 

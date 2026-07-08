@@ -30,6 +30,11 @@ class AuditLog:
         self.config = config
         self.config.ensure_dirs()
         self.path = self.config.audit_dir / "audit.jsonl"
+        # Anchor file: records (count, head hash) of the chain tip.
+        # A hash chain alone detects *modification* of past entries, but NOT
+        # *truncation*: any prefix of a valid chain is itself a valid chain.
+        # Anchoring the tip out-of-band closes that gap for the teaching harness.
+        self.head_path = self.config.audit_dir / "audit.head"
 
     def append(self, action: str, data: dict[str, Any]) -> AuditEntry:
         entries = self.read_entries()
@@ -47,6 +52,10 @@ class AuditLog:
         )
         with self.path.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps(entry.__dict__, ensure_ascii=False, sort_keys=True) + "\n")
+        self.head_path.write_text(
+            json.dumps({"count": index, "head": digest}, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
         return entry
 
     def read_entries(self) -> list[AuditEntry]:
@@ -76,9 +85,24 @@ class AuditLog:
                 if digest != entry.hash:
                     return False
                 prev_hash = entry.hash
-            return True
+            return self._verify_head_anchor(prev_hash)
         except (OSError, json.JSONDecodeError, TypeError):
             return False
+
+    def _verify_head_anchor(self, tip_hash: str) -> bool:
+        """Cross-check the chain tip against the out-of-band anchor.
+
+        Without this, deleting the last N lines of audit.jsonl leaves a chain
+        that still verifies — hash chains only bind history, not length.
+        """
+        if not self.head_path.exists():
+            # Legacy logs written before anchoring existed: chain-only verification.
+            return True
+        anchor = json.loads(self.head_path.read_text(encoding="utf-8"))
+        entries = self.read_entries()
+        if not entries:
+            return anchor.get("count", 0) == 0
+        return anchor.get("count") == len(entries) and anchor.get("head") == tip_hash
 
     def _read_lines(self) -> Iterable[str]:
         return self.path.read_text(encoding="utf-8").splitlines()

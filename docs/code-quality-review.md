@@ -8,7 +8,7 @@
 |---|---|---|---|
 | claw0 | 10 个 section 极清晰，每节只加一个概念，代码和文档共置 | 24 章机制拆解、每章 README + `code.py` + 图 | 可增加多语言版本，但不应现在复制三套代码 |
 | learn-claude-code | agents 包、tests、skills、web 站点，工程生态完整 | `mini_workbuddy`、pytest、CI、完整验证脚本 | 可增加 Web 文档站和更多可复用 runtime 包 |
-| learn-workbuddy | WorkBuddy-style 桌面 harness 主题更完整，覆盖 sidecar、记忆、审计、自动化、可视化 | clean-room 边界、完整 demo、37 个 README 架构图 | 代码层应继续强化安全边界、恢复能力和协议细节 |
+| learn-workbuddy | WorkBuddy-style 桌面 harness 主题更完整，覆盖 sidecar、记忆、审计、自动化、可视化 | clean-room 边界、完整 demo、27 张 SVG 架构图 + 每章 mermaid 代码架构图 | 代码层应继续强化安全边界、恢复能力和协议细节 |
 
 ## 已补强的代码项
 

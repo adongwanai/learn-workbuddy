@@ -48,13 +48,18 @@ if os.getenv("ANTHROPIC_BASE_URL"):
     os.environ.pop("ANTHROPIC_AUTH_TOKEN", None)
 
 client = Anthropic(base_url=os.getenv("ANTHROPIC_BASE_URL"))
-MODEL = os.environ["MODEL_ID"]
+MODEL = os.environ.get("MODEL_ID")
+if not MODEL:
+    raise SystemExit(
+        "MODEL_ID is not set. Copy .env.example to .env and fill in "
+        "ANTHROPIC_API_KEY and MODEL_ID (see README quick start)."
+    )
 
 # ============================================================
 # 1. Database Layer — WAL mode, 7 tables
 # ============================================================
 
-DB_DIR = Path.home() / ".workbuddy"
+DB_DIR = Path(os.environ.get("WORKBUDDY_HOME", Path.home() / ".workbuddy"))
 DB_DIR.mkdir(parents=True, exist_ok=True)
 DB_PATH = DB_DIR / "workbuddy.db"
 

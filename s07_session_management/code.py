@@ -57,7 +57,7 @@ WORKDIR = Path.cwd()
 
 
 # ═══════════════════════════════════════════════════════════════
-# Session States — mirrors WorkBuddy's session lifecycle
+# Session States — teaching model of a desktop session lifecycle (analysis-notes abstraction, not source-derived)
 # ═══════════════════════════════════════════════════════════════
 
 STATE_CREATING  = "creating"

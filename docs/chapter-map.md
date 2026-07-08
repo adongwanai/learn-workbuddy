@@ -85,3 +85,20 @@ Each chapter should answer three questions:
 1. What problem appears when the previous chapter gets real users?
 2. What minimal mechanism fixes it?
 3. How would a production desktop agent harden that mechanism?
+
+## Interview Topic Map（8 个 Agent 工程考点 ↔ 章节）
+
+社区求职指南（AgentGuide）把 Agent 工程面试归纳为 8 个考点。本教程每个考点都有对应的可运行章节——学完一章，就多一个能在面试里从"讲概念"升级到"讲我怎么实现的"的话题：
+
+| 考点 | 对应章节 | 面试时你能讲的实现细节 |
+|---|---|---|
+| Agent Loop | s01, s02 | tool_use/tool_result 反馈环、stop_reason 驱动的退出条件、工具分发表 |
+| Context & Cost | s03, s13, s14 | 工具 schema 延迟加载、大输出外部化（swap file + 指针）、token 压力检测与结构化压缩 |
+| Tool Design | s02, s03, s17 | 路径守卫、schema 设计、ToolSearch 按需发现、MCP 连接器命名空间 |
+| Multi-Model Routing | s08 | lite/default/craft 三档路由、成本追踪、Agent 到模型槽位的映射 |
+| Memory | s10, s11, s12 | 工作区日志→主题蒸馏、用户偏好去重、三层记忆的所有权边界 |
+| Eval & Governance | s23, tests/ | 哈希链审计（含截断锚点）、命令安全分级、权限门单元测试与绕过边界用例 |
+| Harness | s05, s06, s07, s24 | UI/sidecar/session 三层进程隔离、JSON-RPC 控制面、端到端 mini harness |
+| Reliability | s09, mini_workbuddy | JSONL append-only 转录与崩溃恢复、fail-closed 错误边界、可靠工具 call id |
+
+配套阅读顺序见 [Further Reading Map](./further-reading.md)。

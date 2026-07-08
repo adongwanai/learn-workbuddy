@@ -66,7 +66,12 @@ OUTPUT_DIR = WORKDIR / ".deliverables"
 OUTPUT_DIR.mkdir(exist_ok=True)
 
 client = Anthropic(base_url=os.getenv("ANTHROPIC_BASE_URL"))
-MODEL = os.environ["MODEL_ID"]
+MODEL = os.environ.get("MODEL_ID")
+if not MODEL:
+    raise SystemExit(
+        "MODEL_ID is not set. Copy .env.example to .env and fill in "
+        "ANTHROPIC_API_KEY and MODEL_ID (see README quick start)."
+    )
 
 SYSTEM = f"""You are a coding agent at {WORKDIR}.
 When you complete a task that produces viewable files (reports, HTML pages, charts, scripts, etc.),

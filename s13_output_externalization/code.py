@@ -42,7 +42,7 @@ from pathlib import Path
 
 
 # ======================================================================
-# Constants — mirrors WorkBuddy's environment variables
+# Constants — teaching-scale env var names (illustrative pattern, not source-derived)
 # ======================================================================
 
 BASH_MAX_OUTPUT_LENGTH = 30_000          # chars — Bash output threshold

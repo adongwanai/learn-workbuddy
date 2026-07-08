@@ -37,6 +37,7 @@ flowchart LR
 - 只有审批没有沙盒, 一旦放行就缺少边界。
 - 只有沙盒没有审计, 出事后无法复盘。
 - 日志 hash 不覆盖 prev_hash 和 canonical event, 防篡改会失效。
+- **哈希链只能防"改", 防不了"删尾"**：任何一个合法链条的前缀本身也是合法链条，所以攻击者删掉末尾几条记录，`verify()` 依然通过。`mini_workbuddy` 的做法是额外写一个链外锚点文件 `audit.head`（记录条数 + 链尾 hash），验证时交叉比对，从而检测截断。真正的生产环境还应把锚点写到本机之外（远端 / WORM 存储），否则拿到机器的攻击者既能作恶又能改账本。详见 [`docs/security-boundaries.md`](../docs/security-boundaries.md)。
 ## 问题
 
 Agent 有了工具, 有了记忆, 有了持久化, 有了自动化。它能读写文件、执行命令、调用 API。能力越大, 风险越大。

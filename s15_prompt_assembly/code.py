@@ -77,7 +77,12 @@ if os.getenv("ANTHROPIC_BASE_URL"): os.environ.pop("ANTHROPIC_AUTH_TOKEN", None)
 
 WORKDIR = Path.cwd()
 client = Anthropic(base_url=os.getenv("ANTHROPIC_BASE_URL"))
-MODEL = os.environ["MODEL_ID"]
+MODEL = os.environ.get("MODEL_ID")
+if not MODEL:
+    raise SystemExit(
+        "MODEL_ID is not set. Copy .env.example to .env and fill in "
+        "ANTHROPIC_API_KEY and MODEL_ID (see README quick start)."
+    )
 
 
 # ======================================================================
@@ -143,7 +148,7 @@ def build_identity() -> str | None:
     Teaching version: check if they exist, read and inject.
     """
     parts = []
-    identity_dir = Path.home() / ".workbuddy"
+    identity_dir = Path(os.environ.get("WORKBUDDY_HOME", Path.home() / ".workbuddy"))
 
     for name, filename in [("SOUL", "persona/core.md"),
                             ("IDENTITY", "persona/identity.md"),

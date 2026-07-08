@@ -47,20 +47,35 @@ if os.getenv("ANTHROPIC_BASE_URL"):
     os.environ.pop("ANTHROPIC_AUTH_TOKEN", None)
 
 client = Anthropic(base_url=os.getenv("ANTHROPIC_BASE_URL"))
-MODEL = os.environ["MODEL_ID"]
+MODEL = os.environ.get("MODEL_ID")
+if not MODEL:
+    raise SystemExit(
+        "MODEL_ID is not set. Copy .env.example to .env and fill in "
+        "ANTHROPIC_API_KEY and MODEL_ID (see README quick start)."
+    )
 
 # ============================================================
 # 1. Hash Chain Audit Log
 # ============================================================
 
 GENESIS_HASH = "0" * 64  # First entry has prev_hash = 64 zeros
-AUDIT_DIR = Path.home() / ".workbuddy" / "audit-log"
+AUDIT_DIR = Path(os.environ.get("WORKBUDDY_HOME", Path.home() / ".workbuddy")) / "audit-log"
 AUDIT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def audit_log_path() -> Path:
     """~/.workbuddy/audit-log/2026-07-08.jsonl — one file per day."""
     return AUDIT_DIR / f"{datetime.now().strftime('%Y-%m-%d')}.jsonl"
+
+
+def audit_head_path() -> Path:
+    """Out-of-band chain tip anchor for today's log.
+
+    A hash chain detects mutation of existing entries, but any valid prefix
+    still verifies. The head anchor records the expected entry count and tip
+    hash so deleting tail entries is detectable in the teaching chapter too.
+    """
+    return AUDIT_DIR / f"{datetime.now().strftime('%Y-%m-%d')}.head.json"
 
 
 def compute_hash(entry_data: dict, prev_hash: str) -> str:
@@ -104,6 +119,11 @@ def append_audit_entry(action: str, params: dict, result: str):
     with open(path, "a", encoding="utf-8") as f:
         f.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
+    entries_count = len(path.read_text(encoding="utf-8").strip().splitlines())
+    audit_head_path().write_text(
+        json.dumps({"count": entries_count, "head": entry["hash"]}, sort_keys=True),
+        encoding="utf-8",
+    )
     return entry["hash"]
 
 
@@ -119,6 +139,13 @@ def verify_chain() -> tuple[bool, int]:
             entries.append(json.loads(line))
 
     if not entries:
+        head = audit_head_path()
+        if head.exists():
+            try:
+                anchor = json.loads(head.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                return False, 0
+            return anchor.get("count", 0) == 0, 0
         return True, 0
 
     prev_hash = GENESIS_HASH
@@ -127,6 +154,12 @@ def verify_chain() -> tuple[bool, int]:
         if entry.get("hash") != expected:
             return False, i  # Chain broken at entry i
         prev_hash = entry["hash"]
+
+    head = audit_head_path()
+    if head.exists():
+        anchor = json.loads(head.read_text(encoding="utf-8"))
+        if anchor.get("count") != len(entries) or anchor.get("head") != prev_hash:
+            return False, len(entries)
 
     return True, len(entries)
 

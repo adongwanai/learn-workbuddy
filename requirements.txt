@@ -1,4 +1,11 @@
+# Core teaching dependencies. The offline path (CI, keyless readers) needs
+# only python-dotenv + pytest; the SDKs are imported lazily and only when a
+# real provider is actually used.
 anthropic>=0.25.0
 python-dotenv>=1.0.0
 pyyaml>=6.0
 pytest>=8.0.0
+
+# Optional: only needed for `--provider openai` (OpenAI Responses API).
+# Uncomment or `pip install openai` if you want to run the OpenAI path.
+# openai>=1.40.0

@@ -273,9 +273,9 @@ function handleToolSearch(params) {
 }
 ```
 
-### Token 节省实测
+### Token 节省（教学估算）
 
-WorkBuddy 实际运行时的 token 对比（近似值）：
+教学估算的 token 对比（按分析稿口径推算的近似值，非某个版本的实测）：
 
 ```
 全量加载:  ~42,000 tokens (40 工具 × avg 1050 tokens)

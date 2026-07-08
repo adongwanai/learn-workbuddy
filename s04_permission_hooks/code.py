@@ -55,7 +55,12 @@ if os.getenv("ANTHROPIC_BASE_URL"): os.environ.pop("ANTHROPIC_AUTH_TOKEN", None)
 
 WORKDIR = Path.cwd()
 client = Anthropic(base_url=os.getenv("ANTHROPIC_BASE_URL"))
-MODEL = os.environ["MODEL_ID"]
+MODEL = os.environ.get("MODEL_ID")
+if not MODEL:
+    raise SystemExit(
+        "MODEL_ID is not set. Copy .env.example to .env and fill in "
+        "ANTHROPIC_API_KEY and MODEL_ID (see README quick start)."
+    )
 
 SYSTEM = f"You are a coding agent at {WORKDIR}. All destructive operations require user approval."
 
@@ -73,6 +78,7 @@ def run_bash(command: str) -> str:
         out = (r.stdout + r.stderr).strip()
         return out[:50000] if out else "(no output)"
     except subprocess.TimeoutExpired: return "Error: Timeout (120s)"
+    except (FileNotFoundError, OSError) as e: return f"Error: {e}"
 
 def run_read(path: str, limit: int | None = None) -> str:
     try:

@@ -64,7 +64,12 @@ if os.getenv("ANTHROPIC_BASE_URL"): os.environ.pop("ANTHROPIC_AUTH_TOKEN", None)
 
 WORKDIR = Path.cwd()
 client = Anthropic(base_url=os.getenv("ANTHROPIC_BASE_URL"))
-MODEL = os.environ["MODEL_ID"]
+MODEL = os.environ.get("MODEL_ID")
+if not MODEL:
+    raise SystemExit(
+        "MODEL_ID is not set. Copy .env.example to .env and fill in "
+        "ANTHROPIC_API_KEY and MODEL_ID (see README quick start)."
+    )
 
 
 # ======================================================================
@@ -89,7 +94,7 @@ CLOUD_PROFILE = """用户画像 (服务端生成, 自动维护)
 领域: AI agent harness 工程, 桌面应用架构"""
 
 # Simulated local cache path
-MEMORY_CACHE_DIR = Path.home() / ".workbuddy" / "memory"
+MEMORY_CACHE_DIR = Path(os.environ.get("WORKBUDDY_HOME", Path.home() / ".workbuddy")) / "memory"
 MEMORY_CACHE_FILE = MEMORY_CACHE_DIR / "profile.md"
 
 
@@ -208,7 +213,7 @@ CONVERSATION_DB = [
         "id": "conv-007",
         "date": datetime.now() - timedelta(days=45),
         "content": "分析了 MCP 连接器架构: 标准协议 tools/list + tools/call, 信任模型, 连接器生态。腾讯文档、飞书、钉钉、GitHub。",
-        "summary": "MCP 连接器架构: 标准协议 + 信任模型 + 40+ 生态",
+        "summary": "MCP 连接器架构: 标准协议 + 信任模型 + 开放生态",
     },
 ]
 

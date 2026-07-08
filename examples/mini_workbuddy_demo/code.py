@@ -10,8 +10,12 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from anthropic import Anthropic
 from dotenv import load_dotenv
+
+# NB: `from anthropic import Anthropic` is intentionally NOT imported here.
+# --mode offline must run with zero third-party deps beyond python-dotenv,
+# so CI and readers without an API key can exercise the full harness. The
+# SDK is imported lazily inside run_real_api_demo() only.
 
 from mini_workbuddy.audit import AuditLog
 from mini_workbuddy.agent import MiniAgent
@@ -121,23 +125,26 @@ def api_env_ready() -> bool:
     return bool(os.getenv("ANTHROPIC_API_KEY") and os.getenv("MODEL_ID"))
 
 
-def run_real_api_demo(prompt: str, max_turns: int = 8) -> None:
+def run_real_api_demo(prompt: str, max_turns: int = 8, provider_name: str | None = None) -> None:
     load_dotenv(override=True)
     if os.getenv("ANTHROPIC_BASE_URL"):
         os.environ.pop("ANTHROPIC_AUTH_TOKEN", None)
-    if not api_env_ready():
-        raise SystemExit(
-            "Real API demo requires ANTHROPIC_API_KEY and MODEL_ID. "
-            "Copy .env.example to .env, fill them, then rerun with --mode real."
-        )
+
+    from mini_workbuddy import providers as P
+
+    # Resolve the provider. --provider (or PROVIDER env) picks anthropic /
+    # openai / offline; the loop below is identical for all of them because
+    # the adapter normalizes tool_use vs function_call into one shape.
+    provider = P.select_provider(provider_name)
+    if provider.name == "offline":
+        print("No real provider key found; falling back to the offline mock provider.")
 
     _, storage, events, audit, tools = build_runtime()
-    client = Anthropic(base_url=os.getenv("ANTHROPIC_BASE_URL"))
-    model = os.environ["MODEL_ID"]
-    session = storage.create_session(cwd=str(ROOT), title="mini workbuddy real api demo")
+    spec = P.normalized_tools()
+    session = storage.create_session(cwd=str(ROOT), title=f"mini workbuddy real demo ({provider.name})")
     storage.append_memory(
         "workspace",
-        "- Real API demo: model must use tools through the mini harness.",
+        "- Real demo: model must use tools through the mini harness.",
     )
 
     system = (
@@ -146,12 +153,12 @@ def run_real_api_demo(prompt: str, max_turns: int = 8) -> None:
         "Call tool_search, bash, and read_file when useful. "
         "The harness records transcript, memory, tool results, and audit entries."
     )
-    messages: list[dict] = [{"role": "user", "content": prompt}]
+    messages: list = [provider.initial_user_message(prompt)]
     storage.append_event(session, {"type": "message", "role": "user", "content": prompt})
     audit.append("user_prompt", {"sessionId": session.id, "text": prompt})
 
-    print("Mode: real API")
-    print("Model:", model)
+    print(f"Mode: real ({provider.name})")
+    print("Model:", provider.model)
     print("Session:", session.id)
     print("Workspace:", session.cwd)
     print("Prompt:", prompt)
@@ -160,62 +167,40 @@ def run_real_api_demo(prompt: str, max_turns: int = 8) -> None:
     for turn in range(1, max_turns + 1):
         print("\n" + "=" * 72)
         print(f"model turn {turn}")
-        response = client.messages.create(
-            model=model,
-            system=system,
-            messages=messages,
-            tools=TOOL_SCHEMAS,
-            max_tokens=4000,
+        model_turn = provider.create(
+            P.ProviderRequest(system=system, messages=messages, tools=spec, max_tokens=4000)
         )
-        messages.append({"role": "assistant", "content": response.content})
+        messages.append(model_turn.raw_assistant)
 
-        tool_results = []
-        saw_tool = False
-        for block in response.content:
-            if block.type == "text":
-                final_text += block.text
-                print(block.text)
-                continue
-            if block.type != "tool_use":
-                continue
-            saw_tool = True
-            tool_name = block.name
-            argument = tool_argument(tool_name, block.input)
-            print(f"[tool_use] {tool_name}: {argument}")
-            audit.append(
-                "tool_call",
-                {"sessionId": session.id, "tool": tool_name, "argument": argument},
-            )
-            result = tools.run(tool_name, argument, session)
-            storage.append_event(session, {"type": "tool_result", **asdict(result)})
-            events.publish(
-                "session_update",
-                {"sessionId": session.id, "type": "tool_result", **asdict(result)},
-            )
-            audit.append(
-                "tool_result",
-                {
-                    "sessionId": session.id,
-                    "tool": result.name,
-                    "externalized": result.externalized_path is not None,
-                    "exit_code": result.exit_code,
-                },
-            )
-            preview = result.content[:1000]
-            print(preview)
-            if result.externalized_path:
-                print("Externalized:", result.externalized_path)
-            tool_results.append({
-                "type": "tool_result",
-                "tool_use_id": block.id,
-                "content": result.content,
-            })
+        if model_turn.text:
+            final_text = model_turn.text
+            print(model_turn.text)
 
-        if not saw_tool:
+        if not model_turn.wants_tools:
             storage.append_event(session, {"type": "message", "role": "assistant", "content": final_text})
             audit.append("assistant_message", {"sessionId": session.id, "content": final_text[:500]})
             break
-        messages.append({"role": "user", "content": tool_results})
+
+        results = []
+        for call in model_turn.tool_calls:
+            argument = tool_argument(call.name, call.arguments)
+            print(f"[tool_call] {call.name}: {argument}")
+            audit.append("tool_call", {"sessionId": session.id, "tool": call.name, "argument": argument})
+            result = tools.run(call.name, argument, session)
+            storage.append_event(session, {"type": "tool_result", **asdict(result)})
+            events.publish("session_update", {"sessionId": session.id, "type": "tool_result", **asdict(result)})
+            audit.append("tool_result", {
+                "sessionId": session.id,
+                "tool": result.name,
+                "externalized": result.externalized_path is not None,
+                "exit_code": result.exit_code,
+            })
+            print(result.content[:1000])
+            if result.externalized_path:
+                print("Externalized:", result.externalized_path)
+            results.append((call, result.content))
+
+        messages.append(provider.format_tool_results(results))
     else:
         print("\nReached max turns before the model stopped calling tools.")
 
@@ -249,6 +234,12 @@ def main() -> None:
     )
     parser.add_argument("--prompt", default=REAL_API_PROMPT, help="prompt for --mode real")
     parser.add_argument("--max-turns", type=int, default=8)
+    parser.add_argument(
+        "--provider",
+        choices=["anthropic", "openai", "offline"],
+        default=None,
+        help="model backend for --mode real (default: PROVIDER env or auto-detect)",
+    )
     args = parser.parse_args()
 
     if args.mode == "offline":
@@ -256,15 +247,25 @@ def main() -> None:
         run_offline_demo()
         return
     if args.mode == "real":
-        run_real_api_demo(args.prompt, args.max_turns)
+        # Backward-compatible guard: `--mode real` with no explicit provider
+        # and no Anthropic keys keeps the original clear error (a documented
+        # contract). Use --provider openai/offline to take other paths.
+        if args.provider is None and not os.getenv("PROVIDER") and not api_env_ready():
+            raise SystemExit(
+                "Real API demo requires ANTHROPIC_API_KEY and MODEL_ID. "
+                "Copy .env.example to .env, fill them, then rerun with --mode real. "
+                "(Or pick a backend explicitly: --provider openai | offline.)"
+            )
+        run_real_api_demo(args.prompt, args.max_turns, args.provider)
         return
     if api_env_ready():
-        run_real_api_demo(args.prompt, args.max_turns)
+        run_real_api_demo(args.prompt, args.max_turns, args.provider)
         return
 
     print("Mode: auto -> no ANTHROPIC_API_KEY/MODEL_ID found, running offline deterministic harness.")
     print("For the real API path: cp .env.example .env, fill it, then run:")
-    print("  python3 examples/mini_workbuddy_demo/code.py --mode real\n")
+    print("  python3 examples/mini_workbuddy_demo/code.py --mode real")
+    print("  (dual provider: add --provider openai to use the OpenAI Responses API)\n")
     run_offline_demo()
 
 

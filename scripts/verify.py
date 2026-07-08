@@ -294,10 +294,10 @@ def check_svg_integrity() -> None:
                         f"{path.relative_to(ROOT)} render failed:\n{result.stdout[-1000:]}"
                     )
         if failures:
-            raise SystemExit("SVG render failed:\n" + "\n".join(failures[:20]))
-        print(f"ok svg render: {len(svgs)} files")
+            raise SystemExit("SVG rasterization smoke failed:\n" + "\n".join(failures[:20]))
+        print(f"ok svg format+rasterization smoke: {len(svgs)} files")
     else:
-        print(f"ok svg parse: {len(svgs)} files (rsvg-convert not installed, render skipped)")
+        print(f"ok svg XML format: {len(svgs)} files (rsvg-convert not installed, rasterization skipped)")
 
 
 def free_port() -> int:

@@ -78,7 +78,7 @@ class ModelInfo:
         return tokens / 1_000_000 * self.cost_per_million
 
 
-# Model registry — mirrors WorkBuddy's product.json model matrix
+# Model registry — teaching abstraction of a tiered model matrix (illustrative, not a private config)
 MODELS: dict[ModelTier, ModelInfo] = {
     ModelTier.LITE: ModelInfo(
         tier=ModelTier.LITE,
@@ -114,7 +114,8 @@ MODELS: dict[ModelTier, ModelInfo] = {
 # Agent → Model mapping table
 # ═══════════════════════════════════════════════════════════════
 
-# Which tier each agent uses — extracted from WorkBuddy's source.
+# Which tier each agent uses — teaching abstraction based on the analysis
+# notes' taxonomy, NOT extracted from any private source.
 AGENT_MODEL_MAP: dict[str, ModelTier] = {
     # craft — direct user interaction
     "CLI":                    ModelTier.CRAFT,

@@ -15,7 +15,7 @@ Two-step pattern: ToolSearch → DeferExecuteTool
     │             │     │    Tool      │
     └─────────────┘     └──────────────┘
 
-Problem:  40+ tools × ~1000 tokens/schema = 40,000 tokens just for
+Problem:  dozens of tools x ~1000 tokens/schema = tens of thousands of tokens just for
           tool descriptions. That's 20% of a 200K context window.
 
 Solution: Tools marked deferLoading=true only have their name + brief

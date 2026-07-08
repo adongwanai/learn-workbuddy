@@ -174,7 +174,12 @@ class WorkspaceMemory:
             return 0
 
         client = Anthropic(base_url=os.getenv("ANTHROPIC_BASE_URL"))
-        MODEL = os.environ["MODEL_ID"]
+        MODEL = os.environ.get("MODEL_ID")
+        if not MODEL:
+            raise SystemExit(
+                "MODEL_ID is not set. Copy .env.example to .env and fill in "
+                "ANTHROPIC_API_KEY and MODEL_ID (see README quick start)."
+            )
 
         distilled_count = 0
         for log_path in old_logs:

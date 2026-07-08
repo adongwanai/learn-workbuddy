@@ -325,6 +325,17 @@ def audit_skill(skill_path: Path) -> tuple[str, str]:
     return ("P2", "安全: 无危险模式")
 ```
 
+> ⚠️ **P0/P1/P2 字符串匹配只是第一层。** 技能综述 [*Agent Skill Evaluation and
+> Evolution*](https://arxiv.org/pdf/2606.11435) 中的 SKILL-INJECT 基准指出，恶意
+> 技能有三类更隐蔽的攻击模式，纯模式匹配一个都拦不住：**隐藏覆盖**（表面正常，
+> 悄悄改写 harness 默认行为或安全规则）、**伪装转移**（把数据外泄伪装成正常步骤）、
+> **远程引导**（运行时才从外部拉取真正的恶意指令，静态扫描必然看不到）。更完整的
+> 防御思路（声明式权限 + 沙盒试跑 + 出口管控）见
+> [`docs/skill-evolution-and-evaluation.md`](../docs/skill-evolution-and-evaluation.md)
+> 和 [`docs/security-boundaries.md`](../docs/security-boundaries.md)。
+> 关于怎么把技能本身写好，可参考 datawhale 的
+> [如何写出好的 Skill](https://github.com/datawhalechina/hello-agents/blob/main/Extra-Chapter/Extra08-%E5%A6%82%E4%BD%95%E5%86%99%E5%87%BA%E5%A5%BD%E7%9A%84Skill.md)。
+
 ---
 
 ## 工具延迟加载 (deferLoading)

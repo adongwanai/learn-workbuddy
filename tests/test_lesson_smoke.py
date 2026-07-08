@@ -29,6 +29,7 @@ def test_all_python_files_compile(root: Path) -> None:
         ["s09_jsonl_transcript/code.py"],
         ["s13_output_externalization/code.py"],
         ["examples/mini_workbuddy_demo/code.py", "--mode", "offline"],
+        ["examples/full_tour/code.py", "--provider", "offline"],
     ],
 )
 def test_offline_lesson_scripts_run(root: Path, tmp_path: Path, cmd: list[str]) -> None:

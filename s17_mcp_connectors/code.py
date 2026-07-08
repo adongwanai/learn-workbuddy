@@ -21,7 +21,7 @@ Production harnesses often use:
   - Trust state persisted in ~/.workbuddy/connector_trust.json
   - Actual JSON-RPC over stdio to communicate with connector processes
   - Connector status displayed in Electron settings UI
-  - 40+ built-in connectors: tencent-docs, github, feishu, notion, etc.
+  - A catalog of built-in connectors (teaching sample): docs, github, feishu, notion, etc.
 
 Teaching version uses:
   - Simulated connector processes (Python dicts, no real subprocesses)
@@ -63,7 +63,12 @@ if os.getenv("ANTHROPIC_BASE_URL"): os.environ.pop("ANTHROPIC_AUTH_TOKEN", None)
 
 WORKDIR = Path.cwd()
 client = Anthropic(base_url=os.getenv("ANTHROPIC_BASE_URL"))
-MODEL = os.environ["MODEL_ID"]
+MODEL = os.environ.get("MODEL_ID")
+if not MODEL:
+    raise SystemExit(
+        "MODEL_ID is not set. Copy .env.example to .env and fill in "
+        "ANTHROPIC_API_KEY and MODEL_ID (see README quick start)."
+    )
 
 
 # ============================================================
