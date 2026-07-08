@@ -42,25 +42,30 @@ flowchart LR
 24 课, 24 个机制。看起来很多, 但如果回头看, 每一课都在做同一件事：给 agent loop 加一层能力。
 
 ```
-s01  agent loop          → 循环本身
-s02  tool dispatch       → 循环里的工具分发
-s04  permission hooks    → 循环里的安全门
-s05  electron shell      → 循环的进程外壳
-s06  sidecar server      → 循环的通信管道
-s07  session management  → 循环的生命周期
-s10  workspace memory    → 循环的工作区记忆
-s11  user memory         → 循环的用户级记忆
-s12  cloud memory        → 循环的云端记忆
-s14  context compact     → 循环的上下文管理
-s15  prompt assembly     → 循环的 prompt 组装
-s16  skills system       → 循环的技能加载
-s17  mcp connectors      → 循环的外部工具
-s18  experts system      → 循环的领域专家
-s19  visualizer          → 循环的输出可视化
-s20  result presentation → 循环的结果交付
-s21  sqlite database     → 循环的持久化层
-s22  automation scheduler→ 循环的定时触发
-s23  audit sandbox       → 循环的安全审计
+s01  agent loop              → 循环本身
+s02  tool dispatch           → 循环里的工具分发
+s03  deferred loading        → 循环里的工具按需展开
+s04  permission hooks        → 循环里的安全门
+s05  electron shell          → 循环的进程外壳
+s06  sidecar server          → 循环的通信管道
+s07  session management      → 循环的生命周期
+s08  model routing           → 循环的模型选择
+s09  jsonl transcript        → 循环的事件记录
+s10  workspace memory        → 循环的工作区记忆
+s11  user memory             → 循环的用户级记忆
+s12  cloud memory            → 循环的远端召回抽象
+s13  output externalization  → 循环的大输出换出
+s14  context compact         → 循环的上下文压缩
+s15  prompt assembly         → 循环的 prompt 组装
+s16  skills system           → 循环的技能加载
+s17  mcp connectors          → 循环的外部工具协议
+s18  experts system          → 循环的领域专家
+s19  visualizer              → 循环的输出可视化
+s20  result presentation     → 循环的结果交付
+s21  sqlite database         → 循环的持久化层
+s22  automation scheduler    → 循环的定时触发
+s23  audit sandbox           → 循环的安全审计
+s24  comprehensive           → 所有机制回到一个循环
 ```
 
 没有一个机制替代了循环。每一个机制都是在循环的某个环节插入能力——工具调用前加权限检查, API 调用后加用量记录, 会话结束时加记忆蒸馏, 上下文满时加压缩, 执行命令时加沙盒和审计。
@@ -351,9 +356,9 @@ Electron Main Process
 ### 一句话总结
 
 ```
-WorkBuddy = 一个 agent loop (s01)
-          + 24 个 harness 机制 (s02-s23)
-          + 一个桌面外壳 (s05-s07)
+WorkBuddy-style harness = 一个 agent loop (s01)
+                        + 22 个累加机制 (s02-s23)
+                        + 一个综合收束 (s24)
 ```
 
 **循环不变, 机制叠加。** 这就是 harness 工程的本质。
@@ -373,19 +378,21 @@ WorkBuddy = 一个 agent loop (s01)
 7. **Session Management**（s07）— 会话状态机
 8. **Model Routing**（s08）— lite/default/craft 三级路由
 9. **JSONL Transcript**（s09）— 对话追加持久化
-10. **Memory**（s10-s12）— 工作区日志 + 用户记忆 + 云端记忆
-11. **Output Externalization**（s13）— 大输出写磁盘留指针
-12. **Context Compaction**（s14）— 简化版上下文压缩
-13. **Prompt Assembly**（s15）— 运行时分段组装 system prompt
-14. **Skills**（s16）— 技能目录列表
-15. **MCP Connectors**（s17）— 外部工具协议
-16. **Experts**（s18）— 领域专家包
-17. **Visualizer**（s19）— SVG/HTML 注入
-18. **Result Presentation**（s20）— present_files 交付
-19. **Database**（s21）— SQLite 会话持久化 + 用量追踪
-20. **Automation**（s22）— RRULE 定时调度
-21. **Audit**（s23）— SHA256 哈希链审计
-22. **Sandbox**（s23）— 命令安全分级
+10. **Workspace Memory**（s10）— 项目级工作日志
+11. **User Memory**（s11）— 跨项目偏好和长期约束
+12. **Cloud Memory**（s12）— 远端 profile / recall 抽象
+13. **Output Externalization**（s13）— 大输出写磁盘留指针
+14. **Context Compaction**（s14）— 简化版上下文压缩
+15. **Prompt Assembly**（s15）— 运行时分段组装 system prompt
+16. **Skills**（s16）— 技能目录列表
+17. **MCP Connectors**（s17）— 外部工具协议
+18. **Experts**（s18）— 领域专家包
+19. **Visualizer**（s19）— SVG/HTML 注入
+20. **Result Presentation**（s20）— present_files 交付
+21. **Database**（s21）— SQLite 会话持久化 + 用量追踪
+22. **Automation**（s22）— RRULE 定时调度
+23. **Audit & Sandbox**（s23）— 命令安全分级 + 哈希链审计
+24. **Comprehensive**（s24）— 全部机制集成到一个循环
 
 这不是生产代码, 而是教学集成——每个机制用最简形式展示其在循环中的位置。
 

@@ -28,7 +28,7 @@ flowchart LR
 
 ## 本章抓住的 WorkBuddy-style 机制
 
-- 把 110.md 提到的分级信任思想落成三道门和 Hook 链。
+- 把公开架构研究中的分级信任思想落成三道门和 Hook 链。
 - 把读、写、危险命令拆成不同审批路径。
 - 用 promptHookEvaluator-style 辅助判断解释为什么安全评估可以交给便宜模型。
 

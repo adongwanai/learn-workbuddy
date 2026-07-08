@@ -8,8 +8,8 @@ that manages agent sessions, captures logs in a RingBuffer, and routes
 RPC calls across many domains (teaching-scale sample).
 
 Production harnesses often use:
-    - sidecar-entry.js: SidecarServer class, net.createServer() on Unix Socket
-    - 8MB RingBuffer for stdout/stderr capture (circular buffer)
+    - sidecar runtime: SidecarServer class, net.createServer() on Unix Socket
+    - bounded RingBuffer for stdout/stderr capture (circular buffer)
     - Newline-delimited JSON-RPC protocol
     - Domain-based RPC routing: session/*, sidecar/*, tool/*, memory/*, mcp/*, skill/*
     - PTY backend for interactive commands, pipe for non-interactive
@@ -64,23 +64,24 @@ load_dotenv(override=True)
 if os.getenv("ANTHROPIC_BASE_URL"): os.environ.pop("ANTHROPIC_AUTH_TOKEN", None)
 
 WORKDIR = Path.cwd()
+DEMO_RING_BUFFER_SIZE = 1024 * 1024
 
 
 # ═══════════════════════════════════════════════════════════════
-# RingBuffer — 8MB circular buffer for log capture
+# RingBuffer — 固定大小 circular buffer for log capture
 # ═══════════════════════════════════════════════════════════════
 
 class RingBuffer:
     """
-    Circular buffer that mimics WorkBuddy's 8MB RingBuffer in sidecar-entry.js.
+    Circular buffer that mimics WorkBuddy's bounded RingBuffer in sidecar runtime.
 
     In WorkBuddy: captures all child process stdout/stderr.
     When full, oldest data is overwritten by new data.
     This ensures bounded memory usage for long-running sessions.
 
-    Real implementation (sidecar-entry.js):
+    Production-style implementation:
         class RingBuffer {
-            constructor(size = 8*1024*1024) {
+            constructor(size = fixedLimit) {
                 this.buffer = Buffer.alloc(size);
                 this.writePos = 0;
                 this.totalWritten = 0;
@@ -88,7 +89,7 @@ class RingBuffer:
         }
     """
 
-    def __init__(self, size: int = 8 * 1024 * 1024):
+    def __init__(self, size: int = DEMO_RING_BUFFER_SIZE):
         self.size = size
         self.buffer = bytearray(size)
         self.write_pos = 0
@@ -174,7 +175,7 @@ class RPCConnection:
 
 class SidecarServer:
     """
-    Simulates WorkBuddy's SidecarServer from sidecar-entry.js.
+    Simulates WorkBuddy's SidecarServer from sidecar runtime.
 
     Responsibilities:
     1. Listen on Unix Socket for RPC connections
@@ -188,7 +189,7 @@ class SidecarServer:
     """
 
     def __init__(self):
-        self.ring_buffer = RingBuffer(size=8 * 1024 * 1024)  # 8MB
+        self.ring_buffer = RingBuffer(size=DEMO_RING_BUFFER_SIZE)  # 固定大小
         self.sessions: dict[str, dict] = {}
         self.rpc_handlers: dict[str, callable] = {}
         self._rpc_id_counter = 0

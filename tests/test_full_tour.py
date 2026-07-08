@@ -46,6 +46,8 @@ def test_full_tour_offline_runs_green(root: Path, tmp_path: Path) -> None:
     assert manifest["provider"] == "offline"
     stages = manifest["stages"]
     assert stages["tool_dispatch"] is True
+    assert stages["provider_probe"] is True
+    assert stages["provider_tool_calls"] >= 1
     assert stages["permission_denied"] is True
     assert stages["externalized"] is True
     assert stages["http_run"] is True

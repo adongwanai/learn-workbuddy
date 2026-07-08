@@ -28,7 +28,7 @@ flowchart LR
 
 ## 本章抓住的 WorkBuddy-style 机制
 
-- 把 110.md 的“用 AI 管理 AI”抽象为 lite/default/craft 三类槽位。
+- 把公开架构研究中的“用 AI 管理 AI”抽象为 lite/default/craft 三类槽位。
 - 让辅助任务和主推理任务走不同模型预算。
 - 记录路由原因, 便于调试和评估。
 

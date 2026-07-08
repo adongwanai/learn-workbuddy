@@ -253,6 +253,6 @@ var AUTOMATION_RPC_CHANNELS = { "automation/create": ..., ... }
 
 ## 下一课
 
-Electron 外壳搭好了，渲染器和主进程通过 IPC 通信。但 agent 的真正大脑——CLI 进程——怎么管理？s06 讲 Sidecar 服务器——JSON-RPC 路由、8MB RingBuffer、多会话生命周期。
+Electron 外壳搭好了，渲染器和主进程通过 IPC 通信。但 agent 的真正大脑——CLI 进程——怎么管理？s06 讲 Sidecar 服务器——JSON-RPC 路由、bounded RingBuffer、多会话生命周期。
 
 s06 Sidecar Server → JSON-RPC, RingBuffer, 多会话管理。

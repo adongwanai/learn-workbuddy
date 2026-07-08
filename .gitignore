@@ -27,13 +27,17 @@ Thumbs.db
 
 # Project specific
 .env
+.pytest_cache/
 .memory/
 .transcripts/
 .task_outputs/
 .tasks/
 .audit-log/
 .workbuddy/
+.workbuddy_user/
 .learn_workbuddy/
+.deliverables/
+.widgets/
 benchmark-runs/
 *.db
 *.db-wal

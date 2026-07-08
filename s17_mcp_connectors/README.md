@@ -29,7 +29,7 @@ flowchart LR
 ## 本章抓住的 WorkBuddy-style 机制
 
 - 用连接器发现、信任、调用三个阶段模拟 MCP 生命周期。
-- 把 110.md 的 MCPConnectors 思想泛化为多类连接器。
+- 把公开架构研究中的 MCPConnectors 思想泛化为多类连接器。
 - 展示 MCP 工具如何合并进统一工具池。
 
 ## 常见误区

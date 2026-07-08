@@ -68,6 +68,126 @@ def free_port() -> int:
         return int(s.getsockname()[1])
 
 
+def tool_argument(tool_name: str, tool_input: dict) -> str:
+    if tool_name == "bash":
+        return str(tool_input.get("command", ""))
+    if tool_name == "read_file":
+        return str(tool_input.get("path", ""))
+    if tool_name == "tool_search":
+        return str(tool_input.get("query", ""))
+    raise KeyError(f"unknown tool: {tool_name}")
+
+
+def provider_probe(
+    provider: P.Provider,
+    session,
+    storage: Storage,
+    tools: ToolRegistry,
+    audit: AuditLog,
+    events: EventBus,
+) -> dict:
+    """Force the selected provider through a normalized model/tool loop."""
+    prompt = (
+        "Use exactly one available tool before answering. "
+        "Prefer tool_search with an empty query. Then say what the harness proved."
+    )
+    system = (
+        f"You are Mini WorkBuddy running in {session.cwd}. "
+        "This is a verification probe: call one provided tool before final text."
+    )
+    messages: list = [provider.initial_user_message(prompt)]
+    storage.append_event(session, {"type": "message", "role": "user", "content": prompt})
+    audit.append("provider_probe_prompt", {"sessionId": session.id, "provider": provider.name})
+
+    executed_tools: list[str] = []
+    final_text = ""
+    called_model = False
+    for _ in range(4):
+        model_turn = provider.create(
+            P.ProviderRequest(
+                system=system,
+                messages=messages,
+                tools=P.normalized_tools(),
+                max_tokens=1200,
+                required_tool="tool_search" if not executed_tools else None,
+            )
+        )
+        called_model = True
+        P.append_provider_message(messages, model_turn.raw_assistant)
+        if model_turn.text:
+            final_text = model_turn.text
+
+        if not model_turn.tool_calls:
+            if executed_tools:
+                storage.append_event(session, {"type": "message", "role": "assistant", "content": final_text})
+                audit.append("provider_probe_done", {
+                    "sessionId": session.id,
+                    "provider": provider.name,
+                    "tool_call_count": len(executed_tools),
+                    "final_text": final_text[:500],
+                })
+                return {
+                    "called_model": called_model,
+                    "tool_call_count": len(executed_tools),
+                    "executed_tools": executed_tools,
+                    "final_text": final_text,
+                    "ok": True,
+                }
+            storage.append_event(
+                session,
+                {"type": "message", "role": "assistant", "content": final_text},
+            )
+            audit.append(
+                "provider_probe_no_tool",
+                {"sessionId": session.id, "provider": provider.name, "text": final_text[:500]},
+            )
+            return {
+                "called_model": called_model,
+                "tool_call_count": 0,
+                "executed_tools": [],
+                "final_text": final_text,
+                "ok": False,
+            }
+
+        results = []
+        for call in model_turn.tool_calls:
+            argument = tool_argument(call.name, call.arguments)
+            audit.append("provider_probe_tool_call", {
+                "sessionId": session.id,
+                "provider": provider.name,
+                "tool": call.name,
+                "argument": argument,
+            })
+            result = tools.run(call.name, argument, session)
+            storage.append_event(session, {"type": "tool_result", **asdict(result)})
+            events.publish("session_update", {"sessionId": session.id, "type": "tool_result", **asdict(result)})
+            audit.append("provider_probe_tool_result", {
+                "sessionId": session.id,
+                "provider": provider.name,
+                "tool": result.name,
+                "exit_code": result.exit_code,
+                "externalized": result.externalized_path is not None,
+            })
+            executed_tools.append(call.name)
+            results.append((call, result.content))
+        P.append_provider_message(messages, provider.format_tool_results(results))
+
+    storage.append_event(session, {"type": "message", "role": "assistant", "content": final_text})
+    audit.append("provider_probe_max_turns", {
+        "sessionId": session.id,
+        "provider": provider.name,
+        "tool_call_count": len(executed_tools),
+        "final_text": final_text[:500],
+    })
+    return {
+        "called_model": called_model,
+        "tool_call_count": len(executed_tools),
+        "executed_tools": executed_tools,
+        "final_text": final_text,
+        "ok": bool(executed_tools),
+    }
+
+
 def run_tour(home: Path, provider_name: str | None) -> dict:
     artifacts: dict[str, str] = {}
     config = HarnessConfig(root_dir=home)
@@ -90,21 +210,30 @@ def run_tour(home: Path, provider_name: str | None) -> dict:
     print(f"    session = {session.id}")
     print(f"    cwd     = {session.cwd}")
 
+    # -- 3. provider probe ----------------------------------------------------
+    banner(3, "Provider probe", "The selected provider must drive at least one normalized tool call.")
+    probe = provider_probe(provider, session, storage, tools, audit, events)
+    if probe["ok"]:
+        print(f"    model call -> provider={provider.name}, tool_calls={probe['tool_call_count']}")
+        print(f"    executed tools -> {', '.join(probe.get('executed_tools', []))}")
+    else:
+        print(f"    model call -> provider={provider.name}, but no tool call was returned")
+
     # -- 3. workspace memory ------------------------------------------------
-    banner(3, "Workspace memory", "Durable notes the agent can recall later, scoped to this workspace.")
+    banner(4, "Workspace memory", "Durable notes the agent can recall later, scoped to this workspace.")
     mem_path = storage.append_memory("workspace", "- Full tour: prove every harness layer wires together.")
     print(f"    wrote memory -> {mem_path}")
     artifacts["workspace_memory"] = str(mem_path)
 
     # -- 4. tool dispatch (allowed) -----------------------------------------
-    banner(4, "Tool dispatch", "The agent acts on the world only through registered tools.")
+    banner(5, "Tool dispatch", "The agent acts on the world only through registered tools.")
     result = tools.run("bash", "echo 'hello from the harness' && pwd", session)
     audit.append("tool_result", {"sessionId": session.id, "tool": "bash", "exit_code": result.exit_code})
     storage.append_event(session, {"type": "tool_result", **asdict(result)})
     print("    bash ->", result.content.strip().splitlines()[0])
 
     # -- 5. permission denial (fail-closed) ---------------------------------
-    banner(5, "Permission denial", "Dangerous first tokens are denied; the harness fails closed.")
+    banner(6, "Permission denial", "Dangerous first tokens are denied; the harness fails closed.")
     try:
         tools.run("bash", "sudo rm -rf /", session)
         print("    UNEXPECTED: dangerous command was allowed")
@@ -115,7 +244,7 @@ def run_tour(home: Path, provider_name: str | None) -> dict:
         denied = True
 
     # -- 6. large-output externalization ------------------------------------
-    banner(6, "Output externalization", "Huge tool output is swapped to a file with a pointer, sparing the context window.")
+    banner(7, "Output externalization", "Huge tool output is swapped to a file with a pointer, sparing the context window.")
     big = tools.run("bash", "for i in $(seq 1 4000); do echo \"line $i: padding padding padding padding\"; done", session)
     if big.externalized_path:
         print(f"    externalized -> {big.externalized_path}")
@@ -125,7 +254,7 @@ def run_tour(home: Path, provider_name: str | None) -> dict:
         print("    (output below threshold; not externalized this run)")
 
     # -- 7. transcript + recovery -------------------------------------------
-    banner(7, "JSONL transcript + recovery", "Append-only events let a fresh Storage replay the session after a crash.")
+    banner(8, "JSONL transcript + recovery", "Append-only events let a fresh Storage replay the session after a crash.")
     storage.append_event(session, {"type": "message", "role": "assistant", "content": "Tour stages executed."})
     tpath = storage.transcript_path(session)
     recovered = Storage(config).read_transcript(session)
@@ -134,7 +263,7 @@ def run_tour(home: Path, provider_name: str | None) -> dict:
     artifacts["transcript"] = str(tpath)
 
     # -- 8. HTTP /run (ACP-like) --------------------------------------------
-    banner(8, "HTTP run endpoint", "The sidecar exposes an ACP-like control plane; here we drive one real request.")
+    banner(9, "HTTP run endpoint", "The sidecar exposes an ACP-like control plane; here we drive one real request.")
     runtime = HarnessRuntime(config)
     port = free_port()
     httpd = HTTPServer(("127.0.0.1", port), make_handler(runtime))
@@ -160,7 +289,7 @@ def run_tour(home: Path, provider_name: str | None) -> dict:
         httpd.shutdown()
 
     # -- 9. audit chain + verify --------------------------------------------
-    banner(9, "Audit hash chain", "Every high-risk action is chained; the head anchor also catches truncation.")
+    banner(10, "Audit hash chain", "Every high-risk action is chained; the head anchor also catches truncation.")
     entries = audit.read_entries()
     verified = audit.verify()
     print(f"    audit file    -> {audit.path}")
@@ -177,6 +306,8 @@ def run_tour(home: Path, provider_name: str | None) -> dict:
         "session": session.id,
         "stages": {
             "tool_dispatch": True,
+            "provider_probe": probe["ok"],
+            "provider_tool_calls": probe["tool_call_count"],
             "permission_denied": denied,
             "externalized": big.externalized_path is not None,
             "transcript_events": len(recovered),
@@ -190,11 +321,11 @@ def run_tour(home: Path, provider_name: str | None) -> dict:
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
     artifacts["manifest"] = str(manifest_path)
 
-    banner(10, "Artifacts", "Everything the tour produced, in one manifest you can open.")
+    banner(11, "Artifacts", "Everything the tour produced, in one manifest you can open.")
     for name, path in artifacts.items():
         print(f"    {name}: {path}")
 
-    ok = denied and verified and http_ok
+    ok = denied and verified and http_ok and probe["ok"]
     return {"ok": ok, "manifest": manifest, "manifest_path": str(manifest_path)}
 
 

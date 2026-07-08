@@ -47,7 +47,7 @@
   <g class="c-teal">
     <rect x="60" y="240" width="160" height="52" rx="8" fill="#9FE1CB" stroke="#1D9E75" stroke-width="0.5"/>
     <text class="th" x="140" y="260" text-anchor="middle" dominant-baseline="central">RingBuffer</text>
-    <text class="ts" x="140" y="278" text-anchor="middle" dominant-baseline="central">8MB 环形缓冲区</text>
+    <text class="ts" x="140" y="278" text-anchor="middle" dominant-baseline="central">有界环形缓冲区</text>
   </g>
 
   <g class="c-teal">

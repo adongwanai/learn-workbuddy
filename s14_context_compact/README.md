@@ -28,7 +28,7 @@ flowchart LR
 
 ## 本章抓住的 WorkBuddy-style 机制
 
-- 吸收 110.md 的 compact/contextSummary 思路。
+- 吸收公开架构研究中的 compact/contextSummary 思路。
 - 保留意图、关键文件、错误修复、当前工作、下一步。
 - 展示 snip/micro/budget/auto 多级策略。
 

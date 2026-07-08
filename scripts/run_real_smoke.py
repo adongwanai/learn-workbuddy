@@ -37,6 +37,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def _model_lesson_targets() -> list[Path]:
+    targets: list[Path] = []
+    for script in sorted(ROOT.glob("s[0-9][0-9]_*/code.py")):
+        text = script.read_text(encoding="utf-8")
+        if "from anthropic import Anthropic" in text and "client.messages.create" in text:
+            targets.append(script)
+    return targets
+
+
 def _load_env() -> None:
     try:
         from dotenv import load_dotenv
@@ -104,11 +113,32 @@ def smoke_lesson(script: str, provider: str) -> int:
     return _run([sys.executable, script, "--provider", provider], stdin=prompt)
 
 
+def smoke_all_lessons(provider: str) -> int:
+    if provider in {"openai", "openai-chat"}:
+        print("[skip] all-lessons: lesson entrypoints use the Anthropic-compatible env; "
+              "use --provider anthropic/deepseek to smoke them.")
+        return 0
+    failures: list[str] = []
+    for script in _model_lesson_targets():
+        rel = script.relative_to(ROOT).as_posix()
+        stdin = "List the files in the current directory, then say DONE.\nq\n"
+        if script.parent.name == "s22_automation_scheduler":
+            stdin = "/list\nq\n"
+        code = _run([sys.executable, rel, "--provider", provider], stdin=stdin, timeout=240)
+        if code != 0:
+            failures.append(f"{rel} exited {code}")
+    if failures:
+        print("\n".join(failures))
+        return 1
+    return 0
+
+
 TARGETS = {
     "mini": lambda p: smoke_mini(p),
     "full": lambda p: smoke_full_tour(p),
     "s01": lambda p: smoke_lesson("s01_agent_loop/code.py", p),
     "s24": lambda p: smoke_lesson("s24_comprehensive/code.py", p),
+    "all-lessons": smoke_all_lessons,
 }
 
 

@@ -347,7 +347,7 @@ class SessionManager:
     """
     Manages session lifecycle — equivalent to Sidecar's session management.
 
-    Real WorkBuddy (sidecar-entry.js):
+    Real WorkBuddy (sidecar runtime):
         - sessions Map: sessionId → { proc, port, status, ... }
         - create: spawn CLI process, wait for ACP port
         - destroy: HTTP abort → SIGTERM → SIGKILL

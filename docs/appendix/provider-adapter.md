@@ -66,7 +66,7 @@ ANTHROPIC_API_KEY=...
 MODEL_ID=...
 OPENAI_API_KEY=...
 OPENAI_MODEL=gpt-4.1
-OPENAI_CHAT_BASE_URL=http://43.153.155.15:8080/v1
+OPENAI_CHAT_BASE_URL=https://your-openai-compatible-gateway.example/v1
 OPENAI_CHAT_API_KEY=...
 OPENAI_CHAT_MODEL=gpt-5.5
 ```
@@ -94,11 +94,15 @@ python examples/mini_workbuddy_demo/code.py --mode real --provider openai
 
 # OpenAI-compatible 网关
 python examples/mini_workbuddy_demo/code.py --mode real --provider openai-chat
+python examples/full_tour/code.py --provider openai-chat
 
 # 一键真实 API 冒烟，需 key
 python scripts/run_real_smoke.py --provider openai --targets mini full
 python scripts/run_real_smoke.py --provider openai-chat --targets mini full
+python scripts/run_real_smoke.py --provider deepseek --targets all-lessons
 ```
+
+`full_tour` 会做 provider probe：第一轮强制 provider 调用 `tool_search`，然后把工具结果通过同一个 adapter 回传给模型。这用于证明真实 provider 不只是初始化成功，而是经过了 model -> tool -> result 的 harness 回路。
 
 ## 对应代码
 

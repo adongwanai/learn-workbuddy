@@ -20,6 +20,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 TEXT_SUFFIXES = {".md", ".py", ".txt", ".yml", ".yaml", ".json", ".example", ".svg"}
 SKIP_PARTS = {".git", ".venv", "venv", "__pycache__", ".pytest_cache", ".tmp", "benchmark-runs"}
+SKIP_PREFIXES = {("docs", "plans")}
 NO_PROXY_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 FORBIDDEN_PATTERNS = [
@@ -35,6 +36,11 @@ FORBIDDEN_PATTERNS = [
     "USER" + ".md",
     "BOOTSTRAP" + ".md",
     "sk-ant" + "-",
+    "43.153." + "155.15",
+    "110" + ".md",
+    "上传" + "分析稿",
+    "本地" + "样本",
+    "local-" + "observations",
     "逆" + "向",
     "反" + "编译",
     "破" + "解",
@@ -42,16 +48,20 @@ FORBIDDEN_PATTERNS = [
 
 FORBIDDEN_REGEXES = [
     re.compile(r"\b[0-9a-f]{64}\b", re.IGNORECASE),
+    re.compile(r"\bsk-[A-Za-z0-9_-]{16,}\b"),
+    re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
 ]
 
 PUBLIC_OVERSPECIFIED_REGEXES = [
-    (re.compile(r"16\s*个\s*内置\s*Agent"), "exact internal agent count"),
+    (re.compile(r"16\s*(个|种)\s*内置\s*Agent"), "exact internal agent count"),
     (re.compile(r"35\+\s*(个\s*)?(RPC|领域|domains?)", re.IGNORECASE), "exact-ish RPC domain count"),
     (re.compile(r"40\+\s*(个\s*)?(内置工具|MCP|连接器)", re.IGNORECASE), "exact-ish tool or connector count"),
     (re.compile(r"10\+\s*(个\s*)?(内置技能|Skills?|技能)", re.IGNORECASE), "exact-ish skill count"),
     (re.compile(r"\b(132" + r"KB|28" + r"KB|195" + r"KB)\b", re.IGNORECASE), "private bundle file size"),
     (re.compile(r"\bmain/(index|sidecar-entry)\.js\b"), "private bundle path"),
     (re.compile(r"\bsidecar-entry\.js\b"), "private sidecar filename"),
+    (re.compile(r"\b8\s*MB\b", re.IGNORECASE), "private-ish runtime buffer size"),
+    (re.compile(r"\b43\.153\.155\.15\b"), "hard-coded private gateway IP"),
     (re.compile("conversation" + "_search"), "unverified memory endpoint name"),
     (re.compile(r"云端画像\s*v\d+", re.IGNORECASE), "unverified cloud profile version"),
 ]
@@ -63,12 +73,26 @@ IMAGE_OVERSPECIFIED_REGEXES = PUBLIC_OVERSPECIFIED_REGEXES + [
 ]
 
 
+def is_skipped(path: Path) -> bool:
+    try:
+        parts = path.relative_to(ROOT).parts
+    except ValueError:
+        parts = path.parts
+    if any(part in SKIP_PARTS for part in parts):
+        return True
+    return any(
+        tuple(parts[index:index + len(prefix)]) == prefix
+        for prefix in SKIP_PREFIXES
+        for index in range(max(len(parts) - len(prefix) + 1, 0))
+    )
+
+
 def iter_files(suffixes: set[str] | None = None) -> list[Path]:
     files: list[Path] = []
     for path in ROOT.rglob("*"):
         if path.is_dir():
             continue
-        if any(part in SKIP_PARTS for part in path.parts):
+        if is_skipped(path):
             continue
         if suffixes is not None and path.suffix not in suffixes:
             continue
@@ -80,13 +104,15 @@ def iter_public_docs() -> list[Path]:
     docs: set[Path] = {
         ROOT / "README.md",
         ROOT / "NOTICE.md",
+        ROOT / "SECURITY.md",
+        ROOT / "THIRD_PARTY_NOTICES.md",
         ROOT / "CONTRIBUTING.md",
         ROOT / ".github" / "PULL_REQUEST_TEMPLATE.md",
     }
     docs.update(ROOT.glob("s[0-9][0-9]_*/README.md"))
     docs.update(ROOT.glob("examples/**/*.md"))
-    docs.update(ROOT.glob("docs/legal/**/*.md"))
-    return sorted(path for path in docs if path.exists())
+    docs.update(path for path in ROOT.glob("docs/**/*.md") if not is_skipped(path))
+    return sorted(path for path in docs if path.exists() and not is_skipped(path))
 
 
 def check_python_syntax() -> None:
@@ -216,6 +242,21 @@ def check_project_shape() -> None:
         raise SystemExit(f"expected 24 root chapters, found {len(chapters)}")
     missing: list[str] = []
     bad_readmes: list[str] = []
+    required = [
+        "README.md",
+        "NOTICE.md",
+        "LICENSE",
+        "SECURITY.md",
+        "THIRD_PARTY_NOTICES.md",
+        "CONTRIBUTING.md",
+        ".env.example",
+        ".github/workflows/ci.yml",
+        ".github/PULL_REQUEST_TEMPLATE.md",
+        "docs/legal/clean-room.md",
+        "scripts/verify.py",
+        "examples/mini_workbuddy_demo/code.py",
+    ]
+    missing.extend(path for path in required if not (ROOT / path).exists())
     for chapter in chapters:
         for name in ["README.md", "code.py"]:
             if not (chapter / name).exists():
@@ -236,13 +277,17 @@ def check_project_shape() -> None:
     images = sorted(
         path for path in ROOT.rglob("*")
         if path.suffix.lower() in {".svg", ".png", ".jpg", ".jpeg", ".gif"}
-        and not any(part in SKIP_PARTS for part in path.parts)
+        and not is_skipped(path)
     )
-    markdown = "\n".join(path.read_text(encoding="utf-8", errors="ignore") for path in ROOT.rglob("*.md"))
+    markdown = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in ROOT.rglob("*.md")
+        if not is_skipped(path)
+    )
     missing_images = [path.relative_to(ROOT).as_posix() for path in images if path.name not in markdown]
     readme_diagram_missing: list[str] = []
     for readme in sorted(ROOT.rglob("README.md")):
-        if any(part in SKIP_PARTS for part in readme.parts):
+        if is_skipped(readme):
             continue
         text = readme.read_text(encoding="utf-8")
         if "## 代码架构图" not in text or "```mermaid" not in text:
@@ -277,7 +322,7 @@ def check_lesson_interactivity() -> None:
 
 
 def check_svg_integrity() -> None:
-    svgs = sorted(ROOT.rglob("*.svg"))
+    svgs = sorted(path for path in ROOT.rglob("*.svg") if not is_skipped(path))
     failures: list[str] = []
     for path in svgs:
         try:
@@ -408,7 +453,7 @@ def check_public_docs_not_over_specified() -> None:
 
 def check_images_not_over_specified() -> None:
     hits: list[str] = []
-    for path in sorted(ROOT.rglob("*.svg")):
+    for path in sorted(path for path in ROOT.rglob("*.svg") if not is_skipped(path)):
         text = path.read_text(encoding="utf-8", errors="ignore")
         for regex, reason in IMAGE_OVERSPECIFIED_REGEXES:
             match = regex.search(text)

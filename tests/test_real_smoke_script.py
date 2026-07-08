@@ -17,7 +17,7 @@ def _load_real_smoke(root: Path):
 def test_real_smoke_has_full_tour_target_for_gateway_providers(root: Path) -> None:
     mod = _load_real_smoke(root)
 
-    assert {"mini", "s01", "s24", "full"} <= set(mod.TARGETS)
+    assert {"mini", "s01", "s24", "full", "all-lessons"} <= set(mod.TARGETS)
 
 
 def test_openai_chat_still_skips_anthropic_lesson_entrypoints(root: Path, capsys) -> None:
@@ -27,3 +27,12 @@ def test_openai_chat_still_skips_anthropic_lesson_entrypoints(root: Path, capsys
 
     assert code == 0
     assert "lesson entrypoints use the Anthropic env" in capsys.readouterr().out
+
+
+def test_openai_chat_still_skips_all_lesson_entrypoints(root: Path, capsys) -> None:
+    mod = _load_real_smoke(root)
+
+    code = mod.smoke_all_lessons("openai-chat")
+
+    assert code == 0
+    assert "lesson entrypoints use the Anthropic-compatible env" in capsys.readouterr().out

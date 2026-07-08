@@ -131,7 +131,7 @@ def agent_loop(messages):
         messages.append({"role": "user", "content": results})
 ```
 
-不到 30 行，这就是最小可运行的 agent harness 内核。后面 19 个章节都在这个循环上叠加机制，循环本身始终不变。
+不到 30 行，这就是最小可运行的 agent harness 内核。后面 23 个章节都在这个循环上叠加机制，循环本身始终不变。
 
 ---
 
@@ -203,9 +203,9 @@ Electron Main Process
 
 WorkBuddy 使用 Anthropic SDK 的流式响应。在流式模式下，`stop_reason` 可能在 `message_delta` 事件中才到达，而不是在第一个 `message_start` 中。WorkBuddy 的处理方式与 Claude Code 类似——不直接信任 `stop_reason`，而是检查内容中是否有 `tool_use` block。
 
-### RingBuffer — 8MB 的输出缓冲
+### RingBuffer — 有界输出缓冲
 
-Sidecar 进程使用 8MB 的 RingBuffer 来缓冲 agent 的流式输出。当 agent 产生大量输出（比如读取一个大文件），RingBuffer 确保不会丢失数据，同时避免无限内存增长。超出缓冲的内容会被丢弃，但 agent 仍然能继续工作。
+Sidecar 进程使用 固定大小的 RingBuffer 来缓冲 agent 的流式输出。当 agent 产生大量输出（比如读取一个大文件），RingBuffer 确保不会丢失数据，同时避免无限内存增长。超出缓冲的内容会被丢弃，但 agent 仍然能继续工作。
 
 ### 教学版的简化
 

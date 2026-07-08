@@ -85,17 +85,17 @@ demo 在模块顶层 `from anthropic import Anthropic`，导致声称"无需 API
 
 ### clean-room 表达清理（评审问题 #1）
 把几处"像源码结论"的措辞改成教学抽象口径，与 README"非源码提取"一致：
-- `s08_model_routing/code.py`：`extracted from WorkBuddy's source` → 教学抽象说明。
-- `s03_deferred_loading/README.md`：`实际运行时 token 对比` → `教学估算的 token 对比`。
-- `s06_sidecar_server/code.py`：`mirrors WorkBuddy's 35+ domains`、`35+ RPC domains` → domain-based routing / teaching-scale sample。
-- 另清理 `s03/s05/s12/s17` 中 `40+`、`132KB`、`main/index.js` 等过度具体表述。
+- `s08_model_routing/code.py`：将类似"从产品实现抽取"的措辞改成教学抽象说明。
+- `s03_deferred_loading/README.md`：把运行时精确数字改成教学估算口径。
+- `s06_sidecar_server/code.py`：把产品内部领域数量、RPC 命名等说法改成 domain-based routing / teaching-scale sample。
+- 另清理若干章节中过度具体的 bundle 路径、文件大小和内部数量表述。
 
 ### 双 Provider 适配层（评审 OpenAI 建议）
 不做"一刀切换 OpenAI"，而是按建议做 Provider Adapter——这本身就是 harness 教学的一课（loop 稳定，provider 可换）：
 - `mini_workbuddy/providers.py`（新增）：把 Anthropic `tool_use/tool_result` 与 OpenAI Responses `function_call/function_call_output` 归一成 `ToolSpec`/`ToolCall`/`ModelTurn` 三个中性类型；含 `AnthropicProvider`、`OpenAIResponsesProvider`、`OfflineMockProvider` 与 `select_provider`（explicit > PROVIDER env > auto，auto 无 key 时回落 offline）。
 - `examples/mini_workbuddy_demo/code.py`：real 循环重构为走适配层，**一套 loop 同时服务两家**；新增 `--provider anthropic|openai|offline`。保留 `--mode real` 无 key 时的原始报错（既有测试契约不破）。
 - `.env.example`：新增 `PROVIDER`、`OPENAI_API_KEY`、`OPENAI_MODEL`。
-- `requirements.txt`：openai 标为可选、惰性依赖（离线路径零新增依赖）。
+- `requirements.txt`：OpenAI SDK 已纳入默认安装，保证 README 中 `--provider openai` 路径是 clone 后可直接配置运行的正式路径。
 - `docs/appendix/provider-adapter.md`（新增）：两种协议逐字段对照表 + 为什么用 Responses API 而非 Agents SDK（教程要自己拥有 loop）+ 运行示例。
 - `README.md`：新增"为什么双 provider"小节。
 

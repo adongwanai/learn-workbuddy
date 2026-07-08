@@ -36,7 +36,7 @@
 
 ## 冗余观察
 
-- `docs/appendix/local-observations/*` 与主 24 章有部分概念重叠，但它承担“证据摘要 / 观察笔记”的角色，不建议删除。公开入口应继续以 24 章为主，appendix 作为可选深读。
+- 早期本地观察附录已收口为公开安全的 evidence 摘要和架构文档。公开入口继续以 24 章为主，研究材料只保留可迁移的模式，不保留包体或本机证据细节。
 - `s19_visualizer` 与 `s20_result_presentation` 代码形态相近，但语义不同：前者解释“结果如何可视化”，后者解释“完成后如何交付”。可保留。
 - `s10_workspace_memory`、`s11_user_memory`、`s12_cloud_memory` 三章不应合并。它们分别对应项目、用户、远端 profile/search 三个所有权边界，合并会削弱 WorkBuddy 记忆系统的核心卖点。
 

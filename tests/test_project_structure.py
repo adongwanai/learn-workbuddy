@@ -7,16 +7,19 @@ from pathlib import Path
 
 
 TEXT_SUFFIXES = {".md", ".py", ".txt", ".yml", ".yaml", ".json", ".example", ".svg"}
-SKIP_PARTS = {".git", ".venv", "venv", "__pycache__", ".tmp", "benchmark-runs"}
+SKIP_PARTS = {".git", ".venv", "venv", "__pycache__", ".pytest_cache", ".tmp", "benchmark-runs"}
+SKIP_PREFIXES = {("docs", "plans")}
 
 PUBLIC_OVERSPECIFIED_REGEXES = [
-    (re.compile(r"16\s*个\s*内置\s*Agent"), "exact internal agent count"),
+    (re.compile(r"16\s*(个|种)\s*内置\s*Agent"), "exact internal agent count"),
     (re.compile(r"35\+\s*(个\s*)?(RPC|领域|domains?)", re.IGNORECASE), "exact-ish RPC domain count"),
     (re.compile(r"40\+\s*(个\s*)?(内置工具|MCP|连接器)", re.IGNORECASE), "exact-ish tool or connector count"),
     (re.compile(r"10\+\s*(个\s*)?(内置技能|Skills?|技能)", re.IGNORECASE), "exact-ish skill count"),
     (re.compile(r"\b(132" + r"KB|28" + r"KB|195" + r"KB)\b", re.IGNORECASE), "private bundle file size"),
     (re.compile(r"\bmain/(index|sidecar-entry)\.js\b"), "private bundle path"),
     (re.compile(r"\bsidecar-entry\.js\b"), "private sidecar filename"),
+    (re.compile(r"\b8\s*MB\b", re.IGNORECASE), "private-ish runtime buffer size"),
+    (re.compile(r"\b43\.153\.155\.15\b"), "hard-coded private gateway IP"),
     (re.compile("conversation" + "_search"), "unverified memory endpoint name"),
     (re.compile(r"云端画像\s*v\d+", re.IGNORECASE), "unverified cloud profile version"),
 ]
@@ -28,10 +31,21 @@ IMAGE_OVERSPECIFIED_REGEXES = PUBLIC_OVERSPECIFIED_REGEXES + [
 ]
 
 
+def is_skipped(path: Path) -> bool:
+    parts = path.parts
+    if any(part in SKIP_PARTS for part in parts):
+        return True
+    return any(
+        tuple(parts[index:index + len(prefix)]) == prefix
+        for prefix in SKIP_PREFIXES
+        for index in range(max(len(parts) - len(prefix) + 1, 0))
+    )
+
+
 def iter_text_files(root: Path) -> list[Path]:
     files: list[Path] = []
     for path in root.rglob("*"):
-        if path.is_dir() or any(part in SKIP_PARTS for part in path.parts):
+        if path.is_dir() or is_skipped(path):
             continue
         if path.suffix in TEXT_SUFFIXES:
             files.append(path)
@@ -42,13 +56,20 @@ def iter_public_docs(root: Path) -> list[Path]:
     docs: set[Path] = {
         root / "README.md",
         root / "NOTICE.md",
+        root / "SECURITY.md",
+        root / "THIRD_PARTY_NOTICES.md",
         root / "CONTRIBUTING.md",
         root / ".github" / "PULL_REQUEST_TEMPLATE.md",
     }
     docs.update(root.glob("s[0-9][0-9]_*/README.md"))
     docs.update(root.glob("examples/**/*.md"))
-    docs.update(root.glob("docs/legal/**/*.md"))
-    return sorted(path for path in docs if path.exists())
+    docs.update(path for path in root.glob("docs/**/*.md") if not is_skipped(path))
+    return sorted(path for path in docs if path.exists() and not is_skipped(path))
+
+
+def test_skip_policy_excludes_docs_plans(root: Path) -> None:
+    assert is_skipped(root / "docs" / "plans" / "future-note.md")
+    assert not is_skipped(root / "docs" / "evidence" / "model-benchmark-sample.md")
 
 
 def test_root_contains_exactly_24_main_chapters(root: Path) -> None:
@@ -75,8 +96,7 @@ def test_chapter_readmes_include_code_architecture_diagrams(root: Path) -> None:
 def test_every_readme_includes_a_code_architecture_diagram(root: Path) -> None:
     readmes = sorted(
         path for path in root.rglob("README.md")
-        if not any(part in SKIP_PARTS for part in path.parts)
-        and ".pytest_cache" not in path.parts
+        if not is_skipped(path)
     )
     missing: list[str] = []
     for readme in readmes:
@@ -146,9 +166,13 @@ def test_all_images_are_referenced_from_markdown(root: Path) -> None:
     images = sorted(
         path for path in root.rglob("*")
         if path.suffix.lower() in {".svg", ".png", ".jpg", ".jpeg", ".gif"}
-        and not any(part in SKIP_PARTS for part in path.parts)
+        and not is_skipped(path)
     )
-    markdown = "\n".join(path.read_text(encoding="utf-8", errors="ignore") for path in root.rglob("*.md"))
+    markdown = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in root.rglob("*.md")
+        if not is_skipped(path)
+    )
     missing = [path.relative_to(root).as_posix() for path in images if path.name not in markdown]
     assert len(images) == 27
     assert missing == []
@@ -167,7 +191,7 @@ def test_main_chapter_images_exist_and_render_links_are_relative(root: Path) -> 
 
 def test_svg_files_are_well_formed_and_clean(root: Path) -> None:
     hits: list[str] = []
-    for path in sorted(root.rglob("*.svg")):
+    for path in sorted(path for path in root.rglob("*.svg") if not is_skipped(path)):
         ET.parse(path)
         text = path.read_text(encoding="utf-8", errors="ignore")
         for regex, reason in IMAGE_OVERSPECIFIED_REGEXES:
@@ -182,6 +206,8 @@ def test_required_public_project_files_exist(root: Path) -> None:
         "README.md",
         "NOTICE.md",
         "LICENSE",
+        "SECURITY.md",
+        "THIRD_PARTY_NOTICES.md",
         "CONTRIBUTING.md",
         ".env.example",
         ".github/workflows/ci.yml",
@@ -214,6 +240,11 @@ def test_clean_room_scan_has_no_high_risk_strings(root: Path) -> None:
         "USER" + ".md",
         "BOOTSTRAP" + ".md",
         "sk-ant" + "-",
+        "43.153." + "155.15",
+        "110" + ".md",
+        "上传" + "分析稿",
+        "本地" + "样本",
+        "local-" + "observations",
         "逆" + "向",
         "反" + "编译",
         "破" + "解",

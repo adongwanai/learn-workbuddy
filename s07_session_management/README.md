@@ -28,7 +28,7 @@ flowchart LR
 
 ## 本章抓住的 WorkBuddy-style 机制
 
-- 吸收 110.md 的两类通信模式: asTool 函数调用语义和团队协作语义。
+- 吸收公开架构研究中的两类通信模式: asTool 函数调用语义和团队协作语义。
 - 用 TaskList/blackboard 解释松耦合协作。
 - 把 session 状态、端口、cwd、模型路由和关闭流程持久化。
 

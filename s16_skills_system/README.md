@@ -28,7 +28,7 @@ flowchart LR
 
 ## 本章抓住的 WorkBuddy-style 机制
 
-- 吸收 110.md 的 Skills + Plugins + Hooks 扩展思路。
+- 吸收公开架构研究中的 Skills + Plugins + Hooks 扩展思路。
 - 用 progressive disclosure 控制 token 成本。
 - 让技能可以带脚本、参考资料和资源文件。
 

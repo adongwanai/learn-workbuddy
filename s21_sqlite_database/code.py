@@ -80,7 +80,7 @@ class WorkBuddyDB:
     """
     SQLite database with WAL mode.
 
-    Production harness: better-sqlite3 in sidecar-entry.js, synchronous calls.
+    Production harness: better-sqlite3 in sidecar runtime, synchronous calls.
     Teaching version: Python sqlite3, same PRAGMA settings.
     """
 

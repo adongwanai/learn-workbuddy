@@ -99,6 +99,7 @@ class ProviderRequest:
     messages: list[Any]
     tools: list[ToolSpec]
     max_tokens: int = 4000
+    required_tool: str | None = None
 
 
 class Provider:
@@ -148,13 +149,16 @@ class AnthropicProvider(Provider):
         ]
 
     def create(self, request: ProviderRequest) -> ModelTurn:
-        response = self._client.messages.create(
-            model=self.model,
-            system=request.system,
-            messages=request.messages,
-            tools=self._tools(request.tools),
-            max_tokens=request.max_tokens,
-        )
+        kwargs: dict[str, Any] = {
+            "model": self.model,
+            "system": request.system,
+            "messages": request.messages,
+            "tools": self._tools(request.tools),
+            "max_tokens": request.max_tokens,
+        }
+        if request.required_tool:
+            kwargs["tool_choice"] = {"type": "tool", "name": request.required_tool}
+        response = self._client.messages.create(**kwargs)
         text_parts: list[str] = []
         calls: list[ToolCall] = []
         for block in response.content:
@@ -245,13 +249,16 @@ class OpenAIResponsesProvider(Provider):
         return {"role": "user", "content": prompt}
 
     def create(self, request: ProviderRequest) -> ModelTurn:
-        response = self._client.responses.create(
-            model=self.model,
-            instructions=request.system,
-            input=request.messages,
-            tools=self._tools(request.tools),
-            max_output_tokens=request.max_tokens,
-        )
+        kwargs: dict[str, Any] = {
+            "model": self.model,
+            "instructions": request.system,
+            "input": request.messages,
+            "tools": self._tools(request.tools),
+            "max_output_tokens": request.max_tokens,
+        }
+        if request.required_tool:
+            kwargs["tool_choice"] = {"type": "function", "name": request.required_tool}
+        response = self._client.responses.create(**kwargs)
         text_parts: list[str] = []
         calls: list[ToolCall] = []
         raw_items: list[Any] = []
@@ -328,6 +335,11 @@ class OpenAIChatProvider(Provider):
             "tool_choice": "auto",
             "max_tokens": request.max_tokens,
         }
+        if request.required_tool:
+            payload["tool_choice"] = {
+                "type": "function",
+                "function": {"name": request.required_tool},
+            }
         raw = self._post_json("/chat/completions", payload)
         choice = (raw.get("choices") or [{}])[0]
         message = choice.get("message") or {}

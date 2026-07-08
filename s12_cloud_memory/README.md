@@ -28,7 +28,7 @@ flowchart LR
 
 ## 本章抓住的 WorkBuddy-style 机制
 
-- 吸收 110.md 的三层记忆思想, 用 Profile 注入 + recall_history 教学工具表达。
+- 吸收公开架构研究中的三层记忆思想, 用 Profile 注入 + recall_history 教学工具表达。
 - 用 memorySelector 解释“先筛再注入”的上下文策略。
 - 把未复核的固定接口名降级为通用历史召回模式。
 

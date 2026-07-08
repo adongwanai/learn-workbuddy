@@ -172,8 +172,11 @@ def test_result_formatting_differs_by_provider(monkeypatch):
 
 
 def test_anthropic_provider_parses_text_and_tool_use_blocks():
+    captured = {}
+
     class FakeMessages:
         def create(self, **kwargs):
+            captured.update(kwargs)
             return SimpleNamespace(content=[
                 SimpleNamespace(type="text", text="I will inspect."),
                 SimpleNamespace(
@@ -188,17 +191,28 @@ def test_anthropic_provider_parses_text_and_tool_use_blocks():
     prov.model = "claude-test"
     prov._client = SimpleNamespace(messages=FakeMessages())
 
-    turn = prov.create(P.ProviderRequest(system="sys", messages=[], tools=P.normalized_tools()))
+    turn = prov.create(
+        P.ProviderRequest(
+            system="sys",
+            messages=[],
+            tools=P.normalized_tools(),
+            required_tool="bash",
+        )
+    )
     assert turn.text == "I will inspect."
     assert turn.tool_calls == [
         P.ToolCall(id="toolu_1", name="bash", arguments={"command": "pwd"})
     ]
     assert turn.raw_assistant["role"] == "assistant"
+    assert captured["tool_choice"] == {"type": "tool", "name": "bash"}
 
 
 def test_openai_provider_parses_message_reasoning_and_function_call_items():
+    captured = {}
+
     class FakeResponses:
         def create(self, **kwargs):
+            captured.update(kwargs)
             return SimpleNamespace(output=[
                 SimpleNamespace(type="reasoning", summary=[]),
                 SimpleNamespace(
@@ -219,12 +233,20 @@ def test_openai_provider_parses_message_reasoning_and_function_call_items():
     prov.model = "gpt-test"
     prov._client = SimpleNamespace(responses=FakeResponses())
 
-    turn = prov.create(P.ProviderRequest(system="sys", messages=[], tools=P.normalized_tools()))
+    turn = prov.create(
+        P.ProviderRequest(
+            system="sys",
+            messages=[],
+            tools=P.normalized_tools(),
+            required_tool="read_file",
+        )
+    )
     assert turn.text == "Checking."
     assert turn.tool_calls == [
         P.ToolCall(id="call_1", name="read_file", arguments={"path": "README.md"})
     ]
     assert len(turn.raw_assistant) == 3
+    assert captured["tool_choice"] == {"type": "function", "name": "read_file"}
 
 
 def test_openai_provider_handles_empty_output_without_crashing():
@@ -246,10 +268,11 @@ def test_openai_chat_provider_parses_tool_calls(monkeypatch):
     prov.model = "gateway-model"
     prov.base_url = "http://example.test/v1"
     prov.api_key = "secret"
-    monkeypatch.setattr(
-        prov,
-        "_post_json",
-        lambda path, payload: {
+    captured = {}
+
+    def fake_post(path, payload):
+        captured.update({"path": path, "payload": payload})
+        return {
             "choices": [{
                 "message": {
                     "role": "assistant",
@@ -264,14 +287,26 @@ def test_openai_chat_provider_parses_tool_calls(monkeypatch):
                     }],
                 }
             }]
-        },
-    )
+        }
 
-    turn = prov.create(P.ProviderRequest(system="sys", messages=[], tools=P.normalized_tools()))
+    monkeypatch.setattr(prov, "_post_json", fake_post)
+
+    turn = prov.create(
+        P.ProviderRequest(
+            system="sys",
+            messages=[],
+            tools=P.normalized_tools(),
+            required_tool="bash",
+        )
+    )
     assert turn.text == "I will inspect."
     assert turn.tool_calls == [
         P.ToolCall(id="call_1", name="bash", arguments={"command": "pwd"})
     ]
+    assert captured["payload"]["tool_choice"] == {
+        "type": "function",
+        "function": {"name": "bash"},
+    }
 
 
 # -- offline provider drives a full loop through the real harness -----------
