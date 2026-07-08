@@ -288,6 +288,19 @@ python3 scripts/run_real_smoke.py --provider deepseek --targets mini full s01 s2
 python3 scripts/run_real_smoke.py --provider openai-chat --targets mini full
 ```
 
+真实模型 benchmark 会批量跑 DeepSeek 和 GPT gateway，并把成绩单、stdout 证据、失败改进建议写到
+`benchmark-runs/<name>/`。这是给开源读者和维护者看的“考试”，不是 CI 默认项：
+
+```sh
+DEEPSEEK_MODEL=deepseek-v4-pro \
+OPENAI_CHAT_BASE_URL=http://43.153.155.15:8080/v1 \
+OPENAI_CHAT_MODEL=gpt-5.5 \
+python3 scripts/model_benchmark.py --providers deepseek openai-chat
+
+# 快速检查矩阵，不调用模型
+python3 scripts/model_benchmark.py --providers deepseek openai-chat --max-lessons 2 --dry-run
+```
+
 配置见 `.env.example`（`PROVIDER=deepseek|anthropic|openai|openai-chat|offline|auto`）。协议对照与设计
 说明见 [docs/appendix/provider-adapter.md](./docs/appendix/provider-adapter.md)。
 

@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 TEXT_SUFFIXES = {".md", ".py", ".txt", ".yml", ".yaml", ".json", ".example", ".svg"}
-SKIP_PARTS = {".git", ".venv", "venv", "__pycache__", ".tmp"}
+SKIP_PARTS = {".git", ".venv", "venv", "__pycache__", ".tmp", "benchmark-runs"}
 
 PUBLIC_OVERSPECIFIED_REGEXES = [
     (re.compile(r"16\s*个\s*内置\s*Agent"), "exact internal agent count"),

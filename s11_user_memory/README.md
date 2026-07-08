@@ -287,7 +287,7 @@ ${workspaceMemory}
 
 `code.py` 模拟用户级记忆和身份系统：
 
-1. **UserMemory 类** — 管理 `~/.workbuddy/` 下的所有文件
+1. **UserMemory 类** — 教学版默认管理 `~/.learn_workbuddy/user-memory/` 下的文件；真实产品路径用 `~/.workbuddy/` 解释概念
 2. **Bootstrap 流程** — 检测 persona/bootstrap.md，引导对话，写入身份，删除引导文件
 3. **身份加载** — 读取 SOUL/IDENTITY/USER/MEMORY 注入系统提示
 4. **4,000 字符限制** — 写入 MEMORY.md 时截断
@@ -300,6 +300,9 @@ ${workspaceMemory}
 ```bash
 python s11_user_memory/code.py
 ```
+
+教学运行时不会写真实 `~/.workbuddy/`。默认目录是 `~/.learn_workbuddy/user-memory/`，也可以用
+`WORKBUDDY_HOME=/tmp/learn-workbuddy python s11_user_memory/code.py` 指定临时目录。
 
 首次运行会进入引导对话。观察重点：
 - persona/bootstrap.md 是否在引导完成后被删除？

@@ -88,3 +88,14 @@ def test_s24_list_files_tool_accepts_directory_iterators(tmp_path, monkeypatch) 
 
     assert "alpha.txt" in output
     assert "beta.txt" in output
+
+
+def test_s11_user_memory_creates_persona_directory_for_bootstrap(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("WORKBUDDY_HOME", str(tmp_path / "home"))
+    s11 = _load_chapter("s11_user_memory")
+
+    memory = s11.UserMemory()
+    memory.create_bootstrap()
+
+    assert memory.bootstrap_path.exists()
+    assert memory.bootstrap_path.parent == tmp_path / "home" / "user-memory" / "persona"

@@ -19,7 +19,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TEXT_SUFFIXES = {".md", ".py", ".txt", ".yml", ".yaml", ".json", ".example", ".svg"}
-SKIP_PARTS = {".git", ".venv", "venv", "__pycache__", ".pytest_cache", ".tmp"}
+SKIP_PARTS = {".git", ".venv", "venv", "__pycache__", ".pytest_cache", ".tmp", "benchmark-runs"}
 NO_PROXY_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 FORBIDDEN_PATTERNS = [

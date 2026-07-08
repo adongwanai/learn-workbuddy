@@ -34,6 +34,7 @@ Thumbs.db
 .audit-log/
 .workbuddy/
 .learn_workbuddy/
+benchmark-runs/
 *.db
 *.db-wal
 *.db-shm

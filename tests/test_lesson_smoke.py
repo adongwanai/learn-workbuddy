@@ -192,3 +192,35 @@ def test_offline_interactive_modes_exit_cleanly(root: Path, tmp_path: Path, scri
         timeout=10,
     )
     assert result.returncode == 0, result.stdout[-4000:]
+
+
+@pytest.mark.parametrize(
+    "script,input_text,required",
+    [
+        ("s07_session_management/code.py", "q\n", "session started"),
+    ],
+)
+def test_model_backed_lesson_startup_paths_do_not_crash(
+    root: Path,
+    tmp_path: Path,
+    script: str,
+    input_text: str,
+    required: str,
+) -> None:
+    env = os.environ.copy()
+    env["PYTHONPATH"] = os.pathsep.join([str(root / "tests" / "stubs"), str(root)])
+    env["MODEL_ID"] = "offline-test-model"
+    env["WORKBUDDY_HOME"] = str(tmp_path / "home")
+    result = subprocess.run(
+        [sys.executable, script],
+        input=input_text,
+        cwd=root,
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        timeout=10,
+    )
+    assert result.returncode == 0, result.stdout[-4000:]
+    assert required in result.stdout
+    assert "Traceback" not in result.stdout

@@ -44,7 +44,7 @@ from mini_workbuddy.chapter_demo import maybe_run_chapter_demo as _wb_maybe_run_
 _wb_maybe_run_chapter_demo(__file__, PROGRESSION)
 from mini_workbuddy.chapter_demo import prepare_chapter_provider as _wb_prepare_chapter_provider
 _wb_prepare_chapter_provider()
-import os, sys, time, json, threading, subprocess, signal
+import os, sys, time, json, threading, subprocess, signal, socket
 from pathlib import Path
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from datetime import datetime
@@ -171,8 +171,6 @@ class SessionProcess:
         - Runs real Anthropic API calls
     """
 
-    _next_port = 13001
-
     def __init__(self, session_id: str, cwd: str, mode: str = MODE_CRAFT,
                  backend: str = "pipe"):
         self.id = session_id
@@ -186,13 +184,19 @@ class SessionProcess:
         self.messages: list[dict] = []
         self._aborted = False
 
-        # Assign ACP port
-        self.port = SessionProcess._next_port
-        SessionProcess._next_port += 1
+        # Assign ACP port. Let the OS pick an available port so repeated
+        # tests and benchmark runs cannot collide on a fixed port.
+        self.port = self._free_port()
 
         # ACP HTTP server (runs inside the "CLI process")
         self._http_server = None
         self._http_thread = None
+
+    @staticmethod
+    def _free_port() -> int:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.bind(("127.0.0.1", 0))
+            return int(sock.getsockname()[1])
 
     def start(self):
         """
@@ -418,7 +422,7 @@ def main():
         session = mgr.get_session(current_sid)
         prompt_mode = session.mode if session else "??"
         try:
-            query = input(f"\033[36m{s07}[{current_sid}:{prompt_mode}] >> \033[0m").strip()
+            query = input(f"\033[36ms07[{current_sid}:{prompt_mode}] >> \033[0m").strip()
         except (EOFError, KeyboardInterrupt):
             break
         if query.lower() in ("q", "exit", "quit"):

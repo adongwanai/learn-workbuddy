@@ -60,13 +60,14 @@ except ImportError:
 
 from anthropic import Anthropic
 from dotenv import load_dotenv
+from mini_workbuddy.paths import tutorial_workbuddy_home
 
 load_dotenv(override=True)
 if os.getenv("ANTHROPIC_BASE_URL"): os.environ.pop("ANTHROPIC_AUTH_TOKEN", None)
 
 WORKDIR = Path.cwd()
-# Use a local directory for the tutorial to avoid messing with real ~/.workbuddy/
-WB_DIR = WORKDIR / ".workbuddy_user"
+# Use an isolated tutorial directory to avoid touching real ~/.workbuddy.
+WB_DIR = tutorial_workbuddy_home() / "user-memory"
 MAX_USER_MEMORY_WRITE = 4000  # chars per session write
 
 # Default files
@@ -145,6 +146,7 @@ class UserMemory:
 
     def create_bootstrap(self):
         """Create persona/bootstrap.md for first-time setup."""
+        self.bootstrap_path.parent.mkdir(parents=True, exist_ok=True)
         self.bootstrap_path.write_text(BOOTSTRAP_TEMPLATE, encoding="utf-8")
 
     def read_bootstrap(self) -> str:
@@ -162,6 +164,7 @@ class UserMemory:
 
     def save_identity(self, soul: str, identity: str, user_info: str):
         """Write identity files after bootstrap conversation."""
+        self.soul_path.parent.mkdir(parents=True, exist_ok=True)
         self.soul_path.write_text(soul, encoding="utf-8")
         self.identity_path.write_text(identity, encoding="utf-8")
         self.user_path.write_text(user_info, encoding="utf-8")
