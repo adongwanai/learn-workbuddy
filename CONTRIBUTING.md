@@ -6,7 +6,7 @@
 
 ### 报告问题
 
-如果你发现内容有误、代码不能运行、或某个概念解释不清楚，请 [提交 Issue](https://github.com/shareAI-lab/learn-workbuddy/issues)，附上：
+如果你发现内容有误、代码不能运行、或某个概念解释不清楚，请 [提交 Issue](https://github.com/adongwanai/learn-workbuddy/issues)，附上：
 
 - 哪一章、哪个文件
 - 你期望的内容
