@@ -331,6 +331,11 @@ python3 examples/mini_workbuddy_demo/code.py --mode real --provider openai-chat
 OPENAI_CHAT_BASE_URL=https://your-openai-compatible-gateway.example/v1 \
 OPENAI_CHAT_MODEL=gpt-5.5 \
 python3 scripts/run_real_smoke.py --provider openai-chat --targets mini full all-lessons
+
+# Atlas Cloud（OpenAI-compatible Chat Completions）
+ATLAS_CLOUD_API_KEY=your-key \
+ATLAS_CLOUD_MODEL=deepseek-ai/deepseek-v4-flash \
+python3 examples/mini_workbuddy_demo/code.py --mode real --provider atlas-cloud
 ```
 
 边界说明：章节自己的交互式 CLI 多数保留 Anthropic-compatible `tool_use/tool_result` 形状，便于对标 learn-claude-code；统一 `--eval` 路径则通过 `mini_workbuddy.providers` 归一化 DeepSeek/Anthropic/OpenAI/OpenAI-compatible gateway，所以 24 章都能进入模型评测并写出 trace。
@@ -400,7 +405,7 @@ python3 scripts/model_benchmark.py --providers deepseek openai-chat
 python3 scripts/model_benchmark.py --providers deepseek openai-chat --max-lessons 3 --dry-run
 ```
 
-配置见 `.env.example`（`PROVIDER=deepseek|anthropic|openai|openai-chat|offline|auto`）。协议对照与设计
+配置见 `.env.example`（`PROVIDER=deepseek|anthropic|openai|openai-chat|atlas-cloud|offline|auto`）。协议对照与设计
 说明见 [docs/appendix/provider-adapter.md](./docs/appendix/provider-adapter.md)。
 
 ---
