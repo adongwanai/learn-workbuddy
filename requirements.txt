@@ -1,1 +1,9 @@
-@requirements.txt
+# Core teaching dependencies. SDKs are imported lazily, but installing them
+# up front keeps the README promise true: clone, pip install, fill a key,
+# then run any documented provider path.
+anthropic>=0.25.0
+openai>=1.40.0
+python-dotenv>=1.0.0
+pyyaml>=6.0
+pytest>=8.0.0
+openpyxl>=3.1.0
