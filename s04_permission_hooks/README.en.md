@@ -1,6 +1,6 @@
 # s04: Permission & Hooks - Decide, Approve, Then Execute
 
-[Chinese](README.md) · [English](README.en.md)
+[中文](README.md) · [English](README.en.md)
 > "Set the boundary first, then grant freedom."
 >
 > **Harness layer**: turn a model-proposed action into an explainable, approvable, auditable execution result.

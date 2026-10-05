@@ -1,6 +1,6 @@
 # s16: Skills System - List First, Expand on Demand
 
-[Chinese](README.md) · [English](README.en.md)
+[中文](README.md) · [English](README.en.md)
 > *Skills are indexed as short instructions and loaded only when a task needs them.*
 >
 > **Harness layer: extensibility, lazy loading, and skill permission boundaries.**

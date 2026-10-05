@@ -1,6 +1,6 @@
 # s21: SQLite Database - Persist Sessions and Track Usage
 
-[Chinese](README.md) · [English](README.en.md)
+[中文](README.md) · [English](README.en.md)
 > *Sessions need durable storage; usage needs a queryable history.*
 >
 > **Harness layer: local persistence, WAL, and usage accounting.**

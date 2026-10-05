@@ -1,6 +1,6 @@
 # s14: Context Compact - Context Always Fills Up
 
-[Chinese](README.md) · [English](README.en.md)
+[中文](README.md) · [English](README.en.md)
 > *When the context window fills, compact disposable messages while preserving durable evidence.*
 >
 > **Harness layer: bounded context and durable-state bypass.**

@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MODULES = [ROOT, *sorted(ROOT.glob("s[0-9][0-9]_*/"))]
 CHINESE_NAVIGATION = "[中文](README.md) · [English](README.en.md)"
-ENGLISH_NAVIGATION = "[Chinese](README.md) · [English](README.en.md)"
+ENGLISH_NAVIGATION = CHINESE_NAVIGATION
 README_NAMES = ("README.md", "README.en.md")
 SVG_LINK = re.compile(r"\]\(([^)]+\.svg)\)")
 SVG_TEXT = re.compile(r"<(?:text|tspan)\b[^>]*>([^<>]*)</(?:text|tspan)>")

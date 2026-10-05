@@ -1,5 +1,5 @@
 # 🔥 Desktop AI assistant from scratch · Replicate the WorkBuddy architecture in 24 lessons
-[Chinese](README.md) · [English](README.en.md)
+[中文](README.md) · [English](README.en.md)
 **An open source teaching blueprint - not product source code, but a runnable Agent engineering course.**
 
 > The model is the brain and the Harness is the operating system.

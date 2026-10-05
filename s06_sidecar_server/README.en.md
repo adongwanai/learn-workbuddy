@@ -1,6 +1,6 @@
 # s06: Sidecar Server - Let the Sidecar Run the Agent
 
-[Chinese](README.md) · [English](README.en.md)
+[中文](README.md) · [English](README.en.md)
 > *The main process manages the application; the Sidecar owns the agent runtime.*
 >
 > **Harness layer: process architecture and the agent's host process.**

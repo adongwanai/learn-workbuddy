@@ -1,6 +1,6 @@
 # s11: User Memory - Profile and Preferences Need User Scope
 
-[Chinese](README.md) · [English](README.en.md)
+[中文](README.md) · [English](README.en.md)
 > *Cross-project preferences belong to the user scope, with explicit updates and soft deletion.*
 >
 > **Harness layer: user profile projection and preference boundaries.**

@@ -1,6 +1,6 @@
 # s13: Tool Output Externalization - Move Large Results to Disk
 
-[Chinese](README.md) · [English](README.en.md)
+[中文](README.md) · [English](README.en.md)
 > *Context is memory; durable tool output belongs in an artifact with a pointer.*
 >
 > **Harness layer: context management and artifact lifecycle.**

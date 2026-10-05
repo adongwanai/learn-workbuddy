@@ -1,6 +1,6 @@
 # s23: Audit and Sandbox - Leave Evidence for Every Step
 
-[Chinese](README.md) · [English](README.en.md)
+[中文](README.md) · [English](README.en.md)
 > *Every consequential step needs a trace, and every command needs a boundary.*
 >
 > **Harness layer: command safety, sandboxing, and tamper-evident audit.**

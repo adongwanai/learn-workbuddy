@@ -1,6 +1,6 @@
 # s17: MCP Connectors - External Tools Need Trust and Grants
 
-[Chinese](README.md) · [English](README.en.md)
+[中文](README.md) · [English](README.en.md)
 > *A connector can expose tools, but trust and the active skill grant still decide visibility.*
 >
 > **Harness layer: external tool protocols and connector lifecycle.**

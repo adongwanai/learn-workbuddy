@@ -1,6 +1,6 @@
 # s05: Electron Shell - One Process Is Not Enough
 
-[Chinese](README.md) · [English](README.en.md)
+[中文](README.md) · [English](README.en.md)
 > *One process is not enough: main, renderer, preload, and a narrow IPC bridge.*
 >
 > **Harness layer**: process architecture, the foundation of a desktop application.

@@ -1,6 +1,6 @@
 # s03: Deferred Tool Loading — Discover first, then load, then execute
 
-[Chinese](README.md) · [English](README.en.md)
+[中文](README.md) · [English](README.en.md)
 > "Tools list the directory first, and then expand the schema after it is used."
 >
 > **Harness layer**: Controls which tool contracts are exposed to the model at each round.

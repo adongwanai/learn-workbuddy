@@ -1,6 +1,6 @@
 # s22: Automation Scheduler - Run at the Right Time
 
-[Chinese](README.md) · [English](README.en.md)
+[中文](README.md) · [English](README.en.md)
 > *A desktop agent can wake up at a scheduled time without a person starting it.*
 >
 > **Harness layer: scheduling and background invocation.**

@@ -1,6 +1,6 @@
 # s12: Remote Memory - Store Records, Recall Context
 
-[Chinese](README.md) · [English](README.en.md)
+[中文](README.md) · [English](README.en.md)
 > *Remote memory stores durable records; recall returns scoped, scored, source-bearing candidates.*
 >
 > **Harness layer: remote memory and query-scoped retrieval.**
