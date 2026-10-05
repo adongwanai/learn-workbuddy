@@ -96,7 +96,7 @@
 
   <line x1="500" y1="543" x2="500" y2="574" stroke="#1f2937" stroke-width="2" marker-end="url(#arrow)"/>
   <polygon points="165,583 835,583 750,623 250,623" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
-  <text x="500" y="605" text-anchor="middle" font-size="15" font-weight="700" fill="#5b21b6">Total Prompt Planner：required first · optional by value</text>
+  <text x="500" y="605" text-anchor="middle" font-size="15" font-weight="700" fill="#5b21b6">Total Prompt Planner: required first · optional by value</text>
 
   <line x1="500" y1="623" x2="500" y2="647" stroke="#2563eb" stroke-width="2.2" marker-end="url(#arrowBlue)"/>
   <rect x="310" y="652" width="380" height="36" rx="8" fill="#1d4ed8"/>

@@ -33,7 +33,7 @@
   <text class="body" x="315" y="199">Same score conflict fail closed</text>
 
   <rect x="555" y="75" width="370" height="150" rx="12" fill="#fff4df" stroke="#c98720"/>
-  <text class="heading" x="575" y="105">curated.json：canonical history</text>
+  <text class="heading" x="575" y="105">curated.json: canonical history</text>
   <rect x="575" y="125" width="140" height="72" rx="8" fill="#f3e5ce" stroke="#ac7d39"/>
   <text class="small" x="645" y="146" text-anchor="middle">revision 1</text>
   <text class="body" x="645" y="168" text-anchor="middle">superseded</text>
