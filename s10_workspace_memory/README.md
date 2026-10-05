@@ -1,5 +1,6 @@
 # s10: Workspace Memory — 从工作日志蒸馏可恢复的项目记忆
 
+[中文](README.md) · [English](README.en.md)
 > Transcript 保存一次会话发生了什么；Workspace Memory 选择下次仍值得知道什么。
 >
 > **Harness 层**：项目作用域、记忆写入策略、蒸馏策略与 prompt 注入。

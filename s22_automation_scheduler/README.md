@@ -1,5 +1,6 @@
 # s22: Automation Scheduler — 到点自动跑, 不需要人推
 
+[中文](README.md) · [English](README.en.md)
 > *"到点自动跑, 不需要人推"* — recurring/once, RFC 5545 RRULE, 软删除可恢复。
 >
 > **Harness 层**: 调度 — agent 不只在用户提问时才工作, 它可以自己到点醒来。

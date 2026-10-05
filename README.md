@@ -1,5 +1,6 @@
 # 🔥 从0手搓桌面AI助手 · 24节课复刻WorkBuddy架构
 
+[中文](README.md) · [English](README.en.md)
 **一份开源教学蓝图 — 不是产品源码，是可以跑的 Agent 工程课。**
 
 > 模型是大脑，Harness 是操作系统。

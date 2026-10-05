@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 720" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f8f9fa"/>
+      <stop offset="100%" stop-color="#eef4ff"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#5f6368"/>
+    </marker>
+    <style>
+      .title { font-size: 28px; font-weight: 800; fill: #202124; }
+      .subtitle { font-size: 14px; fill: #5f6368; }
+      .group-title { font-size: 15px; font-weight: 800; fill: #ffffff; }
+      .group-sub { font-size: 10.5px; fill: rgba(255,255,255,0.88); }
+      .chapter-title { font-size: 11px; font-weight: 750; fill: #202124; }
+      .chapter-sub { font-size: 8.7px; fill: #5f6368; }
+      .tiny { font-size: 10px; fill: #5f6368; }
+    </style>
+  </defs>
+
+  <rect width="1100" height="720" fill="url(#bg)"/>
+
+  <text x="550" y="38" text-anchor="middle" class="title">24 Lesson Panorama: From Agent Loop to Desktop Harness</text>
+  <text x="550" y="62" text-anchor="middle" class="subtitle">A single chapter forms a stable contract, and the comprehensive chapter is responsible for connecting without changing the loop, permission, transcript and memory semantics.</text>
+
+  <rect x="382" y="92" width="336" height="104" rx="18" fill="#1a73e8"/>
+  <text x="550" y="126" text-anchor="middle" font-size="20" font-weight="800" fill="#ffffff">s01 Agent Loop</text>
+  <text x="550" y="149" text-anchor="middle" font-size="13" fill="#d6e4ff">Main loop: model request tool, Harness executes and writes back the results</text>
+  <text x="550" y="172" text-anchor="middle" font-size="12" fill="#d6e4ff">while True -> model -> tool/result -> final answer</text>
+
+  <path d="M550 196 L550 232" stroke="#5f6368" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+
+  <rect x="390" y="230" width="320" height="44" rx="22" fill="#202124"/>
+  <text x="550" y="258" text-anchor="middle" font-size="15" font-weight="750" fill="#ffffff">The ultimate goal: a complete desktop Agent Harness</text>
+
+  <path d="M390 252 L342 252" stroke="#5f6368" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M710 252 L758 252" stroke="#5f6368" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M470 274 L470 313" stroke="#5f6368" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M630 274 L630 313" stroke="#5f6368" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- Group 1 -->
+  <rect x="40" y="314" width="320" height="166" rx="16" fill="#ffffff" stroke="#34a853" stroke-width="1.5"/>
+  <rect x="40" y="314" width="320" height="42" rx="16" fill="#34a853"/>
+  <rect x="40" y="342" width="320" height="14" fill="#34a853"/>
+  <text x="200" y="338" text-anchor="middle" class="group-title">A. Tool capability layer</text>
+  <text x="200" y="352" text-anchor="middle" class="group-sub">Let the Agent do things but expose capabilities on demand</text>
+
+  <rect x="60" y="378" width="132" height="34" rx="8" fill="#e6f4ea" stroke="#34a853"/>
+  <text x="126" y="393" text-anchor="middle" class="chapter-title">s02 tool distribution</text>
+  <text x="126" y="406" text-anchor="middle" class="chapter-sub">dispatch map</text>
+  <rect x="208" y="378" width="132" height="34" rx="8" fill="#e6f4ea" stroke="#34a853"/>
+  <text x="274" y="393" text-anchor="middle" class="chapter-title">s03 lazy loading</text>
+  <text x="274" y="406" text-anchor="middle" class="chapter-sub">ToolSearch</text>
+  <rect x="60" y="426" width="132" height="34" rx="8" fill="#e6f4ea" stroke="#34a853"/>
+  <text x="126" y="441" text-anchor="middle" class="chapter-title">s16 Skills</text>
+  <text x="126" y="454" text-anchor="middle" class="chapter-sub">SKILL.md</text>
+  <rect x="208" y="426" width="132" height="34" rx="8" fill="#e6f4ea" stroke="#34a853"/>
+  <text x="274" y="441" text-anchor="middle" class="chapter-title">s17 MCP</text>
+  <text x="274" y="454" text-anchor="middle" class="chapter-sub">external connector</text>
+
+  <!-- Group 2 -->
+  <rect x="390" y="314" width="320" height="166" rx="16" fill="#ffffff" stroke="#1a73e8" stroke-width="1.5"/>
+  <rect x="390" y="314" width="320" height="42" rx="16" fill="#1a73e8"/>
+  <rect x="390" y="342" width="320" height="14" fill="#1a73e8"/>
+  <text x="550" y="338" text-anchor="middle" class="group-title">B. Context and memory layer</text>
+  <text x="550" y="352" text-anchor="middle" class="group-sub">Allow the Agent to work for a long time without being trapped by the context window</text>
+
+  <rect x="410" y="378" width="132" height="34" rx="8" fill="#e8f0fe" stroke="#1a73e8"/>
+  <text x="476" y="393" text-anchor="middle" class="chapter-title">s09 JSONL</text>
+  <text x="476" y="406" text-anchor="middle" class="chapter-sub">Conversation Transcription</text>
+  <rect x="558" y="378" width="132" height="34" rx="8" fill="#e8f0fe" stroke="#1a73e8"/>
+  <text x="624" y="393" text-anchor="middle" class="chapter-title">s10 workspace memory</text>
+  <text x="624" y="406" text-anchor="middle" class="chapter-sub">project memory</text>
+  <rect x="410" y="426" width="132" height="34" rx="8" fill="#e8f0fe" stroke="#1a73e8"/>
+  <text x="476" y="441" text-anchor="middle" class="chapter-title">s11 user memory</text>
+  <text x="476" y="454" text-anchor="middle" class="chapter-sub">user memory</text>
+  <rect x="558" y="426" width="132" height="34" rx="8" fill="#e8f0fe" stroke="#1a73e8"/>
+  <text x="624" y="441" text-anchor="middle" class="chapter-title">s12 cloud memory</text>
+  <text x="624" y="454" text-anchor="middle" class="chapter-sub">profile / recall</text>
+
+  <!-- Group 3 -->
+  <rect x="740" y="314" width="320" height="166" rx="16" fill="#ffffff" stroke="#fbbc04" stroke-width="1.5"/>
+  <rect x="740" y="314" width="320" height="42" rx="16" fill="#fbbc04"/>
+  <rect x="740" y="342" width="320" height="14" fill="#fbbc04"/>
+  <text x="900" y="338" text-anchor="middle" class="group-title" fill="#202124">C. Compression and persistence layer</text>
+  <text x="900" y="352" text-anchor="middle" font-size="10.5px" fill="#5f6368">Large output, long history, and structured data must be put on the market</text>
+
+  <rect x="760" y="378" width="132" height="34" rx="8" fill="#fef7e0" stroke="#fbbc04"/>
+  <text x="826" y="393" text-anchor="middle" class="chapter-title">s13 output externalization</text>
+  <text x="826" y="406" text-anchor="middle" class="chapter-sub">tool result swap</text>
+  <rect x="908" y="378" width="132" height="34" rx="8" fill="#fef7e0" stroke="#fbbc04"/>
+  <text x="974" y="393" text-anchor="middle" class="chapter-title">s14 context compression</text>
+  <text x="974" y="406" text-anchor="middle" class="chapter-sub">compact pipeline</text>
+  <rect x="760" y="426" width="132" height="34" rx="8" fill="#fef7e0" stroke="#fbbc04"/>
+  <text x="826" y="441" text-anchor="middle" class="chapter-title">s21 SQLite</text>
+  <text x="826" y="454" text-anchor="middle" class="chapter-sub">structured store</text>
+  <rect x="908" y="426" width="132" height="34" rx="8" fill="#fef7e0" stroke="#fbbc04"/>
+  <text x="974" y="441" text-anchor="middle" class="chapter-title">s22 automation</text>
+  <text x="974" y="454" text-anchor="middle" class="chapter-sub">scheduler</text>
+
+  <!-- Group 4 -->
+  <rect x="40" y="510" width="320" height="150" rx="16" fill="#ffffff" stroke="#7b1fa2" stroke-width="1.5"/>
+  <rect x="40" y="510" width="320" height="42" rx="16" fill="#7b1fa2"/>
+  <rect x="40" y="538" width="320" height="14" fill="#7b1fa2"/>
+  <text x="200" y="534" text-anchor="middle" class="group-title">D. Desktop runtime layer</text>
+  <text x="200" y="548" text-anchor="middle" class="group-sub">Front-end, Sidecar, session life cycle layering</text>
+
+  <rect x="60" y="574" width="132" height="34" rx="8" fill="#f3e5f5" stroke="#7b1fa2"/>
+  <text x="126" y="589" text-anchor="middle" class="chapter-title">s05 Electron</text>
+  <text x="126" y="602" text-anchor="middle" class="chapter-sub">shell / IPC</text>
+  <rect x="208" y="574" width="132" height="34" rx="8" fill="#f3e5f5" stroke="#7b1fa2"/>
+  <text x="274" y="589" text-anchor="middle" class="chapter-title">s06 Sidecar</text>
+  <text x="274" y="602" text-anchor="middle" class="chapter-sub">local server</text>
+  <rect x="134" y="616" width="132" height="34" rx="8" fill="#f3e5f5" stroke="#7b1fa2"/>
+  <text x="200" y="631" text-anchor="middle" class="chapter-title">s07 session management</text>
+  <text x="200" y="644" text-anchor="middle" class="chapter-sub">resume / lifecycle</text>
+
+  <!-- Group 5 -->
+  <rect x="390" y="510" width="320" height="150" rx="16" fill="#ffffff" stroke="#0097a7" stroke-width="1.5"/>
+  <rect x="390" y="510" width="320" height="42" rx="16" fill="#0097a7"/>
+  <rect x="390" y="538" width="320" height="14" fill="#0097a7"/>
+  <text x="550" y="534" text-anchor="middle" class="group-title">E. Interaction and delivery layer</text>
+  <text x="550" y="548" text-anchor="middle" class="group-sub">From prompt assembly to final visual delivery</text>
+
+  <rect x="410" y="574" width="132" height="34" rx="8" fill="#e0f7fa" stroke="#0097a7"/>
+  <text x="476" y="589" text-anchor="middle" class="chapter-title">s15 Prompt</text>
+  <text x="476" y="602" text-anchor="middle" class="chapter-sub">runtime assembly</text>
+  <rect x="558" y="574" width="132" height="34" rx="8" fill="#e0f7fa" stroke="#0097a7"/>
+  <text x="624" y="589" text-anchor="middle" class="chapter-title">s18 expert system</text>
+  <text x="624" y="602" text-anchor="middle" class="chapter-sub">expert package</text>
+  <rect x="410" y="616" width="132" height="34" rx="8" fill="#e0f7fa" stroke="#0097a7"/>
+  <text x="476" y="631" text-anchor="middle" class="chapter-title">s19 visualization</text>
+  <text x="476" y="644" text-anchor="middle" class="chapter-sub">widget / SVG</text>
+  <rect x="558" y="616" width="132" height="34" rx="8" fill="#e0f7fa" stroke="#0097a7"/>
+  <text x="624" y="631" text-anchor="middle" class="chapter-title">s20 result delivery</text>
+  <text x="624" y="644" text-anchor="middle" class="chapter-sub">artifacts</text>
+
+  <!-- Group 6 -->
+  <rect x="740" y="510" width="320" height="150" rx="16" fill="#ffffff" stroke="#ea4335" stroke-width="1.5"/>
+  <rect x="740" y="510" width="320" height="42" rx="16" fill="#ea4335"/>
+  <rect x="740" y="538" width="320" height="14" fill="#ea4335"/>
+  <text x="900" y="534" text-anchor="middle" class="group-title">F. Governance and Integration Layer</text>
+  <text x="900" y="548" text-anchor="middle" class="group-sub">Make autonomous execution controllable, auditable, and reviewable</text>
+
+  <rect x="760" y="574" width="132" height="34" rx="8" fill="#fce8e6" stroke="#ea4335"/>
+  <text x="826" y="589" text-anchor="middle" class="chapter-title">s04 permission hook</text>
+  <text x="826" y="602" text-anchor="middle" class="chapter-sub">permission hooks</text>
+  <rect x="908" y="574" width="132" height="34" rx="8" fill="#fce8e6" stroke="#ea4335"/>
+  <text x="974" y="589" text-anchor="middle" class="chapter-title">s08 model routing</text>
+  <text x="974" y="602" text-anchor="middle" class="chapter-sub">model tiers</text>
+  <rect x="760" y="616" width="132" height="34" rx="8" fill="#fce8e6" stroke="#ea4335"/>
+  <text x="826" y="631" text-anchor="middle" class="chapter-title">s23 audit sandbox</text>
+  <text x="826" y="644" text-anchor="middle" class="chapter-sub">audit / sandbox</text>
+  <rect x="908" y="616" width="132" height="34" rx="8" fill="#fce8e6" stroke="#ea4335"/>
+  <text x="974" y="631" text-anchor="middle" class="chapter-title">s24 comprehensive version</text>
+  <text x="974" y="644" text-anchor="middle" class="chapter-sub">integrated loop</text>
+
+  <rect x="70" y="682" width="960" height="24" rx="12" fill="#ffffff" stroke="#dadce0"/>
+  <text x="550" y="699" text-anchor="middle" class="tiny">One thread: Agent Loop is the heart; tools, memory, runtime, persistence, delivery and governance surround it to form a complete desktop Harness.</text>
+</svg>

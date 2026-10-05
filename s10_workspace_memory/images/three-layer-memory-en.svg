@@ -1,0 +1,74 @@
+<svg viewBox="0 0 680 560" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>WorkBuddy Three-Layer Memory Architecture</title>
+  <desc>Three-layer architecture and data flow for cloud memory, user-level local memory, and workspace memory</desc>
+  <defs>
+    <marker id="arrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      .th{font:500 14px var(--font-sans,sans-serif);fill:var(--color-text-primary,#000)}
+      .ts{font:400 12px var(--font-sans,sans-serif);fill:var(--color-text-secondary,#666)}
+      .tc{font:400 11px var(--font-mono,monospace);fill:var(--color-text-tertiary,#888)}
+    </style>
+  </defs>
+
+  <rect width="680" height="560" fill="#f8f9fa"/>
+  <text class="th" x="340" y="30" text-anchor="middle" font-size="15">Three-tier memory system</text>
+
+  <rect x="30" y="50" width="620" height="130" rx="12" fill="#E6F1FB" stroke="#85B7EB" stroke-width="0.5"/>
+  <text class="th" x="50" y="75">Layer 1 — Cloud Memory</text>
+  <text class="ts" x="50" y="92">Server generation · &lt;memory&gt; block injected on session start · Read only</text>
+  <g class="c-blue">
+    <rect x="50" y="105" width="180" height="56" rx="8" fill="#B5D4F4" stroke="#378ADD" stroke-width="0.5"/>
+    <text class="th" x="140" y="125" text-anchor="middle" dominant-baseline="central">User portrait Profile</text>
+    <text class="ts" x="140" y="143" text-anchor="middle" dominant-baseline="central">~/.workbuddy/memory/*.md</text>
+  </g>
+  <g class="c-blue">
+    <rect x="250" y="105" width="180" height="56" rx="8" fill="#B5D4F4" stroke="#378ADD" stroke-width="0.5"/>
+    <text class="th" x="340" y="125" text-anchor="middle" dominant-baseline="central">historical recall</text>
+    <text class="ts" x="340" y="143" text-anchor="middle" dominant-baseline="central">Server-side relevance sorting</text>
+  </g>
+  <g class="c-blue">
+    <rect x="450" y="105" width="170" height="56" rx="8" fill="#B5D4F4" stroke="#378ADD" stroke-width="0.5"/>
+    <text class="th" x="535" y="125" text-anchor="middle" dominant-baseline="central">memory RPC</text>
+    <text class="ts" x="535" y="143" text-anchor="middle" dominant-baseline="central">Channelized synchronization</text>
+  </g>
+
+  <path d="M340 180 L340 200" class="arr" stroke="#5F5E5A" stroke-width="1.5" fill="none" marker-end="url(#arrow2)"/>
+  <text class="ts" x="360" y="194">Auto-injection/RPC calls</text>
+
+  <rect x="30" y="210" width="620" height="130" rx="12" fill="#E1F5EE" stroke="#5DCAA5" stroke-width="0.5"/>
+  <text class="th" x="50" y="235">Layer 2 — User-level Local Memory</text>
+  <text class="ts" x="50" y="252">Share across projects · 4,000 character/session limit · Edit tool writes directly</text>
+  <g class="c-teal">
+    <rect x="50" y="265" width="280" height="56" rx="8" fill="#9FE1CB" stroke="#1D9E75" stroke-width="0.5"/>
+    <text class="th" x="190" y="285" text-anchor="middle" dominant-baseline="central">~/.workbuddy/MEMORY.md</text>
+    <text class="ts" x="190" y="303" text-anchor="middle" dominant-baseline="central">Long-term preferences · Cross-project rules</text>
+  </g>
+  <g class="c-teal">
+    <rect x="350" y="265" width="270" height="56" rx="8" fill="#9FE1CB" stroke="#1D9E75" stroke-width="0.5"/>
+    <text class="th" x="485" y="285" text-anchor="middle" dominant-baseline="central">Identity documents</text>
+    <text class="ts" x="485" y="303" text-anchor="middle" dominant-baseline="central">persona / identity / user / bootstrap</text>
+  </g>
+
+  <path d="M340 340 L340 360" class="arr" stroke="#5F5E5A" stroke-width="1.5" fill="none" marker-end="url(#arrow2)"/>
+  <text class="ts" x="360" y="354">Isolate by project</text>
+
+  <rect x="30" y="370" width="620" height="170" rx="12" fill="#FAEEDA" stroke="#EF9F27" stroke-width="0.5"/>
+  <text class="th" x="50" y="395">Layer 3 — Workspace Memory</text>
+  <text class="ts" x="50" y="412">Current project only · Explicit distillation threshold · Append log + curated view</text>
+  <g class="c-amber">
+    <rect x="50" y="425" width="280" height="52" rx="8" fill="#FAC775" stroke="#BA7517" stroke-width="0.5"/>
+    <text class="th" x="190" y="445" text-anchor="middle" dominant-baseline="central">daily/*.jsonl</text>
+    <text class="ts" x="190" y="463" text-anchor="middle" dominant-baseline="central">Structured facts · Append only</text>
+  </g>
+  <g class="c-amber">
+    <rect x="350" y="425" width="270" height="52" rx="8" fill="#FAC775" stroke="#BA7517" stroke-width="0.5"/>
+    <text class="th" x="485" y="445" text-anchor="middle" dominant-baseline="central">MEMORY.md</text>
+    <text class="ts" x="485" y="463" text-anchor="middle" dominant-baseline="central">Curatorial long-term project notes</text>
+  </g>
+  <g class="c-amber">
+    <rect x="50" y="485" width="570" height="40" rx="8" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.5"/>
+    <text class="ts" x="335" y="505" text-anchor="middle" dominant-baseline="central">.learn_workbuddy/memory/ — Threshold distilled to MEMORY.md, original evidence retained</text>
+  </g>
+</svg>

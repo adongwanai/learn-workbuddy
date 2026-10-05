@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect width="900" height="600" fill="#f8fafc"/>
+  <text x="450" y="38" text-anchor="middle" font-size="23" font-weight="700" fill="#0f172a">User Memory: Ownership, Validity and Evidence</text>
+  <text x="450" y="61" text-anchor="middle" font-size="12" fill="#64748b">Canonical records retain history; only active Preference enters Prompt</text>
+
+  <!-- An explicit user request is the only write trigger. -->
+  <rect x="34" y="100" width="174" height="72" rx="10" fill="#ffffff" stroke="#94a3b8" filter="url(#shadow)"/>
+  <text x="121" y="128" text-anchor="middle" font-size="14" font-weight="700" fill="#0f172a">Explicit request</text>
+  <text x="121" y="150" text-anchor="middle" font-size="12" fill="#475569">Explicit save/limited time/update/delete</text>
+
+  <line x1="208" y1="136" x2="261" y2="136" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- The tool boundary chooses a typed state transition. -->
+  <rect x="270" y="90" width="218" height="92" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2" filter="url(#shadow)"/>
+  <text x="379" y="120" text-anchor="middle" font-size="15" font-weight="700" fill="#1e3a8a">Memory tool boundary</text>
+  <text x="379" y="145" text-anchor="middle" font-size="12" fill="#1e40af">update_user_profile</text>
+  <text x="379" y="164" text-anchor="middle" font-size="12" fill="#1e40af">save preference + optional expiry</text>
+
+  <!-- Stable user scope routes all reads and writes. -->
+  <line x1="488" y1="136" x2="542" y2="136" stroke="#2563eb" stroke-width="2" marker-end="url(#arrowBlue)"/>
+  <rect x="550" y="100" width="316" height="72" rx="10" fill="#1e40af" filter="url(#shadow)"/>
+  <text x="708" y="128" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">users/&lt;scope-id&gt;/</text>
+  <text x="708" y="151" text-anchor="middle" font-size="12" fill="#dbeafe">Path isolation + JSON user_scope verification</text>
+
+  <!-- Two canonical stores have different mutation semantics. -->
+  <line x1="645" y1="172" x2="506" y2="226" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="770" y1="172" x2="782" y2="226" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="744" y="210" text-anchor="middle" font-size="10" fill="#64748b">Harness attaches s09 event ID</text>
+
+  <rect x="315" y="235" width="270" height="105" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="2" filter="url(#shadow)"/>
+  <text x="450" y="264" text-anchor="middle" font-size="15" font-weight="700" fill="#065f46">profile.json</text>
+  <text x="450" y="288" text-anchor="middle" font-size="12" fill="#047857">structured stable facts</text>
+  <text x="450" y="309" text-anchor="middle" font-size="12" fill="#047857">partial patch · unknown field reject</text>
+  <text x="450" y="328" text-anchor="middle" font-size="11" fill="#64748b">name · call_them · timezone · notes</text>
+
+  <rect x="610" y="235" width="256" height="105" rx="10" fill="#fff7ed" stroke="#f97316" stroke-width="2" filter="url(#shadow)"/>
+  <text x="738" y="264" text-anchor="middle" font-size="15" font-weight="700" fill="#9a3412">preferences.json</text>
+  <text x="738" y="288" text-anchor="middle" font-size="12" fill="#c2410c">keyed canonical records</text>
+  <text x="738" y="309" text-anchor="middle" font-size="12" fill="#c2410c">active / expired · stale update reject</text>
+  <text x="738" y="328" text-anchor="middle" font-size="11" fill="#64748b">revision · expires_at · source_event_id</text>
+
+  <!-- Canonical JSON drives human/prompt-facing projections. -->
+  <line x1="450" y1="340" x2="450" y2="388" stroke="#10b981" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="738" y1="340" x2="738" y2="388" stroke="#f97316" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="315" y="396" width="270" height="62" rx="9" fill="#ffffff" stroke="#10b981"/>
+  <text x="450" y="422" text-anchor="middle" font-size="14" font-weight="700" fill="#065f46">persona/user.md</text>
+  <text x="450" y="443" text-anchor="middle" font-size="11" fill="#64748b">Readable Profile projection · Reconstructable</text>
+
+  <rect x="610" y="396" width="256" height="62" rx="9" fill="#ffffff" stroke="#f97316"/>
+  <text x="738" y="422" text-anchor="middle" font-size="14" font-weight="700" fill="#9a3412">MEMORY.md</text>
+  <text x="738" y="443" text-anchor="middle" font-size="11" fill="#64748b">active-only projection · Reconstructable</text>
+
+  <line x1="450" y1="458" x2="524" y2="500" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="738" y1="458" x2="652" y2="500" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="474" y="502" width="230" height="42" rx="9" fill="#0f172a"/>
+  <text x="589" y="528" text-anchor="middle" font-size="14" font-weight="700" fill="#ffffff">User context block</text>
+
+  <!-- Workspace memory is intentionally shown outside the ownership boundary. -->
+  <rect x="34" y="250" width="218" height="122" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-dasharray="6 5"/>
+  <text x="143" y="281" text-anchor="middle" font-size="14" font-weight="700" fill="#475569">s10 Workspace Memory</text>
+  <text x="143" y="306" text-anchor="middle" font-size="12" fill="#64748b">project decisions / conventions</text>
+  <text x="143" y="329" text-anchor="middle" font-size="12" fill="#64748b">Independent owner · Independent update strategy</text>
+  <text x="143" y="352" text-anchor="middle" font-size="12" font-weight="700" fill="#b91c1c">Do not write to user scope</text>
+  <line x1="252" y1="311" x2="298" y2="311" stroke="#b91c1c" stroke-width="2" stroke-dasharray="5 4"/>
+  <line x1="274" y1="299" x2="286" y2="323" stroke="#b91c1c" stroke-width="2"/>
+  <line x1="286" y1="299" x2="274" y2="323" stroke="#b91c1c" stroke-width="2"/>
+
+  <text x="34" y="580" font-size="11" fill="#64748b">Expired records are left in JSON audit; s15 can combine active user context and workspace context, but not merge canonical state.</text>
+</svg>

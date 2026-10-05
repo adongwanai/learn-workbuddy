@@ -1,5 +1,6 @@
 # s17: MCP Connectors — 外接工具, 标准协议, 信任模型
 
+[中文](README.md) · [English](README.en.md)
 > *"外接工具, 标准协议, 信任模型"* — MCP 让 agent 的工具池可以扩展；Connector 要受信任，具体工具还要被当前 Skill 显式声明。
 >
 > **Harness 层**: 扩展生态 — agent 的外接工具系统。

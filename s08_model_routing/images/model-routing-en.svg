@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#ea4335"/>
+    </marker>
+    <marker id="arrow-yellow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#fbbc04"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#34a853"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a73e8"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="500" fill="#f8f9fa"/>
+
+  <!-- Title -->
+  <text x="400" y="38" text-anchor="middle" font-size="24" font-weight="700" fill="#202124">Three-level model routing and Selector boundaries</text>
+  <text x="400" y="60" text-anchor="middle" font-size="13" fill="#5f6368">Universal Agent selection tier; Memory Selector fixed to zero tool determination</text>
+
+  <!-- Router hub (center left) -->
+  <circle cx="120" cy="270" r="52" fill="#1a73e8"/>
+  <text x="120" y="264" text-anchor="middle" font-size="14" font-weight="700" fill="#ffffff">Task routing</text>
+  <text x="120" y="282" text-anchor="middle" font-size="11" fill="#d6e4ff">Router</text>
+
+  <!-- ===== Tier 1: craft (Top) ===== -->
+  <!-- Routing arrow -->
+  <path d="M 165 235 Q 220 180, 275 155" fill="none" stroke="#ea4335" stroke-width="2.5" marker-end="url(#arrow-red)"/>
+  <rect x="195" y="160" width="90" height="22" rx="11" fill="#ea4335"/>
+  <text x="240" y="176" text-anchor="middle" font-size="11" font-weight="600" fill="#ffffff">complex tasks</text>
+
+  <rect x="275" y="95" width="475" height="82" rx="12" fill="#fce8e6" stroke="#ea4335" stroke-width="2"/>
+  <!-- Tier badge -->
+  <rect x="290" y="108" width="70" height="24" rx="6" fill="#ea4335"/>
+  <text x="325" y="125" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">craft</text>
+  <!-- Title -->
+  <text x="380" y="128" font-size="16" font-weight="700" fill="#ea4335">Direct user interaction · CLI main agent</text>
+  <!-- Cost -->
+  <circle cx="680" cy="122" r="5" fill="#ea4335"/>
+  <circle cx="696" cy="122" r="5" fill="#ea4335"/>
+  <circle cx="712" cy="122" r="5" fill="#ea4335"/>
+  <text x="720" y="145" text-anchor="end" font-size="10" fill="#5f6368">high cost</text>
+  <!-- Description -->
+  <text x="290" y="155" font-size="11" fill="#5f6368">Code generation · Architectural design · Complex reasoning · Multi-step planning</text>
+  <text x="290" y="170" font-size="11" fill="#5f6368">High-quality output for users, the strongest reasoning ability</text>
+
+  <!-- ===== Tier 2: default (Middle) ===== -->
+  <path d="M 170 270 L 275 270" fill="none" stroke="#fbbc04" stroke-width="2.5" marker-end="url(#arrow-yellow)"/>
+  <rect x="195" y="250" width="90" height="22" rx="11" fill="#fbbc04"/>
+  <text x="240" y="266" text-anchor="middle" font-size="11" font-weight="600" fill="#202124">medium task</text>
+
+  <rect x="275" y="208" width="475" height="82" rx="12" fill="#fef7e0" stroke="#fbbc04" stroke-width="2"/>
+  <rect x="290" y="221" width="70" height="24" rx="6" fill="#fbbc04"/>
+  <text x="325" y="238" text-anchor="middle" font-size="12" font-weight="700" fill="#202124">default</text>
+  <text x="380" y="241" font-size="16" font-weight="700" fill="#b06000">Plan · general-purpose Agent</text>
+  <circle cx="696" cy="235" r="5" fill="#fbbc04"/>
+  <circle cx="712" cy="235" r="5" fill="#fbbc04"/>
+  <text x="720" y="258" text-anchor="end" font-size="10" fill="#5f6368">medium cost</text>
+  <text x="290" y="268" font-size="11" fill="#5f6368">Code exploration · Moderate reasoning · Subtask execution · Documentation generation</text>
+  <text x="290" y="283" font-size="11" fill="#5f6368">Balances quality and cost, suitable for most Agent subtasks</text>
+
+  <!-- ===== Tier 3: lite (Bottom) ===== -->
+  <path d="M 165 305 Q 220 360, 275 385" fill="none" stroke="#34a853" stroke-width="2.5" marker-end="url(#arrow-green)"/>
+  <rect x="195" y="358" width="90" height="22" rx="11" fill="#34a853"/>
+  <text x="240" y="374" text-anchor="middle" font-size="11" font-weight="600" fill="#ffffff">simple tasks</text>
+
+  <rect x="275" y="321" width="475" height="82" rx="12" fill="#e6f4ea" stroke="#34a853" stroke-width="2"/>
+  <rect x="290" y="334" width="70" height="24" rx="6" fill="#34a853"/>
+  <text x="325" y="351" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">lite</text>
+  <text x="380" y="354" font-size="16" font-weight="700" fill="#137333">Lightweight determination · zero-tool selector</text>
+  <circle cx="712" cy="348" r="5" fill="#34a853"/>
+  <text x="720" y="371" text-anchor="end" font-size="10" fill="#5f6368">low cost</text>
+  <text x="290" y="381" font-size="11" fill="#5f6368">memorySelector (tools=[]) · promptHookEvaluator · Explore</text>
+  <text x="290" y="396" font-size="11" fill="#5f6368">Selector only returns candidate ID; general Agent can enter tool protocol</text>
+
+  <!-- Bottom legend -->
+  <rect x="275" y="430" width="475" height="50" rx="8" fill="#ffffff" stroke="#dadce0"/>
+  <text x="290" y="452" font-size="12" font-weight="600" fill="#202124">Selector routing strategy</text>
+  <text x="290" y="470" font-size="11" fill="#5f6368">bounded candidates → lite → allowlisted IDs · tools=[]</text>
+  <circle cx="690" cy="455" r="5" fill="#ea4335"/>
+  <circle cx="710" cy="455" r="5" fill="#fbbc04"/>
+  <circle cx="730" cy="455" r="5" fill="#34a853"/>
+  <text x="730" y="470" text-anchor="end" font-size="10" fill="#5f6368">tier</text>
+</svg>

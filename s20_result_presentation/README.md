@@ -1,5 +1,6 @@
 # s20: Result Presentation — 做完要交付, 不只是说
 
+[中文](README.md) · [English](README.en.md)
 > *"做完要交付, 不只是说"* — 任务完成的标志不是 agent 说"我做完了"，而是用户看到了交付物。present_files 是唯一的交付入口。
 >
 > **Harness 层**: 交互 — agent 的成果交付系统。

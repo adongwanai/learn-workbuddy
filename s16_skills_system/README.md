@@ -1,5 +1,6 @@
 # s16: Skills System — 技能先列目录, 用到时再展开
 
+[中文](README.md) · [English](README.en.md)
 > *"技能先列目录, 用到时再展开"* — SKILL.md frontmatter, 按需加载，权限显式声明。
 >
 > **Harness 层**: 扩展生态 — agent 的知识按需加载。

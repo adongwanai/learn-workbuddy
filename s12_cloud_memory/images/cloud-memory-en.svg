@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 650" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#059669"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect width="1080" height="650" fill="#f8fafc"/>
+  <text x="540" y="35" text-anchor="middle" font-size="23" font-weight="700" fill="#0f172a">Remote Memory: Storage record ≠ Recall context of this round</text>
+  <text x="540" y="58" text-anchor="middle" font-size="12" fill="#64748b">Persistent evidence retains owner and source; recall runs by normalize → candidate → score → stable rank → render</text>
+
+  <!-- Durable source and storage path. -->
+  <text x="30" y="91" font-size="12" font-weight="700" fill="#475569">DURABLE STORAGE</text>
+  <rect x="30" y="105" width="180" height="72" rx="10" fill="#ffffff" stroke="#94a3b8" filter="url(#shadow)"/>
+  <text x="120" y="132" text-anchor="middle" font-size="14" font-weight="700" fill="#0f172a">Original Source</text>
+  <text x="120" y="154" text-anchor="middle" font-size="11" fill="#475569">transcript / profile snapshot</text>
+  <line x1="210" y1="141" x2="244" y2="141" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="252" y="96" width="224" height="90" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2" filter="url(#shadow)"/>
+  <text x="364" y="123" text-anchor="middle" font-size="15" font-weight="700" fill="#1e3a8a">StoredMemory</text>
+  <text x="364" y="145" text-anchor="middle" font-size="11" fill="#1e40af">memory_id · user_scope · kind</text>
+  <text x="364" y="164" text-anchor="middle" font-size="11" fill="#1e40af">content · summary · source</text>
+  <line x1="476" y1="141" x2="510" y2="141" stroke="#2563eb" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <rect x="518" y="105" width="240" height="72" rx="10" fill="#1e40af" filter="url(#shadow)"/>
+  <text x="638" y="132" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">RemoteMemoryStore</text>
+  <text x="638" y="154" text-anchor="middle" font-size="11" fill="#dbeafe">user-scoped append-only JSONL</text>
+  <line x1="758" y1="141" x2="798" y2="141" stroke="#059669" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+  <rect x="806" y="105" width="244" height="72" rx="10" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+  <text x="928" y="132" text-anchor="middle" font-size="14" font-weight="700" fill="#065f46">Latest PROFILE record</text>
+  <text x="928" y="154" text-anchor="middle" font-size="11" fill="#047857">separate session-start selection</text>
+
+  <!-- Query-scoped recall pipeline. -->
+  <text x="30" y="247" font-size="12" font-weight="700" fill="#475569">QUERY-SCOPED RECALL</text>
+  <polyline points="638,177 638,224 330,224 330,286" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <rect x="30" y="286" width="190" height="108" rx="10" fill="#fff7ed" stroke="#f97316" stroke-width="2" filter="url(#shadow)"/>
+  <text x="125" y="315" text-anchor="middle" font-size="15" font-weight="700" fill="#9a3412">1 · Normalize Query</text>
+  <text x="125" y="338" text-anchor="middle" font-size="11" fill="#c2410c">NFKC · casefold · whitespace</text>
+  <text x="125" y="358" text-anchor="middle" font-size="11" fill="#c2410c">English words + Chinese binary words</text>
+  <text x="125" y="379" text-anchor="middle" font-size="10" fill="#64748b">empty / punctuation-only → reject</text>
+
+  <line x1="220" y1="340" x2="232" y2="340" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="240" y="286" width="190" height="108" rx="10" fill="#ffffff" stroke="#7c3aed" stroke-width="2" filter="url(#shadow)"/>
+  <text x="335" y="315" text-anchor="middle" font-size="15" font-weight="700" fill="#5b21b6">2 · Candidate</text>
+  <text x="335" y="338" text-anchor="middle" font-size="11" fill="#6d28d9">conversation records only</text>
+  <text x="335" y="358" text-anchor="middle" font-size="11" fill="#6d28d9">scope check + lexical overlap</text>
+  <text x="335" y="379" text-anchor="middle" font-size="10" fill="#64748b">no score · no rank · no write</text>
+
+  <line x1="430" y1="340" x2="442" y2="340" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="450" y="286" width="190" height="108" rx="10" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2" filter="url(#shadow)"/>
+  <text x="545" y="315" text-anchor="middle" font-size="15" font-weight="700" fill="#5b21b6">3 · Score</text>
+  <text x="545" y="338" text-anchor="middle" font-size="11" fill="#6d28d9">0.85 × lexical coverage</text>
+  <text x="545" y="358" text-anchor="middle" font-size="11" fill="#6d28d9">0.15 × recency</text>
+  <text x="545" y="379" text-anchor="middle" font-size="10" fill="#64748b">retain both contributions</text>
+
+  <line x1="640" y1="340" x2="652" y2="340" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="660" y="286" width="190" height="108" rx="10" fill="#ffffff" stroke="#7c3aed" stroke-width="2" filter="url(#shadow)"/>
+  <text x="755" y="315" text-anchor="middle" font-size="15" font-weight="700" fill="#5b21b6">4 · Stable Rank</text>
+  <text x="755" y="338" text-anchor="middle" font-size="11" fill="#6d28d9">total · coverage · time</text>
+  <text x="755" y="358" text-anchor="middle" font-size="11" fill="#6d28d9">memory_id final tie-breaker</text>
+  <text x="755" y="379" text-anchor="middle" font-size="10" fill="#64748b">deterministic top-k</text>
+
+  <line x1="850" y1="340" x2="862" y2="340" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="870" y="276" width="180" height="128" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2" filter="url(#shadow)"/>
+  <text x="960" y="305" text-anchor="middle" font-size="15" font-weight="700" fill="#5b21b6">RecallHit</text>
+  <text x="960" y="329" text-anchor="middle" font-size="11" fill="#6d28d9">scope</text>
+  <text x="960" y="349" text-anchor="middle" font-size="11" fill="#6d28d9">provenance</text>
+  <text x="960" y="369" text-anchor="middle" font-size="11" fill="#6d28d9">score breakdown</text>
+  <text x="960" y="389" text-anchor="middle" font-size="10" fill="#64748b">query-dependent view</text>
+
+  <!-- Result and rendering remain observable. -->
+  <rect x="30" y="460" width="400" height="70" rx="9" fill="#ffffff" stroke="#94a3b8"/>
+  <text x="230" y="486" text-anchor="middle" font-size="13" font-weight="700" fill="#334155">No-match contract</text>
+  <text x="230" y="508" text-anchor="middle" font-size="11" fill="#64748b">candidate_records=0 · empty_reason=no_matching_terms · render=""</text>
+
+  <polyline points="960,404 960,435 755,435 755,452" fill="none" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="660" y="460" width="190" height="70" rx="9" fill="#ffffff" stroke="#7c3aed"/>
+  <text x="755" y="482" text-anchor="middle" font-size="14" font-weight="700" fill="#5b21b6">RecallResult</text>
+  <text x="755" y="502" text-anchor="middle" font-size="10" fill="#64748b">query · hits</text>
+  <text x="755" y="518" text-anchor="middle" font-size="10" fill="#64748b">searched / candidate count</text>
+
+  <line x1="850" y1="495" x2="870" y2="495" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="878" y="460" width="172" height="70" rx="9" fill="#0f172a"/>
+  <text x="964" y="486" text-anchor="middle" font-size="14" font-weight="700" fill="#ffffff">5 · Render</text>
+  <text x="964" y="508" text-anchor="middle" font-size="11" fill="#cbd5e1">scoped context + provenance</text>
+
+  <polyline points="928,177 1062,177 1062,495 1052,495" fill="none" stroke="#059669" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+  <!-- Retrieval is explicitly non-mutating. -->
+  <line x1="140" y1="574" x2="940" y2="574" stroke="#dc2626" stroke-width="2" stroke-dasharray="7 5"/>
+  <line x1="126" y1="565" x2="144" y2="583" stroke="#dc2626" stroke-width="2"/>
+  <line x1="144" y1="565" x2="126" y2="583" stroke="#dc2626" stroke-width="2"/>
+  <text x="540" y="562" text-anchor="middle" font-size="11" font-weight="700" fill="#b91c1c">Recall is read-only: candidates and hits are never appended back to the durable store</text>
+
+  <text x="30" y="622" font-size="11" fill="#64748b">Replacement points: candidate generation / embedding / hybrid retrieval / reranker.</text>
+  <text x="1050" y="622" text-anchor="end" font-size="11" fill="#64748b">Stable boundary: query · scope · provenance · score evidence · deterministic rank · render.</text>
+</svg>

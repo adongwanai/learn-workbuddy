@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1f2937"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/>
+    </marker>
+  </defs>
+
+  <rect width="1000" height="700" fill="#f8fafc"/>
+  <text x="500" y="38" text-anchor="middle" font-size="24" font-weight="700" fill="#111827">S15: Preference Precedence and Context Budget Assembly</text>
+  <text x="500" y="62" text-anchor="middle" font-size="13" fill="#475569">Instructions for this round &gt; Workspace Override &gt; User Default, and then boxed according to evidence and budget</text>
+
+  <!-- Selection pipeline -->
+  <rect x="35" y="92" width="170" height="92" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="120" y="118" text-anchor="middle" font-size="15" font-weight="700" fill="#1e3a8a">S12 RecallHit</text>
+  <text x="120" y="141" text-anchor="middle" font-size="12" fill="#1e40af">scope · score · rank</text>
+  <text x="120" y="161" text-anchor="middle" font-size="12" fill="#1e40af">provenance · snippet</text>
+
+  <line x1="205" y1="138" x2="242" y2="138" stroke="#1f2937" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="250" y="92" width="135" height="92" rx="10" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+  <text x="317.5" y="120" text-anchor="middle" font-size="15" font-weight="700" fill="#065f46">Scope Gate</text>
+  <text x="317.5" y="145" text-anchor="middle" font-size="12" fill="#047857">current user</text>
+  <text x="317.5" y="164" text-anchor="middle" font-size="12" fill="#047857">must match</text>
+
+  <line x1="385" y1="138" x2="422" y2="138" stroke="#1f2937" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="430" y="92" width="135" height="92" rx="10" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+  <text x="497.5" y="120" text-anchor="middle" font-size="15" font-weight="700" fill="#065f46">Confidence</text>
+  <text x="497.5" y="145" text-anchor="middle" font-size="12" fill="#047857">score ≥</text>
+  <text x="497.5" y="164" text-anchor="middle" font-size="12" fill="#047857">min_score</text>
+
+  <line x1="565" y1="138" x2="602" y2="138" stroke="#1f2937" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="610" y="92" width="155" height="92" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="687.5" y="120" text-anchor="middle" font-size="15" font-weight="700" fill="#92400e">Authority / Conflict</text>
+  <text x="687.5" y="145" text-anchor="middle" font-size="12" fill="#b45309">turn &gt; workspace &gt; user</text>
+  <text x="687.5" y="164" text-anchor="middle" font-size="12" fill="#b45309">dedupe · explicit slot</text>
+
+  <line x1="765" y1="138" x2="802" y2="138" stroke="#1f2937" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="810" y="92" width="155" height="92" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <text x="887.5" y="120" text-anchor="middle" font-size="15" font-weight="700" fill="#5b21b6">Top-k / Pack</text>
+  <text x="887.5" y="145" text-anchor="middle" font-size="12" fill="#6d28d9">character budget</text>
+  <text x="887.5" y="164" text-anchor="middle" font-size="12" fill="#6d28d9">token budget</text>
+
+  <!-- Rejection decisions -->
+  <line x1="317.5" y1="184" x2="317.5" y2="218" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arrowRed)"/>
+  <line x1="497.5" y1="184" x2="497.5" y2="218" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arrowRed)"/>
+  <line x1="687.5" y1="184" x2="687.5" y2="218" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arrowRed)"/>
+  <line x1="887.5" y1="184" x2="887.5" y2="218" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arrowRed)"/>
+
+  <rect x="90" y="225" width="820" height="88" rx="10" fill="#fff1f2" stroke="#e11d48" stroke-width="1.7"/>
+  <text x="500" y="250" text-anchor="middle" font-size="15" font-weight="700" fill="#9f1239">MemorySelectionDecision: Each candidate has a final state</text>
+  <text x="500" y="275" text-anchor="middle" font-size="12" fill="#be123c">scope_mismatch · low_confidence · duplicate_content · authority_loser · conflict_loser</text>
+  <text x="500" y="296" text-anchor="middle" font-size="12" fill="#be123c">top_k_reached · char_budget_exceeded · token_budget_exceeded · selected</text>
+
+  <!-- Selected memory context -->
+  <path d="M965 138 H980 V330 H790 V338" fill="none" stroke="#2563eb" stroke-width="2.2" marker-end="url(#arrowBlue)"/>
+  <rect x="210" y="345" width="580" height="92" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="2.2"/>
+  <text x="500" y="373" text-anchor="middle" font-size="17" font-weight="700" fill="#1e3a8a">&lt;recalled_memory&gt;</text>
+  <text x="500" y="398" text-anchor="middle" font-size="13" fill="#1e40af">atom memory_hit · authority · scope · score · rank · provenance</text>
+  <text x="500" y="420" text-anchor="middle" font-size="12" fill="#1e40af">used_chars / used_tokens and selected IDs can be played back</text>
+
+  <!-- Total prompt planner -->
+  <line x1="500" y1="437" x2="500" y2="474" stroke="#1f2937" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="35" y="487" width="135" height="56" rx="8" fill="#f3e8ff" stroke="#9333ea"/>
+  <text x="102.5" y="511" text-anchor="middle" font-size="13" font-weight="700" fill="#6b21a8">Identity</text>
+  <text x="102.5" y="530" text-anchor="middle" font-size="11" fill="#7e22ce">persona / user</text>
+
+  <rect x="188" y="487" width="135" height="56" rx="8" fill="#dcfce7" stroke="#16a34a"/>
+  <text x="255.5" y="511" text-anchor="middle" font-size="13" font-weight="700" fill="#166534">Project</text>
+  <text x="255.5" y="530" text-anchor="middle" font-size="11" fill="#15803d">workspace state</text>
+
+  <rect x="341" y="487" width="135" height="56" rx="8" fill="#fee2e2" stroke="#dc2626"/>
+  <text x="408.5" y="511" text-anchor="middle" font-size="13" font-weight="700" fill="#991b1b">Tools</text>
+  <text x="408.5" y="530" text-anchor="middle" font-size="11" fill="#b91c1c">required registry</text>
+
+  <rect x="494" y="487" width="135" height="56" rx="8" fill="#fef3c7" stroke="#d97706"/>
+  <text x="561.5" y="511" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">Skills</text>
+  <text x="561.5" y="530" text-anchor="middle" font-size="11" fill="#b45309">loaded on demand</text>
+
+  <rect x="647" y="487" width="135" height="56" rx="8" fill="#e0f2fe" stroke="#0284c7"/>
+  <text x="714.5" y="511" text-anchor="middle" font-size="13" font-weight="700" fill="#075985">Memory</text>
+  <text x="714.5" y="530" text-anchor="middle" font-size="11" fill="#0369a1">selected segment</text>
+
+  <rect x="800" y="487" width="165" height="56" rx="8" fill="#e5e7eb" stroke="#4b5563"/>
+  <text x="882.5" y="511" text-anchor="middle" font-size="13" font-weight="700" fill="#1f2937">Mode / Region</text>
+  <text x="882.5" y="530" text-anchor="middle" font-size="11" fill="#374151">runtime policy</text>
+
+  <line x1="500" y1="543" x2="500" y2="574" stroke="#1f2937" stroke-width="2" marker-end="url(#arrow)"/>
+  <polygon points="165,583 835,583 750,623 250,623" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <text x="500" y="605" text-anchor="middle" font-size="15" font-weight="700" fill="#5b21b6">Total Prompt Planner：required first · optional by value</text>
+
+  <line x1="500" y1="623" x2="500" y2="647" stroke="#2563eb" stroke-width="2.2" marker-end="url(#arrowBlue)"/>
+  <rect x="310" y="652" width="380" height="36" rx="8" fill="#1d4ed8"/>
+  <text x="500" y="675" text-anchor="middle" font-size="14" font-weight="700" fill="white">Final System Prompt + SegmentDecision</text>
+</svg>

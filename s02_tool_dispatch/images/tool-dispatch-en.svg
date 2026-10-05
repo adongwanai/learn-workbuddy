@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 560" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+  <defs>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a73e8"/>
+    </marker>
+    <marker id="arrow-gray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5f6368"/>
+    </marker>
+    <style>
+      .title { font-size: 22px; font-weight: 700; fill: #202124; }
+      .node-title { font-size: 14px; font-weight: 700; }
+      .node-sub { font-size: 11px; }
+      .edge-label { font-size: 10.5px; font-weight: 600; }
+      .hint { font-size: 11px; fill: #5f6368; }
+    </style>
+  </defs>
+
+  <rect width="920" height="560" fill="#f8f9fa"/>
+  <text x="460" y="34" text-anchor="middle" class="title">Single Tool Registry: Model Protocol ↔ Python Execution</text>
+
+  <!-- Provider input -->
+  <rect x="36" y="82" width="164" height="66" rx="10" fill="#1a73e8"/>
+  <text x="118" y="109" text-anchor="middle" class="node-title" fill="#ffffff">provider tool_use</text>
+  <text x="118" y="130" text-anchor="middle" class="node-sub" fill="#e8f0fe">id · name · input</text>
+
+  <line x1="200" y1="115" x2="240" y2="115" stroke="#1a73e8" stroke-width="2.2" marker-end="url(#arrow-blue)"/>
+
+  <!-- Normalized call -->
+  <rect x="248" y="82" width="150" height="66" rx="10" fill="#e8f0fe" stroke="#1a73e8" stroke-width="1.6"/>
+  <text x="323" y="109" text-anchor="middle" class="node-title" fill="#1a73e8">ToolCall</text>
+  <text x="323" y="130" text-anchor="middle" class="node-sub" fill="#5f6368">provider-neutral</text>
+
+  <line x1="398" y1="115" x2="438" y2="115" stroke="#1a73e8" stroke-width="2.2" marker-end="url(#arrow-blue)"/>
+
+  <!-- Registry: the single source -->
+  <rect x="446" y="60" width="224" height="110" rx="12" fill="#fff8e1" stroke="#f9ab00" stroke-width="2"/>
+  <text x="558" y="88" text-anchor="middle" class="node-title" fill="#a15c00">ToolRegistry</text>
+  <text x="558" y="110" text-anchor="middle" class="node-sub" fill="#5f6368">name → ToolSpec</text>
+  <line x1="470" y1="122" x2="646" y2="122" stroke="#f9ab00" stroke-width="1"/>
+  <text x="558" y="143" text-anchor="middle" class="node-sub" fill="#5f6368">schema · handler · concurrency policy</text>
+
+  <!-- Schema feedback to model request -->
+  <path d="M558 60 L558 48 L118 48 L118 76" fill="none" stroke="#f9ab00" stroke-width="1.7" stroke-dasharray="5,4" marker-end="url(#arrow-gray)"/>
+  <text x="330" y="69" text-anchor="middle" class="edge-label" fill="#a15c00">model_schemas() also comes from the same registry</text>
+
+  <!-- Dispatch stages -->
+  <line x1="558" y1="170" x2="558" y2="202" stroke="#5f6368" stroke-width="2" marker-end="url(#arrow-gray)"/>
+
+  <rect x="112" y="214" width="172" height="64" rx="10" fill="#ffffff" stroke="#5f6368" stroke-width="1.5"/>
+  <text x="198" y="240" text-anchor="middle" class="node-title" fill="#202124">1. Name search</text>
+  <text x="198" y="260" text-anchor="middle" class="node-sub" fill="#5f6368">registry.get(name)</text>
+
+  <rect x="374" y="214" width="172" height="64" rx="10" fill="#ffffff" stroke="#5f6368" stroke-width="1.5"/>
+  <text x="460" y="240" text-anchor="middle" class="node-title" fill="#202124">2. Parameter verification</text>
+  <text x="460" y="260" text-anchor="middle" class="node-sub" fill="#5f6368">required · type · extra</text>
+
+  <rect x="636" y="214" width="172" height="64" rx="10" fill="#ffffff" stroke="#5f6368" stroke-width="1.5"/>
+  <text x="722" y="240" text-anchor="middle" class="node-title" fill="#202124">3. Handler execution</text>
+  <text x="722" y="260" text-anchor="middle" class="node-sub" fill="#5f6368">validated **arguments</text>
+
+  <line x1="284" y1="246" x2="366" y2="246" stroke="#5f6368" stroke-width="1.8" marker-end="url(#arrow-gray)"/>
+  <line x1="546" y1="246" x2="628" y2="246" stroke="#5f6368" stroke-width="1.8" marker-end="url(#arrow-gray)"/>
+  <path d="M558 202 L558 190 L198 190 L198 206" fill="none" stroke="#5f6368" stroke-width="1.8" marker-end="url(#arrow-gray)"/>
+
+  <!-- Success/error paths converge -->
+  <rect x="636" y="322" width="172" height="62" rx="10" fill="#e6f4ea" stroke="#34a853" stroke-width="1.6"/>
+  <text x="722" y="348" text-anchor="middle" class="node-title" fill="#188038">successful result</text>
+  <text x="722" y="369" text-anchor="middle" class="node-sub" fill="#5f6368">content</text>
+  <line x1="722" y1="278" x2="722" y2="314" stroke="#34a853" stroke-width="2" marker-end="url(#arrow-gray)"/>
+
+  <rect x="112" y="322" width="434" height="62" rx="10" fill="#fce8e6" stroke="#ea4335" stroke-width="1.6"/>
+  <text x="329" y="347" text-anchor="middle" class="node-title" fill="#c5221f">explicit error result</text>
+  <text x="329" y="369" text-anchor="middle" class="node-sub" fill="#5f6368">unknown_tool · invalid_arguments · execution_error</text>
+  <path d="M198 278 L198 314" fill="none" stroke="#ea4335" stroke-width="1.8" marker-end="url(#arrow-gray)"/>
+  <path d="M460 278 L460 314" fill="none" stroke="#ea4335" stroke-width="1.8" marker-end="url(#arrow-gray)"/>
+  <path d="M680 278 L580 306 L546 330" fill="none" stroke="#ea4335" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arrow-gray)"/>
+
+  <!-- Unified local result -->
+  <rect x="344" y="424" width="232" height="66" rx="12" fill="#f3e8fd" stroke="#a142f4" stroke-width="1.8"/>
+  <text x="460" y="451" text-anchor="middle" class="node-title" fill="#7627bb">ToolDispatchResult</text>
+  <text x="460" y="472" text-anchor="middle" class="node-sub" fill="#5f6368">ok / error_code / content</text>
+  <path d="M329 384 L329 405 L424 418" fill="none" stroke="#a142f4" stroke-width="1.8" marker-end="url(#arrow-gray)"/>
+  <path d="M722 384 L722 405 L496 418" fill="none" stroke="#a142f4" stroke-width="1.8" marker-end="url(#arrow-gray)"/>
+
+  <!-- Back to provider -->
+  <line x1="576" y1="457" x2="630" y2="457" stroke="#1a73e8" stroke-width="2.2" marker-end="url(#arrow-blue)"/>
+  <rect x="638" y="424" width="224" height="66" rx="10" fill="#1a73e8"/>
+  <text x="750" y="451" text-anchor="middle" class="node-title" fill="#ffffff">provider tool_result</text>
+  <text x="750" y="472" text-anchor="middle" class="node-sub" fill="#e8f0fe">content + optional is_error</text>
+
+  <!-- Concurrency note -->
+  <rect x="54" y="426" width="238" height="60" rx="10" fill="#e8f0fe" stroke="#1a73e8" stroke-width="1.2" stroke-dasharray="5,3"/>
+  <text x="173" y="451" text-anchor="middle" class="node-title" fill="#1a73e8">Batch execution strategy</text>
+  <text x="173" y="472" text-anchor="middle" class="node-sub" fill="#5f6368">All members must be concurrent_safe to be concurrent</text>
+
+  <text x="460" y="535" text-anchor="middle" class="hint">Agent Loop only looks at ToolCall and ToolDispatchResult, but does not know the specific tool implementation.</text>
+</svg>

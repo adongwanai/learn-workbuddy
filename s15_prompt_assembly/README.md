@@ -1,5 +1,6 @@
 # s15: Prompt Assembly — 从召回候选到预算内上下文
 
+[中文](README.md) · [English](README.en.md)
 > Prompt 不是写死的字符串，也不是把所有召回结果直接拼进去。Harness 必须先选择，再装箱，最后才组装。
 >
 > **Harness 层**：RAG / Context 的 selection → pack 边界。

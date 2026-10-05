@@ -1,5 +1,6 @@
 # s01: Agent Loop — 一个循环就够了
 
+[中文](README.md) · [English](README.en.md)
 > *"一个循环 + 一个工具 = 一个 Agent"* — tool_use 驱动继续，显式结果说明停止。
 >
 > **Harness 层**: 循环 — 模型与真实世界的第一道连接。

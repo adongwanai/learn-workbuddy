@@ -1,5 +1,6 @@
 # s24: Comprehensive — 机制很多, 循环一个
 
+[中文](README.md) · [English](README.en.md)
 > *"机制很多，契约只有一份"* — 综合章消费前面章节的稳定边界，不另造一套简化语义。
 >
 > **Harness 层**: 综合 — 循环属于 agent, 机制属于 harness。

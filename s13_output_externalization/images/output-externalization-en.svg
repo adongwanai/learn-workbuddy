@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 660" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a73e8"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#34a853"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#ea4335"/>
+    </marker>
+    <linearGradient id="ram-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e8f0fe"/>
+      <stop offset="100%" stop-color="#d6e4ff"/>
+    </linearGradient>
+    <linearGradient id="disk-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e6f4ea"/>
+      <stop offset="100%" stop-color="#c6f6d5"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="660" fill="#f8f9fa"/>
+
+  <!-- Title -->
+  <text x="400" y="38" text-anchor="middle" font-size="24" font-weight="700" fill="#202124">Tool output externalization (Output Swap)</text>
+  <text x="400" y="60" text-anchor="middle" font-size="13" fill="#5f6368">The text belongs to Artifact; the reference is written in the lease journal first; after restarting and restoring, press digest to recover the orphans</text>
+
+  <!-- ===== LEFT: Context Window (RAM) ===== -->
+  <rect x="40" y="110" width="280" height="200" rx="12" fill="url(#ram-grad)" stroke="#1a73e8" stroke-width="2"/>
+  <!-- RAM icon header -->
+  <rect x="40" y="110" width="280" height="38" rx="12" fill="#1a73e8"/>
+  <rect x="40" y="130" width="280" height="18" fill="#1a73e8"/>
+  <text x="180" y="134" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">Context window (RAM)</text>
+
+  <!-- Small content -->
+  <text x="60" y="170" font-size="12" font-weight="600" fill="#1a73e8">Content (condensed)</text>
+  <rect x="60" y="180" width="240" height="40" rx="6" fill="#ffffff" stroke="#1a73e8" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="180" y="197" text-anchor="middle" font-size="11" fill="#5f6368">source + summary + path</text>
+  <text x="180" y="213" text-anchor="middle" font-size="11" fill="#5f6368">+ head 6KB / tail 24KB</text>
+
+  <!-- Stats -->
+  <rect x="60" y="232" width="100" height="28" rx="6" fill="#ffffff" stroke="#dadce0"/>
+  <text x="110" y="250" text-anchor="middle" font-size="11" fill="#5f6368">Occupied: ~30KB</text>
+  <rect x="170" y="232" width="130" height="28" rx="6" fill="#ffffff" stroke="#dadce0"/>
+  <text x="235" y="250" text-anchor="middle" font-size="11" fill="#34a853">✓ Space saving</text>
+
+  <text x="180" y="285" text-anchor="middle" font-size="11" fill="#5f6368" font-style="italic">Representation in LLM context</text>
+  <text x="180" y="300" text-anchor="middle" font-size="10" fill="#5f6368">Fast access, low latency</text>
+
+  <!-- ===== MIDDLE: Swap arrow ===== -->
+  <!-- Page fault arrow -->
+  <path d="M 325 210 L 465 210" fill="none" stroke="#fbbc04" stroke-width="3" stroke-dasharray="6 3" marker-end="url(#arrow-green)"/>
+  <rect x="335" y="175" width="120" height="28" rx="14" fill="#fbbc04"/>
+  <text x="395" y="194" text-anchor="middle" font-size="12" font-weight="600" fill="#202124">page fault interrupt</text>
+  <text x="395" y="226" text-anchor="middle" font-size="11" fill="#5f6368">Read tool reads on demand</text>
+  <text x="395" y="240" text-anchor="middle" font-size="10" fill="#5f6368" font-style="italic">page fault → swap in</text>
+
+  <!-- Reverse arrow (write to disk) -->
+  <path d="M 465 270 L 325 270" fill="none" stroke="#1a73e8" stroke-width="2.5" stroke-dasharray="4 3" marker-end="url(#arrow-blue)"/>
+  <text x="395" y="262" text-anchor="middle" font-size="11" fill="#1a73e8">Output is written to disk (swap out)</text>
+
+  <!-- ===== RIGHT: Disk (Swap) ===== -->
+  <rect x="475" y="110" width="285" height="200" rx="12" fill="url(#disk-grad)" stroke="#34a853" stroke-width="2"/>
+  <rect x="475" y="110" width="285" height="38" rx="12" fill="#34a853"/>
+  <rect x="475" y="130" width="285" height="18" fill="#34a853"/>
+  <text x="617" y="134" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">Disk (Swap)</text>
+
+  <!-- File content -->
+  <text x="495" y="170" font-size="12" font-weight="600" fill="#137333">Full tool output</text>
+  <rect x="495" y="180" width="245" height="72" rx="6" fill="#ffffff" stroke="#34a853" stroke-width="1.5"/>
+  <text x="505" y="197" font-size="10" fill="#202124" font-family="monospace">tool-results/abc123.txt</text>
+  <text x="505" y="214" font-size="9" fill="#5f6368" font-family="monospace">line 1: Reading file /src/app.py</text>
+  <text x="505" y="228" font-size="9" fill="#5f6368" font-family="monospace">line 2: import os, sys</text>
+  <text x="505" y="242" font-size="9" fill="#5f6368" font-family="monospace">line 3: def main():</text>
+  <text x="730" y="248" text-anchor="end" font-size="10" fill="#34a853" font-weight="600">...30KB+</text>
+
+  <!-- Stats -->
+  <rect x="495" y="262" width="110" height="28" rx="6" fill="#ffffff" stroke="#dadce0"/>
+  <text x="550" y="280" text-anchor="middle" font-size="11" fill="#5f6368">Storage: 30KB+</text>
+  <rect x="615" y="262" width="125" height="28" rx="6" fill="#ffffff" stroke="#dadce0"/>
+  <text x="677" y="280" text-anchor="middle" font-size="11" fill="#5f6368">Complete evidence owner</text>
+
+  <!-- ===== Artifact-to-memory reference boundary ===== -->
+  <rect x="60" y="330" width="190" height="54" rx="8" fill="#e6f4ea" stroke="#34a853"/>
+  <text x="155" y="352" text-anchor="middle" font-size="12" font-weight="700" fill="#137333">Artifact file</text>
+  <text x="155" y="370" text-anchor="middle" font-size="10" fill="#5f6368">Complete text, cannot be overwritten</text>
+
+  <line x1="250" y1="357" x2="290" y2="357" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <rect x="300" y="330" width="200" height="54" rx="8" fill="#e8f0fe" stroke="#1a73e8"/>
+  <text x="400" y="352" text-anchor="middle" font-size="12" font-weight="700" fill="#174ea6">ArtifactReference</text>
+  <text x="400" y="370" text-anchor="middle" font-size="10" fill="#5f6368">path + digest + provenance</text>
+
+  <line x1="500" y1="357" x2="540" y2="357" stroke="#f9ab00" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <rect x="550" y="330" width="190" height="54" rx="8" fill="#fff7e0" stroke="#f9ab00"/>
+  <text x="645" y="352" text-anchor="middle" font-size="12" font-weight="700" fill="#a15c00">Memory reference</text>
+  <text x="645" y="370" text-anchor="middle" font-size="10" fill="#5f6368">Required summary + pointer, no text</text>
+
+  <!-- ===== BOTTOM: Threshold rules ===== -->
+  <rect x="40" y="410" width="720" height="130" rx="12" fill="#ffffff" stroke="#dadce0" stroke-width="1.5"/>
+  <text x="60" y="434" font-size="14" font-weight="700" fill="#202124">Threshold</text>
+
+  <!-- Rule 1: > 30KB -->
+  <rect x="60" y="448" width="330" height="76" rx="8" fill="#e6f4ea" stroke="#34a853" stroke-width="1.5"/>
+  <rect x="60" y="448" width="6" height="76" rx="3" fill="#34a853"/>
+  <text x="80" y="469" font-size="14" font-weight="700" fill="#34a853">Bash output &gt; 30K chars</text>
+  <text x="80" y="489" font-size="12" fill="#5f6368">→ Write Artifact, Context leaves bounded reference</text>
+  <text x="80" y="508" font-size="11" fill="#5f6368">LLM uses Read to load on demand when needed.</text>
+
+  <!-- Rule 2: < 30KB -->
+  <rect x="410" y="448" width="330" height="76" rx="8" fill="#e8f0fe" stroke="#1a73e8" stroke-width="1.5"/>
+  <rect x="410" y="448" width="6" height="76" rx="3" fill="#1a73e8"/>
+  <text x="430" y="469" font-size="14" font-weight="700" fill="#1a73e8">Bash output ≤ 30K chars</text>
+  <text x="430" y="489" font-size="12" fill="#5f6368">→ Go directly to the current context</text>
+  <text x="430" y="508" font-size="11" fill="#5f6368">Still not equal to automatically writing to long-term Memory</text>
+
+  <!-- ===== Reference-aware lifecycle ===== -->
+  <rect x="40" y="555" width="720" height="88" rx="12" fill="#ffffff" stroke="#f9ab00" stroke-width="1.5"/>
+  <text x="60" y="577" font-size="13" font-weight="700" fill="#a15c00">Crash-safe reference life cycle and GC</text>
+  <rect x="60" y="588" width="190" height="38" rx="7" fill="#fff7e0" stroke="#f9ab00"/>
+  <text x="155" y="604" text-anchor="middle" font-size="11" font-weight="700" fill="#a15c00">Lease journal</text>
+  <text x="155" y="618" text-anchor="middle" font-size="9" fill="#5f6368">prepare → commit → release</text>
+  <line x1="250" y1="607" x2="292" y2="607" stroke="#f9ab00" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <rect x="300" y="588" width="200" height="38" rx="7" fill="#e8f0fe" stroke="#1a73e8"/>
+  <text x="400" y="604" text-anchor="middle" font-size="11" font-weight="700" fill="#174ea6">locked restart recovery</text>
+  <text x="400" y="618" text-anchor="middle" font-size="9" fill="#5f6368">pending prepare default retain</text>
+  <line x1="500" y1="607" x2="542" y2="607" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <rect x="550" y="588" width="190" height="38" rx="7" fill="#e6f4ea" stroke="#34a853"/>
+  <text x="645" y="604" text-anchor="middle" font-size="11" font-weight="700" fill="#137333">snapshot → recheck → GC</text>
+  <text x="645" y="618" text-anchor="middle" font-size="9" fill="#5f6368">hash/identity exception fail-closed</text>
+</svg>

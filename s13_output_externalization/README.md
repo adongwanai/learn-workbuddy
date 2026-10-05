@@ -1,5 +1,6 @@
 # s13: Tool Output Externalization — 内存不够, 换到磁盘
 
+[中文](README.md) · [English](README.en.md)
 > *"内存不够, 换到磁盘 — 上下文是内存, 磁盘是外存"* — 工具输出外部化。
 >
 > **Harness 层**: 上下文管理 — 虚拟内存换页机制。

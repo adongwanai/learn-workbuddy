@@ -1,5 +1,6 @@
 # s21: SQLite Database — 会话要持久, 用量要追踪
 
+[中文](README.md) · [English](README.en.md)
 > *"会话要持久, 用量要追踪"* — SQLite WAL 模式, 7 张表, 一切状态皆可恢复。
 >
 > **Harness 层**: 持久化 — agent 的记忆不只在上下文窗口里, 还在磁盘上。

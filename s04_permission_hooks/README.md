@@ -1,5 +1,6 @@
 # s04: Permission & Hooks — 先决策，再审批，再执行
 
+[中文](README.md) · [English](README.en.md)
 > “先划边界，再给自由。”
 >
 > **Harness 层**：把模型提出的动作变成可解释、可审批、可审计的执行结果。

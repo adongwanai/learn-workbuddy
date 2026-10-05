@@ -1,5 +1,6 @@
 # s23: Audit & Sandbox — 每步留痕, 不可篡改
 
+[中文](README.md) · [English](README.en.md)
 > *"每步留痕, 不可篡改"* — SHA256 哈希链审计日志 + 命令沙盒, 安全可追溯。
 >
 > **Harness 层**: 安全 — agent 的每一步行动都有记录, 且无法被篡改。

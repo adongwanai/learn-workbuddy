@@ -1,5 +1,6 @@
 # s11: User Memory — Profile 与 Preference 的用户级边界
 
+[中文](README.md) · [English](README.en.md)
 > 工作区记忆回答“这个项目长期有效的事实是什么”；用户记忆回答“这个人跨项目仍然有效的稳定信息与明确偏好是什么”。
 >
 > **Harness 层**：Memory ownership、显式状态变更、有效期、证据来源与 Prompt context。

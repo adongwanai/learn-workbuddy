@@ -1,5 +1,6 @@
 # s14: Context Compact — 上下文总会满, 要有办法腾地方
 
+[中文](README.md) · [English](README.en.md)
 > *"上下文总会满, 要有办法腾地方"* — 四层压缩管线，保最新、弃最旧、留摘要。
 >
 > **Harness 层**: 上下文管理 — agent 的记忆预算。

@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#202124"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a73e8"/>
+    </marker>
+  </defs>
+  <rect width="800" height="500" fill="#f8f9fa"/>
+
+  <text x="400" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#202124">expert system</text>
+
+  <!-- Expert Package -->
+  <rect x="250" y="55" width="300" height="50" rx="8" fill="#7b1fa2"/>
+  <text x="400" y="78" text-anchor="middle" font-size="16" fill="white" font-weight="bold">Expert Package</text>
+  <text x="400" y="97" text-anchor="middle" font-size="11" fill="#e8e0f0">A complete personality + ability combination</text>
+
+  <!-- 4 components -->
+  <rect x="50" y="125" width="160" height="70" rx="8" fill="#e8f0fe" stroke="#1a73e8" stroke-width="2"/>
+  <text x="130" y="150" text-anchor="middle" font-size="13" fill="#1a73e8" font-weight="bold">Skills</text>
+  <text x="130" y="170" text-anchor="middle" font-size="11" fill="#202124">Exclusive skill set</text>
+  <text x="130" y="186" text-anchor="middle" font-size="10" fill="#202124">SKILL.md file</text>
+
+  <rect x="230" y="125" width="160" height="70" rx="8" fill="#fbbc04" opacity="0.2" stroke="#fbbc04" stroke-width="2"/>
+  <text x="310" y="150" text-anchor="middle" font-size="13" fill="#fbbc04" font-weight="bold">Memory</text>
+  <text x="310" y="170" text-anchor="middle" font-size="11" fill="#202124">Exclusive memory bank</text>
+  <text x="310" y="186" text-anchor="middle" font-size="10" fill="#202124">Domain knowledge base</text>
+
+  <rect x="410" y="125" width="160" height="70" rx="8" fill="#ea4335" opacity="0.15" stroke="#ea4335" stroke-width="2"/>
+  <text x="490" y="150" text-anchor="middle" font-size="13" fill="#ea4335" font-weight="bold">Tools</text>
+  <text x="490" y="170" text-anchor="middle" font-size="11" fill="#202124">Exclusive toolset</text>
+  <text x="490" y="186" text-anchor="middle" font-size="10" fill="#202124">MCP + built-in</text>
+
+  <rect x="590" y="125" width="160" height="70" rx="8" fill="#34a853" opacity="0.15" stroke="#34a853" stroke-width="2"/>
+  <text x="670" y="150" text-anchor="middle" font-size="13" fill="#34a853" font-weight="bold">Persona</text>
+  <text x="670" y="170" text-anchor="middle" font-size="11" fill="#202124">Personality setting</text>
+  <text x="670" y="186" text-anchor="middle" font-size="10" fill="#202124">prompt word template</text>
+
+  <!-- Arrows from package to components -->
+  <line x1="290" y1="105" x2="130" y2="125" stroke="#7b1fa2" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="350" y1="105" x2="310" y2="125" stroke="#7b1fa2" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="450" y1="105" x2="490" y2="125" stroke="#7b1fa2" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="510" y1="105" x2="670" y2="125" stroke="#7b1fa2" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+  <!-- Marketplace flow -->
+  <rect x="30" y="220" width="740" height="50" rx="8" fill="#f8f9fa" stroke="#1a73e8" stroke-width="1"/>
+  <text x="400" y="240" text-anchor="middle" font-size="13" fill="#1a73e8" font-weight="bold">Expert Marketplace</text>
+
+  <rect x="80" y="255" width="120" height="30" rx="6" fill="#1a73e8"/>
+  <text x="140" y="274" text-anchor="middle" font-size="12" fill="white">browse browse</text>
+
+  <text x="215" y="274" font-size="16" fill="#202124">→</text>
+
+  <rect x="240" y="255" width="120" height="30" rx="6" fill="#34a853"/>
+  <text x="300" y="274" text-anchor="middle" font-size="12" fill="white">install install</text>
+
+  <text x="375" y="274" font-size="16" fill="#202124">→</text>
+
+  <rect x="400" y="255" width="120" height="30" rx="6" fill="#fbbc04"/>
+  <text x="460" y="274" text-anchor="middle" font-size="12" fill="#202124">activate activate</text>
+
+  <text x="535" y="274" font-size="16" fill="#202124">→</text>
+
+  <rect x="560" y="255" width="180" height="30" rx="6" fill="#7b1fa2"/>
+  <text x="650" y="274" text-anchor="middle" font-size="12" fill="white">Expert takes over Agent</text>
+
+  <!-- How expert modifies agent -->
+  <text x="400" y="310" text-anchor="middle" font-size="15" fill="#202124" font-weight="bold">How Experts Change Agent</text>
+
+  <!-- Before -->
+  <rect x="40" y="325" width="340" height="150" rx="8" fill="#e8f0fe" stroke="#1a73e8" stroke-width="2"/>
+  <rect x="40" y="325" width="340" height="28" rx="8" fill="#1a73e8"/>
+  <rect x="40" y="340" width="340" height="13" fill="#1a73e8"/>
+  <text x="210" y="344" text-anchor="middle" font-size="13" fill="white" font-weight="bold">General Agent (no experts)</text>
+
+  <text x="60" y="373" font-size="11" fill="#202124">Prompt: General system prompt</text>
+  <text x="60" y="392" font-size="11" fill="#202124">Tools: Basic toolset</text>
+  <text x="60" y="411" font-size="11" fill="#202124">Memory: blank</text>
+  <text x="60" y="430" font-size="11" fill="#202124">Skills: Default list</text>
+  <text x="60" y="450" font-size="11" fill="#999">→ General capabilities, no domain depth</text>
+
+  <!-- Arrow -->
+  <line x1="380" y1="400" x2="420" y2="400" stroke="#7b1fa2" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="400" y="393" text-anchor="middle" font-size="10" fill="#7b1fa2" font-weight="bold">expert</text>
+
+  <!-- After -->
+  <rect x="420" y="325" width="340" height="150" rx="8" fill="#7b1fa2" opacity="0.1" stroke="#7b1fa2" stroke-width="2"/>
+  <rect x="420" y="325" width="340" height="28" rx="8" fill="#7b1fa2"/>
+  <rect x="420" y="340" width="340" height="13" fill="#7b1fa2"/>
+  <text x="590" y="344" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Expert Agent (e.g. front-end expert)</text>
+
+  <text x="440" y="373" font-size="11" fill="#202124">Prompt: Front-end expert personality + domain knowledge</text>
+  <text x="440" y="392" font-size="11" fill="#202124">Tools: Basics + MCP Browser + Design Tools</text>
+  <text x="440" y="411" font-size="11" fill="#202124">Memory: Front-end best practices library</text>
+  <text x="440" y="430" font-size="11" fill="#202124">Skills: React/Vue/CSS exclusive skills</text>
+  <text x="440" y="450" font-size="11" fill="#7b1fa2" font-weight="bold">→Field specialization, deep customization</text>
+</svg>

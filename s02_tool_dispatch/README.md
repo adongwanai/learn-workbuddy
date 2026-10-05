@@ -1,5 +1,6 @@
 # s02: Tool Dispatch — 一个注册表就是工具边界
 
+[中文](README.md) · [English](README.en.md)
 > *“模型只提出调用意图，Harness 决定它能否以及如何成为一次本地执行。”*
 >
 > **Harness 层**：工具分发 — 从模型协议跨入真实 Python 代码的边界。

@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 800" role="img" aria-labelledby="title desc">
+  <title id="title">Workspace Memory Distillation, Transactional Review, and Recovery</title>
+  <desc id="desc">Raw facts pass through a distillation policy; tied candidates enter a durable conflict queue. Human review writes a transaction journal first, then updates curation state, closes the case, and appends an audit record. Incomplete transactions roll forward idempotently after restart. Only the active revision enters the prompt.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="context-stroke" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      .title{font:600 22px system-ui,sans-serif;fill:#172033}
+      .heading{font:600 15px system-ui,sans-serif;fill:#172033}
+      .body{font:400 13px system-ui,sans-serif;fill:#3b465d}
+      .small{font:400 12px system-ui,sans-serif;fill:#5d687d}
+      .mono{font:500 12px ui-monospace,monospace;fill:#3b465d}
+      .line{fill:none;stroke:#64748b;stroke-width:1.8;marker-end:url(#arrow)}
+      .dash{fill:none;stroke:#64748b;stroke-width:1.5;stroke-dasharray:5 5;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="960" height="800" fill="#f8fafc"/>
+  <text class="title" x="480" y="38" text-anchor="middle">Workspace Memory: Transactional, Recoverable Conflict Resolution</text>
+
+  <rect x="35" y="75" width="215" height="150" rx="12" fill="#e7f5ec" stroke="#3f9b69"/>
+  <text class="heading" x="55" y="105">daily/*.jsonl</text>
+  <text class="body" x="55" y="130">Original facts only append</text>
+  <text class="body" x="55" y="153">Retention time and evidence id</text>
+  <text class="body" x="55" y="176">Optional stable memory_key</text>
+  <text class="mono" x="55" y="202">runtime.python-version</text>
+
+  <rect x="295" y="75" width="215" height="150" rx="12" fill="#eaf2ff" stroke="#4f7fc7"/>
+  <text class="heading" x="315" y="105">DistillPolicy</text>
+  <text class="body" x="315" y="130">Age, type and importance thresholds</text>
+  <text class="body" x="315" y="153">Substitution requires at least 2 new pieces of evidence</text>
+  <text class="body" x="315" y="176">Reject expired candidates</text>
+  <text class="body" x="315" y="199">Same score conflict fail closed</text>
+
+  <rect x="555" y="75" width="370" height="150" rx="12" fill="#fff4df" stroke="#c98720"/>
+  <text class="heading" x="575" y="105">curated.json：canonical history</text>
+  <rect x="575" y="125" width="140" height="72" rx="8" fill="#f3e5ce" stroke="#ac7d39"/>
+  <text class="small" x="645" y="146" text-anchor="middle">revision 1</text>
+  <text class="body" x="645" y="168" text-anchor="middle">superseded</text>
+  <text class="small" x="645" y="187" text-anchor="middle">Python 3.11</text>
+  <path class="line" d="M715 161H777"/>
+  <text class="small" x="746" y="148" text-anchor="middle">supersedes</text>
+  <rect x="780" y="125" width="125" height="72" rx="8" fill="#ffe0a8" stroke="#c98720" stroke-width="2"/>
+  <text class="small" x="842" y="146" text-anchor="middle">revision 2</text>
+  <text class="heading" x="842" y="168" text-anchor="middle">active</text>
+  <text class="small" x="842" y="187" text-anchor="middle">Python 3.12</text>
+
+  <path class="line" d="M250 150H287"/>
+  <path class="line" d="M510 150H547"/>
+
+  <rect x="575" y="300" width="160" height="100" rx="12" fill="#fef3c7" stroke="#d09a13"/>
+  <text class="heading" x="655" y="332" text-anchor="middle">MEMORY.md</text>
+  <text class="body" x="655" y="358" text-anchor="middle">Render only active revisions</text>
+  <text class="small" x="655" y="381" text-anchor="middle">Can be rebuilt from canonical state</text>
+
+  <rect x="785" y="300" width="140" height="100" rx="12" fill="#eee9ff" stroke="#7764c5"/>
+  <text class="heading" x="855" y="332" text-anchor="middle">Agent prompt</text>
+  <text class="body" x="855" y="358" text-anchor="middle">Bounded injection</text>
+  <text class="small" x="855" y="381" text-anchor="middle">Do not expose pending candidates</text>
+
+  <path class="line" d="M842 225V265H655V292"/>
+  <path class="line" d="M735 350H777"/>
+
+  <rect x="35" y="285" width="260" height="130" rx="12" fill="#fff" stroke="#a9b2c1" stroke-dasharray="5 4"/>
+  <text class="heading" x="55" y="315">conflicts.json</text>
+  <text class="body" x="55" y="341">Complete evidence snapshot of tie-scoring candidates</text>
+  <text class="small" x="55" y="365">revision + fingerprint</text>
+  <text class="small" x="55" y="387">open / resolved / superseded</text>
+  <path class="dash" d="M402 225V250H165V277"/>
+
+  <rect x="335" y="285" width="190" height="130" rx="12" fill="#e9f7f6" stroke="#3c948e"/>
+  <text class="heading" x="430" y="315" text-anchor="middle">Human reviewer</text>
+  <text class="body" x="430" y="341" text-anchor="middle">expected revision</text>
+  <text class="body" x="430" y="365" text-anchor="middle">selected candidate</text>
+  <text class="small" x="430" y="389" text-anchor="middle">actor · rationale · event ID</text>
+  <path class="line" d="M295 350H327"/>
+  <path class="line" d="M725 505H750V250H740V233"/>
+  <text class="small" x="824" y="274" text-anchor="middle">apply curated target</text>
+
+  <rect x="335" y="450" width="390" height="110" rx="12" fill="#e8eefc" stroke="#536bb1" stroke-width="2"/>
+  <text class="heading" x="355" y="480">conflict-resolution-transactions.jsonl</text>
+  <text class="body" x="355" y="506">prepared → curated → conflict → audit → committed</text>
+  <text class="small" x="355" y="530">before / after snapshot · intent SHA-256</text>
+  <text class="small" x="355" y="550">Restart the comparison state and roll forward idempotently; the third state fail closed</text>
+  <path class="line" d="M430 415V442"/>
+  <path class="line" d="M335 505H315V425H165V407"/>
+  <text class="small" x="240" y="443" text-anchor="middle">close case</text>
+
+  <rect x="35" y="450" width="260" height="110" rx="12" fill="#fff7ed" stroke="#d28a35"/>
+  <text class="heading" x="55" y="480">stale ruling rejected</text>
+  <text class="body" x="55" y="506">Recheck evidence before prepare</text>
+  <text class="small" x="55" y="530">Add new facts or active version changes</text>
+  <text class="small" x="55" y="550">Ask the reviewer to reload the snapshot</text>
+  <path class="dash" d="M335 390H315V442"/>
+
+  <rect x="335" y="600" width="390" height="95" rx="12" fill="#eef2ff" stroke="#6878bd"/>
+  <text class="heading" x="355" y="630">conflict-adjudications.jsonl</text>
+  <text class="body" x="355" y="656">append-only: choice, evidence, actor and rationale</text>
+  <text class="small" x="355" y="679">Same event ID resumes deduplication; different payloads fail closed</text>
+  <path class="line" d="M530 560V592"/>
+
+  <rect x="35" y="730" width="890" height="45" rx="12" fill="#edf2f7" stroke="#a9b2c1"/>
+  <text class="heading" x="55" y="750">invariant</text>
+  <text class="small" x="55" y="768">Single active revision · Pending candidates are not entered prompt · evidence / journal / audit only append · Incomplete transaction roll forward · Unexpected status explicit error reporting</text>
+</svg>

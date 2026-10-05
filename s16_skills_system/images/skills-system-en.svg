@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#202124"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a73e8"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#34a853"/>
+    </marker>
+  </defs>
+  <rect width="800" height="500" fill="#f8f9fa"/>
+
+  <text x="400" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#202124">Skills are loaded on demand</text>
+
+  <!-- SKILL.md structure -->
+  <rect x="30" y="60" width="250" height="200" rx="8" fill="#e8f0fe" stroke="#1a73e8" stroke-width="2"/>
+  <rect x="30" y="60" width="250" height="32" rx="8" fill="#1a73e8"/>
+  <rect x="30" y="76" width="250" height="16" fill="#1a73e8"/>
+  <text x="155" y="80" text-anchor="middle" font-size="14" fill="white" font-weight="bold">SKILL.md</text>
+
+  <text x="45" y="112" font-size="11" fill="#7b1fa2" font-weight="bold">--- frontmatter ---</text>
+  <text x="50" y="128" font-size="10" fill="#202124" font-family="monospace">name: commit</text>
+  <text x="50" y="142" font-size="10" fill="#202124" font-family="monospace">triggers: [submit, commit]</text>
+  <text x="50" y="156" font-size="10" fill="#202124" font-family="monospace">priority: high</text>
+
+  <text x="45" y="175" font-size="11" fill="#34a853" font-weight="bold">--- content ---</text>
+  <text x="50" y="190" font-size="10" fill="#202124" font-family="monospace"># Commit Skill</text>
+  <text x="50" y="204" font-size="10" fill="#202124" font-family="monospace">1. Run git status</text>
+  <text x="50" y="218" font-size="10" fill="#202124" font-family="monospace">2. Generate message</text>
+  <text x="50" y="232" font-size="10" fill="#202124" font-family="monospace">3. git commit -m ...</text>
+
+  <!-- Arrow: Skill tool loads -->
+  <line x1="280" y1="160" x2="350" y2="160" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+  <text x="315" y="153" text-anchor="middle" font-size="10" fill="#1a73e8">load</text>
+
+  <!-- Injection -->
+  <rect x="360" y="110" width="180" height="100" rx="8" fill="#1a73e8"/>
+  <text x="450" y="135" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Skill Tool</text>
+  <text x="450" y="155" text-anchor="middle" font-size="11" fill="#e8f0fe">Load SKILL.md</text>
+  <text x="450" y="173" text-anchor="middle" font-size="11" fill="#e8f0fe">→ Inject context</text>
+  <text x="450" y="195" text-anchor="middle" font-size="10" fill="#fbbc04">instructions inline</text>
+
+  <!-- Arrow to context -->
+  <line x1="540" y1="160" x2="610" y2="160" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <rect x="620" y="110" width="160" height="100" rx="8" fill="#34a853"/>
+  <text x="700" y="140" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Agent Context</text>
+  <text x="700" y="160" text-anchor="middle" font-size="11" fill="white">Skill command</text>
+  <text x="700" y="178" text-anchor="middle" font-size="11" fill="white">Enter system prompts</text>
+  <text x="700" y="196" text-anchor="middle" font-size="10" fill="#fbbc04">On demand, not full quantity</text>
+
+  <!-- Marketplace section -->
+  <rect x="30" y="285" width="750" height="85" rx="8" fill="#fbbc04" opacity="0.12" stroke="#fbbc04" stroke-width="2"/>
+  <text x="400" y="310" text-anchor="middle" font-size="15" fill="#202124" font-weight="bold">Skills Marketplace</text>
+
+  <rect x="60" y="325" width="130" height="35" rx="6" fill="#fbbc04"/>
+  <text x="125" y="347" text-anchor="middle" font-size="12" fill="#202124" font-weight="bold">search search</text>
+
+  <text x="205" y="347" font-size="16" fill="#202124">→</text>
+
+  <rect x="230" y="325" width="130" height="35" rx="6" fill="#34a853"/>
+  <text x="295" y="347" text-anchor="middle" font-size="12" fill="white" font-weight="bold">install install</text>
+
+  <text x="375" y="347" font-size="16" fill="#202124">→</text>
+
+  <rect x="400" y="325" width="230" height="35" rx="6" fill="#1a73e8"/>
+  <text x="515" y="347" text-anchor="middle" font-size="11" fill="white" font-weight="bold">~/.workbuddy/skills/</text>
+
+  <text x="645" y="347" font-size="16" fill="#202124">→</text>
+
+  <rect x="670" y="325" width="100" height="35" rx="6" fill="#7b1fa2"/>
+  <text x="720" y="347" text-anchor="middle" font-size="12" fill="white" font-weight="bold">available</text>
+
+  <!-- find-skills first pattern -->
+  <rect x="30" y="390" width="750" height="85" rx="8" fill="#34a853" opacity="0.1" stroke="#34a853" stroke-width="2"/>
+  <text x="400" y="415" text-anchor="middle" font-size="15" fill="#34a853" font-weight="bold">"find-skills first" mode</text>
+
+  <rect x="60" y="430" width="200" height="35" rx="6" fill="#202124"/>
+  <text x="160" y="452" text-anchor="middle" font-size="11" fill="white">User request task</text>
+
+  <line x1="260" y1="447" x2="295" y2="447" stroke="#34a853" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+  <rect x="300" y="430" width="200" height="35" rx="6" fill="#34a853"/>
+  <text x="400" y="452" text-anchor="middle" font-size="11" fill="white" font-weight="bold">Search for existing skills first</text>
+
+  <line x1="500" y1="447" x2="535" y2="447" stroke="#34a853" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+  <rect x="540" y="430" width="220" height="35" rx="6" fill="#1a73e8"/>
+  <text x="650" y="452" text-anchor="middle" font-size="11" fill="white" font-weight="bold">If there is, load it, if not, process it directly.</text>
+</svg>

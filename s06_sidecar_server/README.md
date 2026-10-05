@@ -1,5 +1,6 @@
 # s06: Sidecar Server — 主进程不跑 agent, Sidecar 来跑
 
+[中文](README.md) · [English](README.en.md)
 > *"主进程不跑 agent, Sidecar 来跑"* — JSON-RPC over Unix Socket, 有界 RingBuffer。
 >
 > **Harness 层**: 进程架构 — agent 的宿主进程。

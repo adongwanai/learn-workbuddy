@@ -1,5 +1,6 @@
 # s18: Experts System — 领域专家, 整包加载
 
+[中文](README.md) · [English](README.en.md)
 > *"领域专家, 整包加载"* — Skills 加的是能力，Experts 改的是人格。整包加载，重塑 agent 的领域认知。
 >
 > **Harness 层**: 扩展生态 — agent 的领域知识系统。

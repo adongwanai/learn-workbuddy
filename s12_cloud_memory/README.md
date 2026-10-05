@@ -1,5 +1,6 @@
 # s12: Remote Memory — Stored Record 与 Recalled Context
 
+[中文](README.md) · [English](README.en.md)
 > Memory 是带 owner 和 source 的持久记录；Recall 是针对当前 query 生成的候选视图。两者生命周期、可信度和使用方式不同。
 >
 > **Harness 层**：Remote memory boundary、retrieval contract 与 context provenance。

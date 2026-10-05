@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a73e8"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#34a853"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#ea4335"/>
+    </marker>
+    <marker id="arrow-yellow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#fbbc04"/>
+    </marker>
+    <marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#5f6368"/>
+    </marker>
+    <radialGradient id="center-grad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1a73e8"/>
+      <stop offset="100%" stop-color="#1557b0"/>
+    </radialGradient>
+    <linearGradient id="bg-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f8f9fa"/>
+      <stop offset="100%" stop-color="#e8f0fe"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="500" fill="url(#bg-grad)"/>
+
+  <!-- Title -->
+  <text x="400" y="32" text-anchor="middle" font-size="22" font-weight="700" fill="#202124">WorkBuddy Architecture Panorama</text>
+  <text x="400" y="50" text-anchor="middle" font-size="11" fill="#5f6368">Hub-and-Spoke design: Agent Loop is the core and radiates six subsystems</text>
+
+  <!-- ===== Outer Ring: Electron Shell ===== -->
+  <rect x="15" y="65" width="770" height="420" rx="20" fill="none" stroke="#dadce0" stroke-width="2" stroke-dasharray="6 4"/>
+  <rect x="25" y="58" width="130" height="20" rx="10" fill="#202124"/>
+  <text x="90" y="72" text-anchor="middle" font-size="10" font-weight="600" fill="#ffffff">Electron Shell</text>
+  <!-- 3 processes labels on outer ring -->
+  <rect x="610" y="58" width="70" height="20" rx="10" fill="#5f6368"/>
+  <text x="645" y="72" text-anchor="middle" font-size="9" font-weight="600" fill="#ffffff">3 process architecture</text>
+  <rect x="690" y="58" width="80" height="20" rx="10" fill="#5f6368"/>
+  <text x="730" y="72" text-anchor="middle" font-size="9" font-weight="600" fill="#ffffff">Main/Renderer</text>
+
+  <!-- Process badges (bottom of outer ring) -->
+  <text x="40" y="475" font-size="9" fill="#5f6368">Main Process</text>
+  <text x="400" y="475" text-anchor="middle" font-size="9" fill="#5f6368">Renderer (React UI)</text>
+  <text x="760" y="475" text-anchor="end" font-size="9" fill="#5f6368">Sidecar (Node.js CLI)</text>
+
+  <!-- ===== CENTER: Agent Loop ===== -->
+  <circle cx="400" cy="270" r="62" fill="url(#center-grad)"/>
+  <circle cx="400" cy="270" r="62" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.3"/>
+  <text x="400" y="258" text-anchor="middle" font-size="10" fill="#d6e4ff">CORE</text>
+  <text x="400" y="278" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">Agent Loop</text>
+  <text x="400" y="295" text-anchor="middle" font-size="10" fill="#d6e4ff" font-family="monospace">while True</text>
+  <!-- Pulsing ring -->
+  <circle cx="400" cy="270" r="72" fill="none" stroke="#1a73e8" stroke-width="1.5" stroke-dasharray="3 5" opacity="0.35"/>
+
+  <!-- ===== TOP: User Input → Prompt Assembly ===== -->
+  <!-- User -->
+  <rect x="310" y="90" width="90" height="40" rx="8" fill="#1a73e8"/>
+  <text x="355" y="108" text-anchor="middle" font-size="12" font-weight="600" fill="#ffffff">User</text>
+  <text x="355" y="122" text-anchor="middle" font-size="9" fill="#d6e4ff">User Input</text>
+
+  <!-- Prompt Assembly -->
+  <rect x="420" y="90" width="120" height="40" rx="8" fill="#e8f0fe" stroke="#1a73e8" stroke-width="1.5"/>
+  <text x="480" y="108" text-anchor="middle" font-size="11" font-weight="600" fill="#1a73e8">Prompt Assembly</text>
+  <text x="480" y="122" text-anchor="middle" font-size="9" fill="#5f6368">Prompt word assembly</text>
+
+  <!-- Arrow: User → Prompt -->
+  <path d="M 400 110 L 418 110" fill="none" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <!-- Arrow: Prompt → Center -->
+  <path d="M 460 130 Q 430 180, 410 210" fill="none" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <path d="M 355 130 Q 365 180, 385 210" fill="none" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+
+  <!-- ===== LEFT: Memory (three layers) ===== -->
+  <rect x="35" y="130" width="160" height="200" rx="10" fill="#e8f0fe" stroke="#1a73e8" stroke-width="1.5"/>
+  <text x="115" y="150" text-anchor="middle" font-size="13" font-weight="700" fill="#1a73e8">Memory</text>
+  <text x="115" y="164" text-anchor="middle" font-size="9" fill="#5f6368">Three-tier memory system</text>
+
+  <!-- Workspace memory -->
+  <rect x="50" y="175" width="130" height="42" rx="6" fill="#ffffff" stroke="#1a73e8" stroke-width="1"/>
+  <text x="115" y="190" text-anchor="middle" font-size="10" font-weight="600" fill="#1a73e8">Workspace</text>
+  <text x="115" y="204" text-anchor="middle" font-size="8" fill="#5f6368">Project level .workbuddy/</text>
+  <text x="115" y="214" text-anchor="middle" font-size="8" fill="#5f6368">CODEBUDDY.md</text>
+
+  <!-- User memory -->
+  <rect x="50" y="223" width="130" height="42" rx="6" fill="#ffffff" stroke="#1a73e8" stroke-width="1"/>
+  <text x="115" y="238" text-anchor="middle" font-size="10" font-weight="600" fill="#1a73e8">User</text>
+  <text x="115" y="252" text-anchor="middle" font-size="8" fill="#5f6368">User level preferences</text>
+  <text x="115" y="262" text-anchor="middle" font-size="8" fill="#5f6368">~/.workbuddy/</text>
+
+  <!-- Cloud memory -->
+  <rect x="50" y="271" width="130" height="42" rx="6" fill="#ffffff" stroke="#1a73e8" stroke-width="1"/>
+  <text x="115" y="286" text-anchor="middle" font-size="10" font-weight="600" fill="#1a73e8">Cloud</text>
+  <text x="115" y="300" text-anchor="middle" font-size="8" fill="#5f6368">Cloud sync</text>
+  <text x="115" y="310" text-anchor="middle" font-size="8" fill="#5f6368">Share across devices</text>
+
+  <!-- Arrow: Memory → Center -->
+  <path d="M 195 230 Q 280 250, 338 265" fill="none" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+
+  <!-- ===== RIGHT: Tools ===== -->
+  <rect x="605" y="130" width="160" height="200" rx="10" fill="#e6f4ea" stroke="#34a853" stroke-width="1.5"/>
+  <text x="685" y="150" text-anchor="middle" font-size="13" font-weight="700" fill="#34a853">Tools</text>
+  <text x="685" y="164" text-anchor="middle" font-size="9" fill="#5f6368">Tool system</text>
+
+  <!-- Dispatch -->
+  <rect x="620" y="175" width="130" height="38" rx="6" fill="#ffffff" stroke="#34a853" stroke-width="1"/>
+  <text x="685" y="190" text-anchor="middle" font-size="10" font-weight="600" fill="#34a853">Dispatch</text>
+  <text x="685" y="204" text-anchor="middle" font-size="8" fill="#5f6368">Tool distribution routing</text>
+
+  <!-- Deferred Loading -->
+  <rect x="620" y="219" width="130" height="38" rx="6" fill="#ffffff" stroke="#34a853" stroke-width="1"/>
+  <text x="685" y="234" text-anchor="middle" font-size="10" font-weight="600" fill="#34a853">Deferred Loading</text>
+  <text x="685" y="248" text-anchor="middle" font-size="8" fill="#5f6368">ToolSearch on demand</text>
+
+  <!-- MCP -->
+  <rect x="620" y="263" width="130" height="38" rx="6" fill="#ffffff" stroke="#34a853" stroke-width="1"/>
+  <text x="685" y="278" text-anchor="middle" font-size="10" font-weight="600" fill="#34a853">MCP Connectors</text>
+  <text x="685" y="292" text-anchor="middle" font-size="8" fill="#5f6368">external protocol connection</text>
+
+  <!-- Skills -->
+  <rect x="620" y="307" width="130" height="20" rx="6" fill="#ffffff" stroke="#34a853" stroke-width="1"/>
+  <text x="685" y="321" text-anchor="middle" font-size="10" font-weight="600" fill="#34a853">Skills</text>
+
+  <!-- Arrow: Center → Tools -->
+  <path d="M 462 265 Q 530 250, 603 230" fill="none" stroke="#34a853" stroke-width="2" marker-end="url(#arrow-green)"/>
+
+  <!-- ===== BOTTOM: Persistence ===== -->
+  <rect x="240" y="380" width="320" height="75" rx="10" fill="#fef7e0" stroke="#fbbc04" stroke-width="1.5"/>
+  <text x="400" y="400" text-anchor="middle" font-size="13" font-weight="700" fill="#b06000">Persistence</text>
+
+  <!-- JSONL -->
+  <rect x="255" y="410" width="90" height="36" rx="6" fill="#ffffff" stroke="#fbbc04" stroke-width="1"/>
+  <text x="300" y="425" text-anchor="middle" font-size="10" font-weight="600" fill="#b06000">JSONL</text>
+  <text x="300" y="438" text-anchor="middle" font-size="8" fill="#5f6368">Conversation record</text>
+
+  <!-- SQLite -->
+  <rect x="355" y="410" width="90" height="36" rx="6" fill="#ffffff" stroke="#fbbc04" stroke-width="1"/>
+  <text x="400" y="425" text-anchor="middle" font-size="10" font-weight="600" fill="#b06000">SQLite</text>
+  <text x="400" y="438" text-anchor="middle" font-size="8" fill="#5f6368">structured data</text>
+
+  <!-- Audit -->
+  <rect x="455" y="410" width="90" height="36" rx="6" fill="#ffffff" stroke="#fbbc04" stroke-width="1"/>
+  <text x="500" y="425" text-anchor="middle" font-size="10" font-weight="600" fill="#b06000">Audit</text>
+  <text x="500" y="438" text-anchor="middle" font-size="8" fill="#5f6368">Audit log</text>
+
+  <!-- Arrow: Center → Persistence -->
+  <path d="M 400 332 L 400 378" fill="none" stroke="#fbbc04" stroke-width="2" marker-end="url(#arrow-yellow)"/>
+
+  <!-- ===== Spoke labels ===== -->
+  <text x="400" y="178" text-anchor="middle" font-size="9" fill="#1a73e8" font-style="italic">input stream</text>
+  <text x="270" y="255" text-anchor="middle" font-size="9" fill="#1a73e8" font-style="italic">memory read</text>
+  <text x="530" y="255" text-anchor="middle" font-size="9" fill="#34a853" font-style="italic">Tool call</text>
+  <text x="412" y="360" text-anchor="middle" font-size="9" fill="#b06000" font-style="italic">state persistence</text>
+
+  <!-- ===== Corner annotations ===== -->
+  <!-- Top-left: Model Routing -->
+  <rect x="35" y="85" width="100" height="34" rx="6" fill="#fce8e6" stroke="#ea4335" stroke-width="1"/>
+  <text x="85" y="100" text-anchor="middle" font-size="9" font-weight="600" fill="#ea4335">Model Routing</text>
+  <text x="85" y="112" text-anchor="middle" font-size="8" fill="#5f6368">craft/default/lite</text>
+
+  <!-- Top-right: Context Compact -->
+  <rect x="665" y="85" width="100" height="34" rx="6" fill="#fce8e6" stroke="#ea4335" stroke-width="1"/>
+  <text x="715" y="100" text-anchor="middle" font-size="9" font-weight="600" fill="#ea4335">Context Compact</text>
+  <text x="715" y="112" text-anchor="middle" font-size="8" fill="#5f6368">4-layer compression pipeline</text>
+
+  <!-- Bottom-left: Sandbox -->
+  <rect x="35" y="345" width="100" height="34" rx="6" fill="#e6f4ea" stroke="#34a853" stroke-width="1"/>
+  <text x="85" y="360" text-anchor="middle" font-size="9" font-weight="600" fill="#137333">Sandbox</text>
+  <text x="85" y="372" text-anchor="middle" font-size="8" fill="#5f6368">3 layers of security protection</text>
+
+  <!-- Bottom-right: Permission Hooks -->
+  <rect x="665" y="345" width="100" height="34" rx="6" fill="#e6f4ea" stroke="#34a853" stroke-width="1"/>
+  <text x="715" y="360" text-anchor="middle" font-size="9" font-weight="600" fill="#137333">Permission</text>
+  <text x="715" y="372" text-anchor="middle" font-size="8" fill="#5f6368">Hooks Approval</text>
+</svg>

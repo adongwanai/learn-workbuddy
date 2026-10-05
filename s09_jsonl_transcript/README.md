@@ -1,5 +1,6 @@
 # s09: JSONL Transcript — 证据只追加，运行时状态可重建
 
+[中文](README.md) · [English](README.en.md)
 > *"日志是证据，replay state 是派生结果"* — append-only JSONL 会话持久化。
 >
 > **Harness 层**: 持久化 — 对话的源真相。

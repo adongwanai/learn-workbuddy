@@ -1,5 +1,6 @@
 # s19: Visualizer — 不只是文字, 还能画图
 
+[中文](README.md) · [English](README.en.md)
 > *"不只是文字, 还能画图"* — agent 的输出不是终端里的纯文本，而是流式注入的 SVG 图表和 HTML widget。
 >
 > **Harness 层**: 交互 — agent 的可视化引擎。

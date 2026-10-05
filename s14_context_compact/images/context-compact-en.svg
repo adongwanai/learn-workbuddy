@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 800" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a73e8"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#34a853"/>
+    </marker>
+  </defs>
+
+  <!-- Background and title -->
+  <rect width="900" height="800" fill="#f8f9fa"/>
+  <text x="450" y="38" text-anchor="middle" font-size="24" font-weight="700" fill="#202124">Contextual Compression: Lossy Messages vs. Lossless Durable State</text>
+  <text x="450" y="64" text-anchor="middle" font-size="13" fill="#5f6368">Compression only handles Prompt copies; durable state is retained along the bypass path and re-verified for origin in a trusted owner</text>
+
+  <!-- Trigger -->
+  <rect x="280" y="82" width="340" height="34" rx="17" fill="#ea4335"/>
+  <text x="450" y="104" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">estimate_tokens(messages) ≥ 80,000</text>
+
+  <!-- Left: lossy pipeline -->
+  <text x="215" y="146" text-anchor="middle" font-size="15" font-weight="700" fill="#202124">Discardable Prompt view (deep copy)</text>
+
+  <rect x="50" y="162" width="330" height="58" rx="10" fill="#e8f0fe" stroke="#1a73e8" stroke-width="2"/>
+  <circle cx="80" cy="191" r="18" fill="#1a73e8"/>
+  <text x="80" y="197" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">L1</text>
+  <text x="110" y="185" font-size="14" font-weight="700" fill="#174ea6">Tool result truncation</text>
+  <text x="110" y="204" font-size="11" fill="#5f6368">Oversized results retain bounded prefix and truncation instructions</text>
+
+  <line x1="215" y1="220" x2="215" y2="238" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <rect x="50" y="244" width="330" height="58" rx="10" fill="#fef7e0" stroke="#f9ab00" stroke-width="2"/>
+  <circle cx="80" cy="273" r="18" fill="#f9ab00"/>
+  <text x="80" y="279" text-anchor="middle" font-size="15" font-weight="700" fill="#202124">L2</text>
+  <text x="110" y="267" font-size="14" font-weight="700" fill="#a15c00">File read deduplication</text>
+  <text x="110" y="286" font-size="11" fill="#5f6368">Only the latest reading result is retained in the same path</text>
+
+  <line x1="215" y1="302" x2="215" y2="320" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <rect x="50" y="326" width="330" height="58" rx="10" fill="#e6f4ea" stroke="#34a853" stroke-width="2"/>
+  <circle cx="80" cy="355" r="18" fill="#34a853"/>
+  <text x="80" y="361" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">L3</text>
+  <text x="110" y="349" font-size="14" font-weight="700" fill="#137333">Message pruning</text>
+  <text x="110" y="368" font-size="11" fill="#5f6368">Keep the first request and the latest message to avoid orphaning tool result</text>
+
+  <line x1="215" y1="384" x2="215" y2="402" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <rect x="50" y="408" width="330" height="58" rx="10" fill="#fce8e6" stroke="#ea4335" stroke-width="2"/>
+  <circle cx="80" cy="437" r="18" fill="#ea4335"/>
+  <text x="80" y="443" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">L4</text>
+  <text x="110" y="431" font-size="14" font-weight="700" fill="#b3261e">Conversation summary</text>
+  <text x="110" y="450" font-size="11" fill="#5f6368">The original message is retained in case of failure or empty digest, and silent loss is prohibited.</text>
+
+  <!-- Right: lossless durable lane -->
+  <rect x="500" y="140" width="350" height="292" rx="12" fill="#ffffff" stroke="#34a853" stroke-width="2.5"/>
+  <rect x="500" y="140" width="350" height="42" rx="12" fill="#34a853"/>
+  <rect x="500" y="165" width="350" height="17" fill="#34a853"/>
+  <text x="675" y="167" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">DurableContextState (lossless bypass)</text>
+
+  <text x="525" y="207" font-size="13" font-weight="700" fill="#137333">Confirmed facts</text>
+  <text x="525" y="227" font-size="11" fill="#5f6368">content + source_pointer + last_confirmed_at</text>
+  <line x1="525" y1="240" x2="825" y2="240" stroke="#dadce0"/>
+  <text x="525" y="263" font-size="13" font-weight="700" fill="#137333">Pending work</text>
+  <text x="525" y="283" font-size="11" fill="#5f6368">description + source_pointer + last_confirmed_at</text>
+  <line x1="525" y1="296" x2="825" y2="296" stroke="#dadce0"/>
+  <text x="525" y="319" font-size="13" font-weight="700" fill="#137333">Selected retrieval evidence</text>
+  <text x="525" y="339" font-size="11" fill="#5f6368">source + score + rank + captured_at</text>
+  <text x="525" y="357" font-size="11" fill="#5f6368">conflict winner marker (do not copy recall text)</text>
+  <line x1="525" y1="370" x2="825" y2="370" stroke="#dadce0"/>
+  <text x="525" y="395" font-size="11" fill="#5f6368">frozen dataclass · tuple collection · unique IDs</text>
+  <text x="525" y="415" font-size="11" font-weight="700" fill="#137333">Not entered into L1–L4, not rewritten by summary model</text>
+
+  <!-- Separate outputs -->
+  <line x1="215" y1="466" x2="215" y2="500" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <rect x="50" y="508" width="330" height="66" rx="10" fill="#e8f0fe" stroke="#1a73e8" stroke-width="2"/>
+  <text x="215" y="535" text-anchor="middle" font-size="14" font-weight="700" fill="#174ea6">Compacted messages</text>
+  <text x="215" y="556" text-anchor="middle" font-size="11" fill="#5f6368">Discardable, re-derivable from Transcript</text>
+
+  <line x1="675" y1="432" x2="675" y2="450" stroke="#34a853" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <rect x="500" y="458" width="350" height="106" rx="10" fill="#fff7e0" stroke="#f9ab00" stroke-width="2"/>
+  <text x="675" y="483" text-anchor="middle" font-size="14" font-weight="700" fill="#a15c00">SourcePointerResolver</text>
+  <text x="675" y="504" text-anchor="middle" font-size="11" fill="#5f6368">Trusted Transcript / Artifact roots · Lookup pre-authorization</text>
+  <text x="675" y="523" text-anchor="middle" font-size="11" fill="#5f6368">session / sequence / event ID · streaming SHA-256</text>
+  <text x="675" y="545" text-anchor="middle" font-size="10" font-weight="700" fill="#a15c00">available · missing · denied · corrupt · unsupported</text>
+
+  <line x1="675" y1="564" x2="675" y2="582" stroke="#34a853" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <rect x="500" y="590" width="350" height="82" rx="10" fill="#e6f4ea" stroke="#34a853" stroke-width="2"/>
+  <text x="675" y="615" text-anchor="middle" font-size="14" font-weight="700" fill="#137333">render_durable_context()</text>
+  <text x="675" y="637" text-anchor="middle" font-size="11" fill="#5f6368">available injects hash; the rest is explicit evidence_unavailable</text>
+  <text x="675" y="654" text-anchor="middle" font-size="10" fill="#5f6368">Bounded excerpt is for audit only and will never automatically enter Prompt</text>
+
+  <!-- Merge only at the next model request -->
+  <path d="M 215 574 L 215 723 L 340 723" fill="none" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <path d="M 675 672 L 675 723 L 560 723" fill="none" stroke="#34a853" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <rect x="350" y="690" width="200" height="66" rx="12" fill="#202124"/>
+  <text x="450" y="717" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">Next API Call</text>
+  <text x="450" y="739" text-anchor="middle" font-size="11" fill="#bdc1c6">messages + verified durable context</text>
+
+  <text x="450" y="784" text-anchor="middle" font-size="11" fill="#5f6368">Compression changes the context view; source status comes from the current round of verification and is not inferred from the summary</text>
+</svg>

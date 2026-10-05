@@ -1,5 +1,6 @@
 # s07: Session Management — 逻辑会话可恢复，运行时必须重建
 
+[中文](README.md) · [English](README.en.md)
 > `session_id` 标识一段可继续的工作历史；进程、线程、端口和 provider client 只是这一时刻的运行时资源。
 >
 > **Harness 层**：会话生命周期、运行时隔离与恢复边界。

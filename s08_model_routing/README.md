@@ -1,5 +1,6 @@
 # s08: Model Routing — 用 AI 管理 AI, 便宜的做粗筛, 贵的做推理
 
+[中文](README.md) · [English](README.en.md)
 > *"用 AI 管理 AI — 便宜的做粗筛, 贵的做推理"* — 模型分级路由。
 >
 > **Harness 层**: 成本优化 — 模型是 agent 的 CPU。

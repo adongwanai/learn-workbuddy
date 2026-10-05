@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#202124"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a73e8"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7b1fa2"/>
+    </marker>
+  </defs>
+  <rect width="800" height="500" fill="#f8f9fa"/>
+
+  <text x="400" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#202124">Automated scheduler</text>
+
+  <!-- Step 1: Define automation -->
+  <rect x="30" y="60" width="180" height="80" rx="8" fill="#1a73e8"/>
+  <text x="120" y="85" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Define automation</text>
+  <text x="120" y="103" text-anchor="middle" font-size="11" fill="#e8f0fe">prompt + schedule</text>
+  <text x="120" y="120" text-anchor="middle" font-size="10" fill="#e8f0fe">name + model + expert</text>
+
+  <line x1="210" y1="100" x2="245" y2="100" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <!-- Step 2: Scheduler checks rrule -->
+  <rect x="250" y="60" width="180" height="80" rx="8" fill="#34a853"/>
+  <text x="340" y="85" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Scheduler check</text>
+  <text x="340" y="103" text-anchor="middle" font-size="11" fill="white">Parse rrule</text>
+  <text x="340" y="120" text-anchor="middle" font-size="10" fill="white">Calculate next_run_at</text>
+
+  <line x1="430" y1="100" x2="465" y2="100" stroke="#34a853" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Step 3: Trigger -->
+  <rect x="470" y="60" width="140" height="80" rx="8" fill="#fbbc04"/>
+  <text x="540" y="85" text-anchor="middle" font-size="13" fill="#202124" font-weight="bold">trigger execution</text>
+  <text x="540" y="103" text-anchor="middle" font-size="11" fill="#202124">time to arrive</text>
+  <text x="540" y="120" text-anchor="middle" font-size="10" fill="#202124">Start Agent</text>
+
+  <line x1="610" y1="100" x2="645" y2="100" stroke="#fbbc04" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Step 4: Agent runs -->
+  <rect x="650" y="60" width="130" height="80" rx="8" fill="#7b1fa2"/>
+  <text x="715" y="85" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Agent running</text>
+  <text x="715" y="103" text-anchor="middle" font-size="11" fill="#e8e0f0">Execute prompt</text>
+  <text x="715" y="120" text-anchor="middle" font-size="10" fill="#e8e0f0">Output results</text>
+
+  <!-- Result stored -->
+  <line x1="715" y1="140" x2="715" y2="170" stroke="#202124" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="620" y="175" width="190" height="35" rx="6" fill="#202124"/>
+  <text x="715" y="197" text-anchor="middle" font-size="12" fill="white">The results are stored in automation_runs</text>
+
+  <!-- Schedule types -->
+  <text x="400" y="240" text-anchor="middle" font-size="16" fill="#202124" font-weight="bold">Scheduling type</text>
+
+  <rect x="80" y="260" width="300" height="80" rx="8" fill="#34a853" opacity="0.1" stroke="#34a853" stroke-width="2"/>
+  <text x="230" y="285" text-anchor="middle" font-size="14" fill="#34a853" font-weight="bold">recurring</text>
+  <text x="100" y="308" font-size="11" fill="#202124">RRULE: FREQ=DAILY; INTERVAL=1</text>
+  <text x="100" y="325" font-size="11" fill="#202124">Repeat daily/weekly/monthly</text>
+
+  <rect x="420" y="260" width="300" height="80" rx="8" fill="#fbbc04" opacity="0.15" stroke="#fbbc04" stroke-width="2"/>
+  <text x="570" y="285" text-anchor="middle" font-size="14" fill="#fbbc04" font-weight="bold">once (one-time)</text>
+  <text x="440" y="308" font-size="11" fill="#202124">scheduledAt: 2026-07-08T10:00</text>
+  <text x="440" y="325" font-size="11" fill="#202124">Execute once and end after the specified time</text>
+
+  <!-- SQLite persistence -->
+  <text x="400" y="370" text-anchor="middle" font-size="16" fill="#202124" font-weight="bold">SQLite persistence layer</text>
+
+  <rect x="50" y="385" width="220" height="95" rx="8" fill="#7b1fa2" opacity="0.1" stroke="#7b1fa2" stroke-width="2"/>
+  <text x="160" y="408" text-anchor="middle" font-size="13" fill="#7b1fa2" font-weight="bold">automations</text>
+  <text x="70" y="428" font-size="11" fill="#202124">Storage automation definition</text>
+  <text x="70" y="445" font-size="11" fill="#202124">prompt, rrule, status</text>
+  <text x="70" y="465" font-size="11" fill="#202124">ACTIVE / PAUSED</text>
+
+  <rect x="290" y="385" width="220" height="95" rx="8" fill="#7b1fa2" opacity="0.1" stroke="#7b1fa2" stroke-width="2"/>
+  <text x="400" y="408" text-anchor="middle" font-size="13" fill="#7b1fa2" font-weight="bold">automation_runs</text>
+  <text x="310" y="428" font-size="11" fill="#202124">Each execution record</text>
+  <text x="310" y="445" font-size="11" fill="#202124">started_at, result</text>
+  <text x="310" y="465" font-size="11" fill="#202124">success/failure status</text>
+
+  <rect x="530" y="385" width="220" height="95" rx="8" fill="#7b1fa2" opacity="0.1" stroke="#7b1fa2" stroke-width="2"/>
+  <text x="640" y="408" text-anchor="middle" font-size="11" fill="#7b1fa2" font-weight="bold">automation_runtime_state</text>
+  <text x="550" y="428" font-size="11" fill="#202124">runtime status</text>
+  <text x="550" y="445" font-size="11" fill="#202124">last_run, next_run</text>
+  <text x="550" y="465" font-size="11" fill="#202124">Error counting and recovery</text>
+
+  <!-- Arrows between persistence tables -->
+  <line x1="270" y1="432" x2="290" y2="432" stroke="#7b1fa2" stroke-width="1.5" marker-end="url(#arrowPurple)"/>
+  <line x1="510" y1="432" x2="530" y2="432" stroke="#7b1fa2" stroke-width="1.5" marker-end="url(#arrowPurple)"/>
+</svg>

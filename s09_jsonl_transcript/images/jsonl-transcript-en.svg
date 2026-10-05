@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 570" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a73e8"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#ea4335"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#34a853"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="570" fill="#f8f9fa"/>
+
+  <!-- Title -->
+  <text x="400" y="38" text-anchor="middle" font-size="24" font-weight="700" fill="#202124">JSONL conversation persistence</text>
+  <text x="400" y="60" text-anchor="middle" font-size="13" fill="#5f6368">Evidence with sequence is only appended, ReplayState can be rebuilt at any time
+ </text>
+
+  <!-- ===== File container ===== -->
+  <rect x="60" y="85" width="460" height="390" rx="10" fill="#ffffff" stroke="#1a73e8" stroke-width="2"/>
+  <!-- File header -->
+  <rect x="60" y="85" width="460" height="34" rx="10" fill="#1a73e8"/>
+  <rect x="60" y="105" width="460" height="14" fill="#1a73e8"/>
+  <text x="80" y="108" font-size="13" font-weight="600" fill="#ffffff" font-family="monospace">session-2026-01-15.jsonl</text>
+  <text x="500" y="108" text-anchor="end" font-size="11" fill="#d6e4ff" font-family="monospace">append-only</text>
+
+  <!-- Line 1 -->
+  <rect x="72" y="128" width="436" height="42" rx="4" fill="#e8f0fe"/>
+  <text x="82" y="144" font-size="9" fill="#1a73e8" font-weight="700" font-family="monospace">L1</text>
+  <text x="102" y="144" font-size="10" fill="#202124" font-family="monospace">{"type":"message","role":"user",</text>
+  <text x="102" y="160" font-size="10" fill="#5f6368" font-family="monospace">"content":"Help me read the file"}</text>
+  <rect x="440" y="132" width="60" height="16" rx="8" fill="#1a73e8"/>
+  <text x="470" y="144" text-anchor="middle" font-size="9" fill="#ffffff" font-weight="600">User messages
+ </text>
+
+  <!-- Line 2 -->
+  <rect x="72" y="175" width="436" height="42" rx="4" fill="#fef7e0"/>
+  <text x="82" y="191" font-size="9" fill="#b06000" font-weight="700" font-family="monospace">L2</text>
+  <text x="102" y="191" font-size="10" fill="#202124" font-family="monospace">{"type":"reasoning",</text>
+  <text x="102" y="207" font-size="10" fill="#5f6368" font-family="monospace">"content":"You need to use the Read tool..."}</text>
+  <rect x="435" y="179" width="65" height="16" rx="8" fill="#fbbc04"/>
+  <text x="467" y="191" text-anchor="middle" font-size="9" fill="#202124" font-weight="600">reasoning process</text>
+
+  <!-- Line 3 -->
+  <rect x="72" y="222" width="436" height="42" rx="4" fill="#e6f4ea"/>
+  <text x="82" y="238" font-size="9" fill="#137333" font-weight="700" font-family="monospace">L3</text>
+  <text x="102" y="238" font-size="10" fill="#202124" font-family="monospace">{"type":"function_call","name":"read_file",</text>
+  <text x="102" y="254" font-size="10" fill="#5f6368" font-family="monospace"> "input":{"path":"/src/main.py"}}</text>
+  <rect x="435" y="226" width="65" height="16" rx="8" fill="#34a853"/>
+  <text x="467" y="238" text-anchor="middle" font-size="9" fill="#ffffff" font-weight="600">Tool call</text>
+
+  <!-- Line 4 -->
+  <rect x="72" y="269" width="436" height="42" rx="4" fill="#e6f4ea"/>
+  <text x="82" y="285" font-size="9" fill="#137333" font-weight="700" font-family="monospace">L4</text>
+  <text x="102" y="285" font-size="10" fill="#202124" font-family="monospace">{"type":"function_call_result",</text>
+  <text x="102" y="301" font-size="10" fill="#5f6368" font-family="monospace"> "output":"def main():\n  ..."}</text>
+  <rect x="430" y="273" width="70" height="16" rx="8" fill="#34a853"/>
+  <text x="465" y="285" text-anchor="middle" font-size="9" fill="#ffffff" font-weight="600">Tool results</text>
+
+  <!-- Line 5 -->
+  <rect x="72" y="316" width="436" height="42" rx="4" fill="#fce8e6"/>
+  <text x="82" y="332" font-size="9" fill="#ea4335" font-weight="700" font-family="monospace">L5</text>
+  <text x="102" y="332" font-size="10" fill="#202124" font-family="monospace">{"type":"file-history-snapshot",</text>
+  <text x="102" y="348" font-size="10" fill="#5f6368" font-family="monospace"> "path":"/src/main.py","hash":"a1b2"}</text>
+  <rect x="425" y="320" width="75" height="16" rx="8" fill="#ea4335"/>
+  <text x="462" y="332" text-anchor="middle" font-size="9" fill="#ffffff" font-weight="600">File snapshot
+ </text>
+
+  <!-- Line 6 -->
+  <rect x="72" y="363" width="436" height="42" rx="4" fill="#f3e8fd"/>
+  <text x="82" y="379" font-size="9" fill="#7b1fa2" font-weight="700" font-family="monospace">L6</text>
+  <text x="102" y="379" font-size="10" fill="#202124" font-family="monospace">{"type":"ai-title",</text>
+  <text x="102" y="395" font-size="10" fill="#5f6368" font-family="monospace">"title":"Read main.py file"}</text>
+  <rect x="440" y="367" width="60" height="16" rx="8" fill="#7b1fa2"/>
+  <text x="470" y="379" text-anchor="middle" font-size="9" fill="#ffffff" font-weight="600">AI title</text>
+
+  <!-- Dots -->
+  <text x="290" y="425" text-anchor="middle" font-size="16" fill="#5f6368">⋮</text>
+  <text x="290" y="445" text-anchor="middle" font-size="10" fill="#5f6368" font-style="italic">More records...</text>
+
+  <!-- ===== Right: Append arrow ===== -->
+  <path d="M 580 100 L 580 420" fill="none" stroke="#1a73e8" stroke-width="3" stroke-dasharray="8 4" marker-end="url(#arrow-blue)"/>
+  <rect x="540" y="200" width="120" height="50" rx="10" fill="#1a73e8"/>
+  <text x="600" y="220" text-anchor="middle" font-size="13" font-weight="600" fill="#ffffff">append write</text>
+  <text x="600" y="238" text-anchor="middle" font-size="11" fill="#d6e4ff">(append-only)</text>
+
+  <!-- ===== Right: Crash recovery ===== -->
+  <rect x="540" y="310" width="230" height="100" rx="10" fill="#fce8e6" stroke="#ea4335" stroke-width="2"/>
+  <text x="655" y="332" text-anchor="middle" font-size="13" font-weight="700" fill="#ea4335">crash recovery</text>
+  <!-- Replay arrow -->
+  <path d="M 610 348 Q 580 365, 610 388" fill="none" stroke="#ea4335" stroke-width="2.5" marker-end="url(#arrow-red)"/>
+  <text x="665" y="360" text-anchor="middle" font-size="11" fill="#5f6368">Replay from JSONL</text>
+  <text x="665" y="378" text-anchor="middle" font-size="11" fill="#5f6368">Verify sequence / complete line</text>
+  <text x="665" y="396" text-anchor="middle" font-size="11" font-weight="600" fill="#ea4335">fold → ReplayState</text>
+
+  <!-- ===== Right top: Features ===== -->
+  <rect x="540" y="85" width="230" height="100" rx="10" fill="#e8f0fe" stroke="#1a73e8" stroke-width="1.5"/>
+  <text x="655" y="107" text-anchor="middle" font-size="13" font-weight="700" fill="#1a73e8">Features</text>
+  <text x="555" y="127" font-size="11" fill="#5f6368">✓ Human readable (text format)</text>
+  <text x="555" y="144" font-size="11" fill="#5f6368">✓ Incremental writing (no need to rewrite)</text>
+  <text x="555" y="161" font-size="11" fill="#5f6368">✓ Crash safe (full line)</text>
+  <text x="555" y="178" font-size="11" fill="#5f6368">✓ Can be tracked by git diff</text>
+
+  <!-- ===== Right bottom: Types legend ===== -->
+  <rect x="540" y="425" width="230" height="55" rx="10" fill="#ffffff" stroke="#dadce0"/>
+  <text x="555" y="445" font-size="11" font-weight="600" fill="#202124">record type</text>
+  <text x="555" y="462" font-size="10" fill="#5f6368">message | reasoning | function_call</text>
+  <text x="555" y="475" font-size="10" fill="#5f6368">function_call_result | snapshot</text>
+
+  <!-- ===== Transcript-to-memory selection boundary ===== -->
+  <rect x="60" y="510" width="230" height="44" rx="9" fill="#e8f0fe" stroke="#1a73e8"/>
+  <text x="175" y="529" text-anchor="middle" font-size="11" font-weight="700" fill="#174ea6">Stable Evidence ID</text>
+  <text x="175" y="546" text-anchor="middle" font-size="9" fill="#5f6368" font-family="monospace">transcript:&lt;session&gt;:&lt;sequence&gt;</text>
+
+  <line x1="290" y1="532" x2="318" y2="532" stroke="#5f6368" stroke-width="1.8" marker-end="url(#arrow-blue)"/>
+  <rect x="326" y="510" width="148" height="44" rx="9" fill="#fff7e0" stroke="#f9ab00"/>
+  <text x="400" y="529" text-anchor="middle" font-size="11" font-weight="700" fill="#a15c00">explicit selection</text>
+  <text x="400" y="546" text-anchor="middle" font-size="9" fill="#5f6368">summary + reason</text>
+
+  <line x1="474" y1="532" x2="502" y2="532" stroke="#5f6368" stroke-width="1.8" marker-end="url(#arrow-green)"/>
+  <rect x="510" y="510" width="260" height="44" rx="9" fill="#e6f4ea" stroke="#34a853"/>
+  <text x="640" y="529" text-anchor="middle" font-size="11" font-weight="700" fill="#137333">Memory candidate</text>
+  <text x="640" y="546" text-anchor="middle" font-size="9" fill="#5f6368">Only include the abstract and source citation, do not copy the full transcript</text>
+</svg>

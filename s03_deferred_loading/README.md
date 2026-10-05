@@ -1,5 +1,6 @@
 # s03: Deferred Tool Loading — 先发现，再加载，再执行
 
+[中文](README.md) · [English](README.en.md)
 > “工具先列目录，schema 用到再展开。”
 >
 > **Harness 层**：控制每一轮向模型暴露哪些工具契约。

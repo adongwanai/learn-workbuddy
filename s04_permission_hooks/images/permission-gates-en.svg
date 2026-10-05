@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#eef3fb"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#19304f" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#4f6584"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#16866f"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#c94747"/>
+    </marker>
+  </defs>
+
+  <!-- Canvas and title -->
+  <rect width="960" height="560" fill="url(#background)"/>
+  <text x="48" y="50" font-size="26" font-weight="700" fill="#13233f">Permission governance: Decision-making, approval, and execution are separated from each other</text>
+  <text x="48" y="78" font-size="14" fill="#58708f">Each step has structured results; rule_id and reason run through the audit chain</text>
+
+  <!-- Request -->
+  <rect x="48" y="120" width="168" height="102" rx="15" fill="#ffffff" stroke="#c7d4e7" filter="url(#shadow)"/>
+  <text x="70" y="151" font-size="15" font-weight="700" fill="#203d68">ToolRequest</text>
+  <text x="70" y="180" font-size="12" fill="#58708f">name</text>
+  <text x="70" y="201" font-size="12" fill="#58708f">arguments (untrusted)</text>
+
+  <path d="M224 171 H264" fill="none" stroke="#4f6584" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <!-- Pure policy -->
+  <rect x="276" y="104" width="224" height="134" rx="15" fill="#ffffff" stroke="#abc2e6" filter="url(#shadow)"/>
+  <rect x="276" y="104" width="224" height="39" rx="15" fill="#3568b8"/>
+  <path d="M276 128 H500 V143 H276 Z" fill="#3568b8"/>
+  <text x="298" y="130" font-size="15" font-weight="700" fill="#ffffff">PermissionPolicy</text>
+  <text x="298" y="169" font-size="12" fill="#203d68">① ordered rules</text>
+  <text x="298" y="192" font-size="12" fill="#203d68">② workspace scope</text>
+  <text x="298" y="215" font-size="12" fill="#203d68">③ default deny</text>
+
+  <!-- Decision contract -->
+  <path d="M508 171 H548" fill="none" stroke="#4f6584" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <rect x="560" y="104" width="352" height="134" rx="15" fill="#ffffff" stroke="#c7d4e7" filter="url(#shadow)"/>
+  <text x="582" y="133" font-size="15" font-weight="700" fill="#203d68">PermissionDecision</text>
+
+  <rect x="582" y="151" width="94" height="38" rx="9" fill="#e9f7f3" stroke="#8fd1c2"/>
+  <text x="629" y="175" text-anchor="middle" font-size="13" font-weight="700" fill="#126a59">ALLOW</text>
+  <rect x="689" y="151" width="94" height="38" rx="9" fill="#fff7e8" stroke="#e7c884"/>
+  <text x="736" y="175" text-anchor="middle" font-size="13" font-weight="700" fill="#8a5a0a">ASK</text>
+  <rect x="796" y="151" width="94" height="38" rx="9" fill="#fff0f0" stroke="#e1a3a3"/>
+  <text x="843" y="175" text-anchor="middle" font-size="13" font-weight="700" fill="#a73535">DENY</text>
+  <text x="582" y="216" font-size="12" fill="#58708f">rule_id + request-specific reason</text>
+
+  <!-- Approval path -->
+  <path d="M736 238 V276" fill="none" stroke="#c38a22" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <rect x="628" y="288" width="216" height="76" rx="14" fill="#fffaf0" stroke="#e7c884" filter="url(#shadow)"/>
+  <text x="650" y="317" font-size="15" font-weight="700" fill="#8a5a0a">Approver (ASK only)</text>
+  <text x="650" y="344" font-size="12" fill="#8a6b33">approved / rejected / cancelled</text>
+
+  <!-- Resolution convergence -->
+  <path d="M629 238 C629 256 584 263 584 386" fill="none" stroke="#16866f" stroke-width="2.3" marker-end="url(#arrow-green)"/>
+  <text x="548" y="276" font-size="11" fill="#16866f">no prompt</text>
+  <path d="M843 238 C843 267 875 292 875 386" fill="none" stroke="#c94747" stroke-width="2.3" marker-end="url(#arrow-red)"/>
+  <text x="858" y="276" font-size="11" fill="#c94747">cannot override</text>
+  <path d="M736 364 V386" fill="none" stroke="#c38a22" stroke-width="2.3" marker-end="url(#arrow)"/>
+
+  <!-- Governed runner -->
+  <rect x="454" y="398" width="352" height="90" rx="16" fill="#ffffff" stroke="#a7d6cb" filter="url(#shadow)"/>
+  <text x="478" y="428" font-size="16" font-weight="700" fill="#16483f">GovernedToolRunner</text>
+  <text x="478" y="455" font-size="12" fill="#476b64">allowed? → handler → catch failure → result</text>
+  <text x="478" y="475" font-size="12" fill="#476b64">BLOCKED / SUCCEEDED / FAILED</text>
+
+  <!-- Final protocol result -->
+  <path d="M814 443 H854" fill="none" stroke="#4f6584" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <rect x="866" y="406" width="62" height="74" rx="12" fill="#203d68"/>
+  <text x="897" y="435" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">tool</text>
+  <text x="897" y="453" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">result</text>
+  <text x="897" y="470" text-anchor="middle" font-size="10" fill="#dce7f7">protocol</text>
+
+  <!-- Hooks and audit side rail -->
+  <rect x="48" y="284" width="328" height="204" rx="16" fill="#ffffff" stroke="#c7d4e7" filter="url(#shadow)"/>
+  <text x="70" y="316" font-size="16" font-weight="700" fill="#203d68">HookRegistry + AuditTrail</text>
+
+  <rect x="70" y="337" width="130" height="32" rx="8" fill="#eef4ff"/>
+  <text x="135" y="358" text-anchor="middle" font-size="12" fill="#3568b8">PreToolUse</text>
+  <text x="218" y="358" font-size="12" fill="#58708f">request</text>
+
+  <rect x="70" y="380" width="130" height="32" rx="8" fill="#eef4ff"/>
+  <text x="135" y="401" text-anchor="middle" font-size="12" fill="#3568b8">PermissionDecision</text>
+  <text x="218" y="401" font-size="12" fill="#58708f">rule + reason</text>
+
+  <rect x="70" y="423" width="130" height="32" rx="8" fill="#eef4ff"/>
+  <text x="135" y="444" text-anchor="middle" font-size="12" fill="#3568b8">PostToolUse</text>
+  <text x="218" y="444" font-size="12" fill="#58708f">final status</text>
+
+  <text x="70" y="476" font-size="11" fill="#58708f">Hooks observe; they do not grant denied actions.</text>
+  <path d="M376 386 H442" fill="none" stroke="#7890b1" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+</svg>

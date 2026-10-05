@@ -1,5 +1,6 @@
 # s05: Electron Shell — 一个进程不够, 要三个
 
+[中文](README.md) · [English](README.en.md)
 > *"一个进程不够, 要三个"* — main/renderer/preload, IPC 桥接。
 >
 > **Harness 层**: 进程架构 — 桌面应用的基础骨架。

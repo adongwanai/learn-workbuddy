@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#202124"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7b1fa2"/>
+    </marker>
+  </defs>
+  <rect width="800" height="500" fill="#f8f9fa"/>
+
+  <text x="400" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#202124">Electron three-process architecture</text>
+
+  <!-- Main Process -->
+  <rect x="40" y="70" width="260" height="160" rx="10" fill="#1a73e8" opacity="0.9"/>
+  <text x="170" y="100" text-anchor="middle" font-size="17" fill="white" font-weight="bold">Main Process</text>
+  <text x="170" y="122" text-anchor="middle" font-size="14" fill="#e8f0fe">Main process (Node.js)</text>
+  <line x1="60" y1="135" x2="280" y2="135" stroke="#e8f0fe" stroke-width="1"/>
+  <text x="170" y="155" text-anchor="middle" font-size="12" fill="white">· Window management (BrowserWindow)</text>
+  <text x="170" y="175" text-anchor="middle" font-size="12" fill="white">· Application life cycle (app)</text>
+  <text x="170" y="195" text-anchor="middle" font-size="12" fill="white">· System API (menu/dialog)</text>
+  <text x="170" y="215" text-anchor="middle" font-size="12" fill="white">· Sidecar process management</text>
+
+  <!-- IPC Bridge -->
+  <rect x="340" y="120" width="120" height="60" rx="8" fill="#fbbc04"/>
+  <text x="400" y="148" text-anchor="middle" font-size="14" fill="#202124" font-weight="bold">IPC Bridge</text>
+  <text x="400" y="168" text-anchor="middle" font-size="11" fill="#202124">contextBridge</text>
+
+  <!-- Arrows Main <-> IPC -->
+  <line x1="300" y1="145" x2="335" y2="145" stroke="#202124" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="340" y1="160" x2="305" y2="160" stroke="#202124" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Renderer Process -->
+  <rect x="500" y="70" width="260" height="160" rx="10" fill="#34a853" opacity="0.9"/>
+  <text x="630" y="100" text-anchor="middle" font-size="17" fill="white" font-weight="bold">Renderer Process</text>
+  <text x="630" y="122" text-anchor="middle" font-size="14" fill="#e8f0fe">Renderer (Chromium)</text>
+  <line x1="520" y1="135" x2="740" y2="135" stroke="#e8f0fe" stroke-width="1"/>
+  <text x="630" y="155" text-anchor="middle" font-size="12" fill="white">· UI rendering (React/Vue)</text>
+  <text x="630" y="175" text-anchor="middle" font-size="12" fill="white">· DOM manipulation</text>
+  <text x="630" y="195" text-anchor="middle" font-size="12" fill="white">· User interaction processing</text>
+  <text x="630" y="215" text-anchor="middle" font-size="12" fill="white">· Sandbox isolation operation</text>
+
+  <!-- Arrows IPC <-> Renderer -->
+  <line x1="460" y1="145" x2="495" y2="145" stroke="#202124" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="500" y1="160" x2="465" y2="160" stroke="#202124" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Preload Script -->
+  <rect x="340" y="250" width="120" height="55" rx="8" fill="#e8f0fe" stroke="#1a73e8" stroke-width="2"/>
+  <text x="400" y="273" text-anchor="middle" font-size="13" fill="#1a73e8" font-weight="bold">Preload Script</text>
+  <text x="400" y="293" text-anchor="middle" font-size="11" fill="#1a73e8">security bridging layer</text>
+
+  <!-- Arrows to preload -->
+  <line x1="200" y1="230" x2="360" y2="250" stroke="#202124" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <line x1="600" y1="230" x2="440" y2="250" stroke="#202124" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+  <!-- Sidecar Process -->
+  <rect x="100" y="340" width="250" height="130" rx="10" fill="#7b1fa2" opacity="0.9"/>
+  <text x="225" y="370" text-anchor="middle" font-size="17" fill="white" font-weight="bold">Sidecar Process</text>
+  <text x="225" y="392" text-anchor="middle" font-size="13" fill="#e8e0f0">Child process (Node.js)</text>
+  <line x1="120" y1="405" x2="330" y2="405" stroke="#e8e0f0" stroke-width="1"/>
+  <text x="225" y="425" text-anchor="middle" font-size="12" fill="white">· JSON-RPC over Unix Socket</text>
+  <text x="225" y="445" text-anchor="middle" font-size="12" fill="white">· CLI session management</text>
+  <text x="225" y="465" text-anchor="middle" font-size="12" fill="white">· RingBuffer log buffer</text>
+
+  <!-- Arrow Main -> Sidecar (spawns) -->
+  <path d="M 170 230 L 170 310 L 225 310 L 225 335" stroke="#7b1fa2" stroke-width="2.5" fill="none" marker-end="url(#arrowPurple)"/>
+  <rect x="185" y="290" width="60" height="20" rx="4" fill="#f8f9fa" stroke="#7b1fa2" stroke-width="1"/>
+  <text x="215" y="304" text-anchor="middle" font-size="11" fill="#7b1fa2">spawns</text>
+
+  <!-- Database -->
+  <rect x="430" y="340" width="250" height="60" rx="8" fill="#fbbc04"/>
+  <text x="555" y="362" text-anchor="middle" font-size="14" fill="#202124" font-weight="bold">SQLite Database</text>
+  <text x="555" y="382" text-anchor="middle" font-size="11" fill="#202124">sessions · messages · usage · automations</text>
+
+  <!-- Arrow Main -> DB -->
+  <path d="M 200 230 L 200 310 L 555 310 L 555 335" stroke="#202124" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+  <!-- Sidecar -> DB -->
+  <line x1="350" y1="370" x2="425" y2="370" stroke="#202124" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+  <!-- Legend -->
+  <text x="430" y="430" font-size="11" fill="#202124">──→ Call directly</text>
+  <text x="430" y="448" font-size="11" fill="#202124">╌╌→ indirect access</text>
+  <text x="430" y="466" font-size="11" fill="#202124" font-weight="bold">The main process is the security boundary and scheduling core</text>
+</svg>

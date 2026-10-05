@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#202124"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a73e8"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#34a853"/>
+    </marker>
+  </defs>
+  <rect width="800" height="500" fill="#f8f9fa"/>
+
+  <text x="400" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#202124">Visualization engine</text>
+
+  <!-- Pipeline -->
+  <!-- Step 1: read_me -->
+  <rect x="30" y="65" width="140" height="70" rx="8" fill="#1a73e8"/>
+  <text x="100" y="90" text-anchor="middle" font-size="14" fill="white" font-weight="bold">read_me()</text>
+  <text x="100" y="110" text-anchor="middle" font-size="11" fill="#e8f0fe">Load module</text>
+  <text x="100" y="125" text-anchor="middle" font-size="10" fill="#e8f0fe">CSS + Design Guidelines</text>
+
+  <line x1="170" y1="100" x2="205" y2="100" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <!-- Step 2: show_widget -->
+  <rect x="210" y="65" width="140" height="70" rx="8" fill="#34a853"/>
+  <text x="280" y="90" text-anchor="middle" font-size="13" fill="white" font-weight="bold">show_widget()</text>
+  <text x="280" y="110" text-anchor="middle" font-size="11" fill="white">Output SVG/HTML</text>
+  <text x="280" y="125" text-anchor="middle" font-size="10" fill="white">widget_code parameter</text>
+
+  <line x1="350" y1="100" x2="385" y2="100" stroke="#34a853" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+  <!-- Step 3: Stream inline -->
+  <rect x="390" y="65" width="140" height="70" rx="8" fill="#fbbc04"/>
+  <text x="460" y="90" text-anchor="middle" font-size="14" fill="#202124" font-weight="bold">Stream Inline</text>
+  <text x="460" y="110" text-anchor="middle" font-size="11" fill="#202124">Streaming inline rendering</text>
+  <text x="460" y="125" text-anchor="middle" font-size="10" fill="#202124">Embed conversation flow</text>
+
+  <line x1="530" y1="100" x2="565" y2="100" stroke="#202124" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Step 4: User sees visual -->
+  <rect x="570" y="65" width="200" height="70" rx="8" fill="#7b1fa2"/>
+  <text x="670" y="90" text-anchor="middle" font-size="14" fill="white" font-weight="bold">User sees the visualization</text>
+  <text x="670" y="110" text-anchor="middle" font-size="11" fill="#e8e0f0">Real-time rendering results</text>
+  <text x="670" y="125" text-anchor="middle" font-size="10" fill="#e8e0f0">interactive experience</text>
+
+  <!-- Widget types -->
+  <text x="400" y="170" text-anchor="middle" font-size="16" fill="#202124" font-weight="bold">Supported Widget Types</text>
+
+  <!-- 5 widget type cards -->
+  <rect x="40" y="190" width="135" height="100" rx="8" fill="#1a73e8" opacity="0.1" stroke="#1a73e8" stroke-width="2"/>
+  <text x="107" y="220" text-anchor="middle" font-size="16" fill="#1a73e8" font-weight="700">data</text>
+  <text x="107" y="245" text-anchor="middle" font-size="14" fill="#1a73e8" font-weight="bold">chart</text>
+  <text x="107" y="265" text-anchor="middle" font-size="10" fill="#202124">Data chart</text>
+  <text x="107" y="280" text-anchor="middle" font-size="9" fill="#999">Pie/column/polyline</text>
+
+  <rect x="190" y="190" width="135" height="100" rx="8" fill="#34a853" opacity="0.1" stroke="#34a853" stroke-width="2"/>
+  <text x="257" y="220" text-anchor="middle" font-size="16" fill="#34a853" font-weight="700">flow</text>
+  <text x="257" y="245" text-anchor="middle" font-size="14" fill="#34a853" font-weight="bold">diagram</text>
+  <text x="257" y="265" text-anchor="middle" font-size="10" fill="#202124">Architecture diagram</text>
+  <text x="257" y="280" text-anchor="middle" font-size="9" fill="#999">Process/relationship diagram</text>
+
+  <rect x="340" y="190" width="135" height="100" rx="8" fill="#fbbc04" opacity="0.15" stroke="#fbbc04" stroke-width="2"/>
+  <text x="407" y="220" text-anchor="middle" font-size="16" fill="#fbbc04" font-weight="700">svg</text>
+  <text x="407" y="245" text-anchor="middle" font-size="14" fill="#fbbc04" font-weight="bold">art</text>
+  <text x="407" y="265" text-anchor="middle" font-size="10" fill="#202124">artistic creation</text>
+  <text x="407" y="280" text-anchor="middle" font-size="9" fill="#999">SVG illustration</text>
+
+  <rect x="490" y="190" width="135" height="100" rx="8" fill="#7b1fa2" opacity="0.1" stroke="#7b1fa2" stroke-width="2"/>
+  <text x="557" y="220" text-anchor="middle" font-size="16" fill="#7b1fa2" font-weight="700">ui</text>
+  <text x="557" y="245" text-anchor="middle" font-size="14" fill="#7b1fa2" font-weight="bold">mockup</text>
+  <text x="557" y="265" text-anchor="middle" font-size="10" fill="#202124">UI prototype</text>
+  <text x="557" y="280" text-anchor="middle" font-size="9" fill="#999">Interface sketch</text>
+
+  <rect x="640" y="190" width="120" height="100" rx="8" fill="#ea4335" opacity="0.1" stroke="#ea4335" stroke-width="2"/>
+  <text x="700" y="220" text-anchor="middle" font-size="16" fill="#ea4335" font-weight="700">live</text>
+  <text x="700" y="245" text-anchor="middle" font-size="13" fill="#ea4335" font-weight="bold">interactive</text>
+  <text x="700" y="265" text-anchor="middle" font-size="10" fill="#202124">interactive components</text>
+  <text x="700" y="280" text-anchor="middle" font-size="9" fill="#999">HTML interaction</text>
+
+  <!-- Code to visual flow -->
+  <text x="400" y="320" text-anchor="middle" font-size="16" fill="#202124" font-weight="bold">The process from code to vision</text>
+
+  <rect x="50" y="340" width="180" height="45" rx="6" fill="#202124"/>
+  <text x="140" y="368" text-anchor="middle" font-size="12" fill="white" font-family="monospace">Agent generates SVG code</text>
+
+  <line x1="230" y1="362" x2="270" y2="362" stroke="#34a853" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+  <rect x="275" y="340" width="180" height="45" rx="6" fill="#1a73e8"/>
+  <text x="365" y="368" text-anchor="middle" font-size="12" fill="white">show_widget call</text>
+
+  <line x1="455" y1="362" x2="495" y2="362" stroke="#34a853" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+  <rect x="500" y="340" width="130" height="45" rx="6" fill="#34a853"/>
+  <text x="565" y="368" text-anchor="middle" font-size="12" fill="white">parse + render</text>
+
+  <line x1="630" y1="362" x2="670" y2="362" stroke="#34a853" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+  <rect x="675" y="340" width="100" height="45" rx="6" fill="#7b1fa2"/>
+  <text x="725" y="368" text-anchor="middle" font-size="12" fill="white">Inline display</text>
+
+  <!-- Key features -->
+  <rect x="50" y="405" width="350" height="75" rx="8" fill="#34a853" opacity="0.08" stroke="#34a853" stroke-width="1.5"/>
+  <text x="225" y="428" text-anchor="middle" font-size="13" fill="#34a853" font-weight="bold">Core features</text>
+  <text x="70" y="448" font-size="11" fill="#202124">✓ No external files required, code is visual</text>
+  <text x="70" y="465" font-size="11" fill="#202124">✓ Streaming rendering, display while generating</text>
+
+  <rect x="420" y="405" width="350" height="75" rx="8" fill="#1a73e8" opacity="0.08" stroke="#1a73e8" stroke-width="1.5"/>
+  <text x="595" y="428" text-anchor="middle" font-size="13" fill="#1a73e8" font-weight="bold">design constraints</text>
+  <text x="440" y="448" font-size="11" fill="#202124">✓ viewBox="0 0 680" standard ratio</text>
+  <text x="440" y="465" font-size="11" fill="#202124">✓ Pure SVG/HTML, no external dependencies</text>
+</svg>

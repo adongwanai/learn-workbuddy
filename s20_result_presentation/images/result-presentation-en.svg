@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#202124"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a73e8"/>
+    </marker>
+  </defs>
+  <rect width="800" height="500" fill="#f8f9fa"/>
+
+  <text x="400" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#202124">results delivery system</text>
+
+  <!-- Agent produces files -->
+  <rect x="50" y="60" width="150" height="55" rx="8" fill="#7b1fa2"/>
+  <text x="125" y="85" text-anchor="middle" font-size="14" fill="white" font-weight="bold">Agent</text>
+  <text x="125" y="103" text-anchor="middle" font-size="11" fill="#e8e0f0">Generate file product</text>
+
+  <line x1="200" y1="87" x2="240" y2="87" stroke="#202124" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- present_files tool -->
+  <rect x="245" y="60" width="170" height="55" rx="8" fill="#1a73e8"/>
+  <text x="330" y="85" text-anchor="middle" font-size="14" fill="white" font-weight="bold">present_files()</text>
+  <text x="330" y="103" text-anchor="middle" font-size="11" fill="#e8f0fe">Tool call</text>
+
+  <line x1="415" y1="87" x2="455" y2="87" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <!-- Output: artifact card + preview -->
+  <rect x="460" y="55" width="290" height="65" rx="8" fill="#34a853"/>
+  <text x="605" y="78" text-anchor="middle" font-size="14" fill="white" font-weight="bold">delivered to users</text>
+  <text x="605" y="97" text-anchor="middle" font-size="11" fill="white">Artifact Card + HTML Preview Panel</text>
+  <text x="605" y="113" text-anchor="middle" font-size="10" fill="#fbbc04">Automatically open the first file</text>
+
+  <!-- Priority ordering -->
+  <text x="400" y="155" text-anchor="middle" font-size="16" fill="#202124" font-weight="bold">Priority Ordering</text>
+  <text x="400" y="175" text-anchor="middle" font-size="12" fill="#202124">Array order = view priority, first element automatically focused</text>
+
+  <!-- Priority list -->
+  <rect x="100" y="190" width="600" height="35" rx="6" fill="#ea4335" opacity="0.15" stroke="#ea4335" stroke-width="1.5"/>
+  <circle cx="125" cy="207" r="12" fill="#ea4335"/>
+  <text x="125" y="212" text-anchor="middle" font-size="12" fill="white" font-weight="bold">1</text>
+  <text x="150" y="212" font-size="12" fill="#202124" font-weight="bold">Highest priority—the file the user should view first (open automatically)</text>
+
+  <rect x="100" y="230" width="600" height="35" rx="6" fill="#fbbc04" opacity="0.15" stroke="#fbbc04" stroke-width="1.5"/>
+  <circle cx="125" cy="247" r="12" fill="#fbbc04"/>
+  <text x="125" y="252" text-anchor="middle" font-size="12" fill="#202124" font-weight="bold">2</text>
+  <text x="150" y="252" font-size="12" fill="#202124">Second priority – relevant supplementary documents</text>
+
+  <rect x="100" y="270" width="600" height="35" rx="6" fill="#1a73e8" opacity="0.15" stroke="#1a73e8" stroke-width="1.5"/>
+  <circle cx="125" cy="287" r="12" fill="#1a73e8"/>
+  <text x="125" y="292" text-anchor="middle" font-size="12" fill="white" font-weight="bold">3</text>
+  <text x="150" y="292" font-size="12" fill="#202124">References—Additional Materials or Downloads</text>
+
+  <!-- Batch pattern -->
+  <text x="400" y="335" text-anchor="middle" font-size="16" fill="#202124" font-weight="bold">Batch delivery mode (Batch in One Call)</text>
+
+  <rect x="50" y="355" width="340" height="120" rx="8" fill="#e8f0fe" stroke="#1a73e8" stroke-width="2"/>
+  <text x="220" y="378" text-anchor="middle" font-size="13" fill="#1a73e8" font-weight="bold">✓ Correct: Pass all files in one call</text>
+  <text x="70" y="400" font-size="11" fill="#202124" font-family="monospace">present_files({</text>
+  <text x="80" y="415" font-size="11" fill="#202124" font-family="monospace">files: [report.pdf,</text>
+  <text x="80" y="430" font-size="11" fill="#202124" font-family="monospace">  index.html,</text>
+  <text x="80" y="445" font-size="11" fill="#202124" font-family="monospace">  data.json]</text>
+  <text x="70" y="460" font-size="11" fill="#202124" font-family="monospace">})</text>
+
+  <rect x="410" y="355" width="340" height="120" rx="8" fill="#ea4335" opacity="0.1" stroke="#ea4335" stroke-width="2"/>
+  <text x="580" y="378" text-anchor="middle" font-size="13" fill="#ea4335" font-weight="bold">Error: multiple calls</text>
+  <text x="430" y="400" font-size="11" fill="#202124" font-family="monospace">present_files({files:[a]})</text>
+  <text x="430" y="415" font-size="11" fill="#202124" font-family="monospace">present_files({files:[b]})</text>
+  <text x="430" y="430" font-size="11" fill="#202124" font-family="monospace">present_files({files:[c]})</text>
+  <text x="430" y="455" font-size="11" fill="#ea4335">→ Multiple cards, split experience</text>
+  <text x="430" y="470" font-size="11" fill="#ea4335">→ Priority cannot be expressed</text>
+</svg>
