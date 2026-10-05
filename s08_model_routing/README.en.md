@@ -58,19 +58,19 @@ The harness needs to balance quality, latency, and cost while choosing a model a
 ┌──────────────────────────────────────────────────────────────┐
 │                     ModelRouter                               │
 │                                                              │
-│   任务来了 → 判断难度 → 路由到对应层级                         │
+│   Task arrives → assess difficulty → route to the matching tier                         │
 │                                                              │
 │   ┌──────────┐  ┌──────────────┐  ┌──────────────┐          │
 │   │  lite    │  │   default    │  │   craft      │          │
-│   │  (便宜)   │  │   (中等)     │  │   (贵)       │          │
+│   │  (cheap)   │  │   (medium)     │  │   (expensive)       │          │
 │   │          │  │              │  │              │          │
 │   │ $0.25/M  │  │  $3/M        │  │  $15/M       │          │
-│   │ 粗筛/分类 │  │  规划/执行    │  │  用户交互     │          │
+│   │ coarse filtering/classification │  │  planning/execution    │  │  user interaction     │          │
 │   └──────────┘  └──────────────┘  └──────────────┘          │
 │      ▲               ▲                 ▲                     │
 │      │               │                 │                     │
-│  memorySelector    Plan             CLI 主 Agent              │
-│  promptHookEval    general-purpose   (直接面对用户)            │
+│  memorySelector    Plan             CLI Main Agent              │
+│  promptHookEval    general-purpose   (directly faces the user)            │
 │  Explore           compact                                    │
 │                                                              │
 └──────────────────────────────────────────────────────────────┘
@@ -85,17 +85,17 @@ A lightweight selector can narrow candidates or choose an effort level before th
 ### The `auto` Mode
 
 ```
-能力/成本轴:
+Capability/cost axis:
 
-低成本 ──────────────────────────────────────────── 高成本
+Low cost ──────────────────────────────────────────── High cost
   │                                                    │
   │   lite              default             craft      │
   │   $0.25/M           $3/M                $15/M      │
-  │   粗筛/分类          规划/执行            推理/交互   │
+  │   coarse filtering/classification          planning/execution            reasoning/interaction   │
   │                                                    │
-  │   ◄── 能力弱                          能力强 ──►   │
-  │   ◄── 延迟低                          延迟高 ──►   │
-  │   ◄── 并发多                          并发少 ──►   │
+  │   ◄── weaker capability                          stronger capability ──►   │
+  │   ◄── low latency                          high latency ──►   │
+  │   ◄── more concurrency                          less concurrency ──►   │
 ```
 
 ### Cost Estimate
@@ -103,62 +103,62 @@ A lightweight selector can narrow candidates or choose an effort level before th
 ### All-Craft Baseline
 
 ```
-用户: "上次修那个 bug 的方案是什么？"
+User: "What was the plan for fixing that bug last time?"
          │
          ▼
 ┌─────────────────────────────┐
-│     主 Agent (craft)         │
+│     Main Agent (craft)         │
 │                             │
-│  上下文:                     │
-│  - 50 条记忆 (全量)          │  ← 90% 无关
-│  - 35 个工具定义             │  ← 大部分用不到
-│  - 10 个文件内容             │  ← 大部分不相关
-│  - 用户问题                  │
+│  Context:                     │
+│  - 50 memories (all)          │  ← 90% irrelevant
+│  - 35 tool definitions             │  ← most are unnecessary
+│  - 10 file contents             │  ← most are irrelevant
+│  - User question                  │
 │                             │
-│  → 在垃圾堆里找东西          │
-│  → 贵模型做低价值的事        │
+│  → search through a junk pile          │
+│  → use an expensive model for low-value work        │
 └─────────────────────────────┘
-成本: 50K tokens × $15/M = $0.75
+Cost: 50K tokens × $15/M = $0.75
 ```
 
 ```
-用户: "上次修那个 bug 的方案是什么？"
+User: "What was the plan for fixing that bug last time?"
          │
          ▼
 ┌─────────────────────────────┐
-│  memorySelector (lite)       │  ← 第 1 步: 粗筛
+│  memorySelector (lite)       │  ← Step 1: coarse filter
 │                             │
-│  输入: 50 条记忆 + 用户问题   │
-│  输出: 3 条相关记忆 ID        │  ← 只选 3 条
+│  Input: 50  memories + User question   │
+│  Output: 3 relevant memory IDs        │  ← select only 3
 │                             │
-│  成本: 5K tokens × $0.25/M  │
+│  Cost: 5K tokens × $0.25/M  │
 │       = $0.00125            │
 └──────────┬──────────────────┘
-           │ 3 条记忆
+           │ 3 memories
            ▼
 ┌─────────────────────────────┐
-│     主 Agent (craft)         │  ← 第 2 步: 推理
+│     Main Agent (craft)         │  ← Step 2: reasoning
 │                             │
-│  上下文:                     │
-│  - 3 条相关记忆              │  ← 全部相关
-│  - 用户问题                  │
+│  Context:                     │
+│  - 3 relevant memories              │  ← all relevant
+│  - User question                  │
 │                             │
-│  → 在精选内容上深度推理       │
+│  → reason deeply over the selected content       │
 └─────────────────────────────┘
-成本: 5K tokens × $15/M = $0.075
+Cost: 5K tokens × $15/M = $0.075
 
-总成本: $0.00125 + $0.075 = $0.076
-对比全量: $0.75 → 节省 90%
+Total cost: $0.00125 + $0.075 = $0.076
+Compared with loading everything: $0.75 → saved 90%
 ```
 
 ### Tiered Routing
 
 ```python
-# 同一个模型，不同 effort
+# Same model, different effort
 response = client.messages.create(
     model="deepseek-v4-pro",
-    effort="high",        # ← 推理深度
-    summary="auto",       # ← 自动摘要思维链
+    effort="high",        # ← reasoning depth
+    summary="auto",       # ← automatically summarize the chain of thought
     messages=messages,
 )
 ```
@@ -168,13 +168,13 @@ response = client.messages.create(
 This comparison maps model selection, effort levels, and cost-aware routing to the corresponding WorkBuddy-style harness boundary.
 
 ```
-auto 路由逻辑 (简化):
+Simplified auto-routing logic:
 
-任务复杂度评估
+Assess task complexity
     │
-    ├── 简单 (分类/搜索/过滤) ──► lite
-    ├── 中等 (规划/执行/压缩) ──► default
-    └── 复杂 (推理/用户交互)   ──► craft
+    ├── Simple (classification/search/filtering) ──► lite
+    ├── Medium (planning/execution/compaction) ──► default
+    └── Complex (reasoning/user interaction)   ──► craft
 ```
 
 ## `product.json`: Model Registry
@@ -220,9 +220,9 @@ This comparison maps model selection, effort levels, and cost-aware routing to t
 Use these exercises to change one part of model selection, effort levels, and cost-aware routing at a time and explain the resulting contract.
 
 ```javascript
-// Agent 定义中指定模型标签，而非具体 model ID
+// Specify a model label in the Agent definition, not a specific model ID
 const AgentDefinitions = {
-    CLI:              { model: "craft"   },  // 标签
+    CLI:              { model: "craft"   },  // label
     GENERAL_PURPOSE:  { model: "default" },
     EXPLORE:          { model: "lite"    },
     PLAN:             { model: "default" },
@@ -232,11 +232,11 @@ const AgentDefinitions = {
     // ...
 };
 
-// 运行时根据标签解析为具体 model ID
+// Resolve the label to a concrete model ID at runtime
 function resolveModel(tag) {
-    // "craft"   → 用户配置的 craft 模型 (如 Claude-4.0-Sonnet)
-    // "default" → 用户配置的 default 模型
-    // "lite"    → 用户配置的 lite 模型
+    // "craft"   → user-configured craft model (such as Claude-4.0-Sonnet)
+    // "default" → user-configured default model
+    // "lite"    → user-configured lite model
     return userConfig.modelMapping[tag];
 }
 ```
@@ -244,7 +244,7 @@ function resolveModel(tag) {
 ### Next Lesson
 
 ```javascript
-// 推理模型的参数注入
+// Inject reasoning-model parameters
 function buildModelParams(model, agentConfig) {
     const params = { model: resolveModel(agentConfig.model) };
 
@@ -262,7 +262,7 @@ function buildModelParams(model, agentConfig) {
 ## Code Walkthrough
 
 ```python
-# 路由表：Agent → 模型层级
+# Routing table: Agent → model tier
 AGENT_MODEL_MAP = {
     "CLI":                   ModelTier.CRAFT,
     "general-purpose":       ModelTier.DEFAULT,

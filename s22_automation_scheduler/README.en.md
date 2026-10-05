@@ -72,19 +72,19 @@ The harness needs time-based invocation without turning scheduling into an unbou
 ### 2. The Tick Loop
 
 ```
-FREQ=DAILY;INTERVAL=1       → 每天一次
-FREQ=DAILY;INTERVAL=2       → 每两天一次
-FREQ=HOURLY;INTERVAL=6      → 每 6 小时一次
-FREQ=WEEKLY;BYDAY=MO,WE,FR  → 每周一三五
-FREQ=MONTHLY;BYDAY=1MO      → 每月第一个周一
-FREQ=YEARLY                 → 每年一次
+FREQ=DAILY;INTERVAL=1       → once a day
+FREQ=DAILY;INTERVAL=2       → once every two days
+FREQ=HOURLY;INTERVAL=6      → once every 6 hours
+FREQ=WEEKLY;BYDAY=MO,WE,FR  → every Monday, Wednesday, and Friday
+FREQ=MONTHLY;BYDAY=1MO      → the first Monday of every month
+FREQ=YEARLY                 → once a year
 ```
 
 ```python
 from datetime import datetime, timedelta
 
 def next_run_from_rrule(rrule: str, after: datetime) -> datetime:
-    """简化版 RRULE 解析器。"""
+    """simplified RRULE parser."""
     parts = dict(p.split("=") for p in rrule.upper().split(";"))
     freq = parts.get("FREQ", "DAILY")
     interval = int(parts.get("INTERVAL", "1"))
@@ -106,10 +106,10 @@ def next_run_from_rrule(rrule: str, after: datetime) -> datetime:
 
 ```python
 def scheduler_tick():
-    """每 60 秒调用一次, 检查到期任务。"""
+    """called every 60 seconds to check due tasks."""
     now = datetime.now()
 
-    # 查找所有 ACTIVE 且到期的自动化
+    # find all ACTIVE automations that are due
     due = db.execute("""
         SELECT a.id, a.name, a.prompt, a.schedule_type, a.rrule, a.scheduled_at
         FROM automations a
@@ -127,11 +127,11 @@ def scheduler_tick():
 
 ```python
 def execute_automation(auto):
-    """在隔离会话中执行自动化。"""
-    # 创建新会话, 不复用用户的会话
+    """execute automation in an isolated session."""
+    # create a new session instead of reusing the user's session
     session_id = create_session(cwd=auto["cwds"], model=auto["model_id"])
 
-    # 记录执行开始
+    # record execution start
     run_id = db.execute(
         "INSERT INTO automation_runs (automation_id, started_at, status) "
         "VALUES (?, ?, 'running')",
@@ -139,11 +139,11 @@ def execute_automation(auto):
     ).lastrowid
 
     try:
-        # 执行 prompt (agent loop)
+        # execute the prompt (agent loop)
         messages = [{"role": "user", "content": auto["prompt"]}]
         agent_loop(messages, session_id)
 
-        # 记录成功
+        # record success
         db.execute(
             "UPDATE automation_runs SET completed_at=?, status='success' WHERE id=?",
             (datetime.now().isoformat(), run_id)
@@ -160,7 +160,7 @@ def execute_automation(auto):
 ```python
 def delete_automation(auto_id):
     """
-    软删除: 标记 status='deleted'。
+    Soft delete: mark status='deleted'.
     NEVER use: DELETE FROM automations
     NEVER use: rm, sqlite3 CLI, or file operations
     """
@@ -169,7 +169,7 @@ def delete_automation(auto_id):
         (datetime.now().isoformat(), auto_id)
     )
     db.commit()
-    # 行从 list/view 中消失, 但数据仍在数据库中, 可恢复
+    # the row disappears from list/view, but remains recoverable in the database
 ```
 
 ### WorkBuddy Architecture Comparison
@@ -178,15 +178,15 @@ This comparison maps RRULE scheduling, isolated prompts, persistence, and soft d
 
 ```python
 def calculate_next_run(auto) -> str | None:
-    """根据调度类型计算下次运行时间。"""
+    """calculate the next run time based on the schedule type."""
     now = datetime.now()
 
     if auto["schedule_type"] == "once":
-        # 单次: 跑完就没了, next_run = None
+        # one-time: disappears after running, next_run = None
         return None
 
     elif auto["schedule_type"] == "recurring":
-        # 重复: 根据 RRULE 计算下次
+        # recurring: calculate the next run from RRULE
         last = get_last_run(auto["id"]) or now
         return next_run_from_rrule(auto["rrule"], last)
 
@@ -200,11 +200,11 @@ This comparison maps RRULE scheduling, isolated prompts, persistence, and soft d
 ### Scheduler in the Sidecar
 
 ```javascript
-// create 模式的核心字段
+// core fields in create mode
 {
   mode: "create",
-  name: "每日项目检查",
-  prompt: "检查项目状态, 生成日报",
+  name: "Daily project check",
+  prompt: "Check project status and generate a daily report",
   scheduleType: "recurring",
   rrule: "FREQ=DAILY;INTERVAL=1",
   status: "ACTIVE",
@@ -217,7 +217,7 @@ This comparison maps RRULE scheduling, isolated prompts, persistence, and soft d
 ### Soft Delete in Practice
 
 ```javascript
-// 简化的调度器循环
+// simplified scheduler loop
 setInterval(async () => {
     const dueAutomations = db.prepare(`
         SELECT a.*, r.next_run
@@ -231,7 +231,7 @@ setInterval(async () => {
         await executeAutomation(auto);
         updateRuntimeState(auto);
     }
-}, 60_000);  // 每分钟检查一次
+}, 60_000);  // check once per minute
 ```
 
 ### Prompt Persistence
@@ -247,9 +247,9 @@ db.prepare(
 ```
 
 ```javascript
-// list 模式
+// list mode
 db.prepare("SELECT * FROM automations WHERE status != 'deleted'").all();
-// view 模式
+// view mode
 db.prepare("SELECT * FROM automations WHERE id=? AND status != 'deleted'").get(id);
 ```
 

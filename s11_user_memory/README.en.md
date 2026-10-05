@@ -60,8 +60,8 @@ flowchart LR
 
 ```python
 result = memory.update_profile({
-    "name": "老王",
-    "call_them": "王哥",
+    "name": "Alex",
+    "call_them": "Alex",
     "timezone": "UTC+8",
 })
 ```
@@ -119,7 +119,7 @@ bob.set_preference("editor.indent", "spaces")
 ...
 
 ## User profile
-Name: 老王
+Name: Alex
 Timezone: UTC+8
 
 ## Explicit user preferences (cross-project)

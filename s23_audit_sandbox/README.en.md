@@ -57,7 +57,7 @@ The harness must make consequential commands reviewable while limiting where and
 │               └─────────────┘                    │
 └──────────────────────────────────────────────────┘
 
-哈希链示意:
+Hash-chain illustration:
 
   Entry 1                Entry 2                Entry 3
   ┌────────────┐         ┌────────────┐         ┌────────────┐
@@ -69,7 +69,7 @@ The harness must make consequential commands reviewable while limiting where and
        └─── H2 = SHA256(data2 + H1) ───┘               │
                                └─── H3 = SHA256(data3 + H2) ───┘
 
-  篡改 Entry 1 → H1 变化 → H2 不匹配 → H3 不匹配 → 整条链断裂
+  Tamper with Entry 1 → H1 changes → H2 does not match → H3 does not match → the entire chain breaks
 ```
 
 ## How It Works
@@ -84,7 +84,7 @@ def compute_hash(entry_data: dict, prev_hash: str) -> str:
     payload = json.dumps(entry_data, sort_keys=True) + prev_hash
     return hashlib.sha256(payload.encode()).hexdigest()
 
-# 创世记录: prev_hash = "0" * 64
+# genesis record: prev_hash = "0" * 64
 GENESIS_HASH = "0" * 64
 ```
 
@@ -98,7 +98,7 @@ def verify_chain(entries: list) -> bool:
             prev_hash
         )
         if entry["hash"] != expected:
-            return False  # 链断裂!
+            return False  # chain is broken!
         prev_hash = entry["hash"]
     return True
 ```
@@ -113,11 +113,11 @@ AUDIT_DIR = Path.home() / ".workbuddy" / "audit-log"
 AUDIT_DIR.mkdir(parents=True, exist_ok=True)
 
 def audit_log_path() -> Path:
-    """每天一个文件: ~/.workbuddy/audit-log/2026-07-08.jsonl"""
+    """one file per day: ~/.workbuddy/audit-log/2026-07-08.jsonl"""
     return AUDIT_DIR / f"{datetime.now().strftime('%Y-%m-%d')}.jsonl"
 
 def append_audit_entry(action: str, params: dict, result: str):
-    """追加一条审计记录。"""
+    """append an audit record."""
     entry = {
         "timestamp": datetime.now().isoformat(),
         "action": action,
@@ -125,7 +125,7 @@ def append_audit_entry(action: str, params: dict, result: str):
         "result": result,
     }
 
-    # 读取上一条记录的 hash
+    # read the previous record's hash
     path = audit_log_path()
     prev_hash = GENESIS_HASH
     if path.exists():
@@ -133,10 +133,10 @@ def append_audit_entry(action: str, params: dict, result: str):
         if lines and lines[0]:
             prev_hash = json.loads(lines[-1])["hash"]
 
-    # 计算当前记录的 hash
+    # calculate the current record's hash
     entry["hash"] = compute_hash(entry, prev_hash)
 
-    # 追加写入 (不修改已有内容)
+    # append without modifying existing content
     with open(path, "a") as f:
         f.write(json.dumps(entry, ensure_ascii=False) + "\n")
 ```
@@ -157,17 +157,17 @@ def append_audit_entry(action: str, params: dict, result: str):
 ```python
 def check_sandbox(command: str, config: dict) -> tuple[bool, str]:
     """Check if a command is allowed by sandbox config."""
-    # 1. 检查禁止命令
+    # 1. check for forbidden commands
     for blocked in config.get("blocked_commands", []):
         if blocked in command:
             return False, f"Blocked command: {blocked}"
 
-    # 2. 检查路径访问
+    # 2. check path access
     for blocked_path in config.get("blocked_paths", []):
         if blocked_path in command:
             return False, f"Blocked path: {blocked_path}"
 
-    # 3. 高风险区域检查
+    # 3. check high-risk areas
     high_risk = ["Desktop", "Downloads", "Documents", "Home"]
     for zone in high_risk:
         if zone in command and "rm" in command:
@@ -197,23 +197,23 @@ def classify_safety(command: str) -> str:
 ## 1. App Sandbox and Entitlements
 
 ```
-macOS 安全分层:
+macOS security layers:
   ┌──────────────────────────────────┐
-  │  macOS App Sandbox (内核级)       │  ← 不可绕过, 内核强制
+  │  macOS App Sandbox (kernel-level)       │  ← cannot be bypassed, enforced by the kernel
   │  ├─ Entitlements (Info.plist)     │
   │  ├─ File Access Restrictions      │
   │  ├─ Network Restrictions           │
   │  └─ Process Isolation             │
   ├──────────────────────────────────┤
-  │  WorkBuddy 沙盒 (应用级)          │  ← 可配置, 应用内检查
+  │  WorkBuddy sandbox (application-level)          │  ← configurable, checked within the application
   │  ├─ sandbox-config.json           │
   │  ├─ Path Whitelist                │
   │  ├─ Command Blacklist             │
   │  └─ Env Var Filtering             │
   ├──────────────────────────────────┤
-  │  权限审批 (用户级)                │  ← 用户决策
+  │  Permission approval (user-level)                │  ← user decision
   │  ├─ ask / allow / deny            │
-  │  └─ MCP Trust 模型                │
+  │  └─ MCP Trust model                │
   └──────────────────────────────────┘
 ```
 
@@ -224,10 +224,10 @@ macOS 安全分层:
 ### 4. App Groups
 
 ```
-Agent → HTTP 请求 → NetworkExtension 过滤 → 允许/拒绝
-                        ├─ workspace 内部 API: 允许
-                        ├─ 白名单域名: 允许
-                        └─ 其他外部域名: 拒绝
+Agent → HTTP request → NetworkExtension filter → allow/deny
+                        ├─ workspace internal API: allowed
+                        ├─ allowlisted domains: allowed
+                        └─ other external domains: deny
 ```
 
 ### 5. Crashpad
@@ -236,10 +236,10 @@ Agent → HTTP 请求 → NetworkExtension 过滤 → 允许/拒绝
 App Group: group.com.workbuddy.workbuddy
   ┌─────────────────────────────────────────┐
   │  Shared Container                        │
-  │  ├─ audit-log/         ← 审计日志共享    │
-  │  ├─ sessions/          ← 会话状态共享    │
-  │  ├─ mcp-approvals.json ← 连接器审批共享  │
-  │  └─ memory/            ← 记忆缓存共享    │
+  │  ├─ audit-log/         ← shared audit logs    │
+  │  ├─ sessions/          ← shared session state    │
+  │  ├─ mcp-approvals.json ← shared connector approvals  │
+  │  └─ memory/            ← shared memory cache    │
   └─────────────────────────────────────────┘
        ▲           ▲           ▲
        │           │           │
@@ -260,7 +260,7 @@ logging.basicConfig(
 try:
     agent_loop()
 except Exception:
-    # 教学版: 记录崩溃信息 (Crashpad 在生产中做同样的事, 但更底层)
+    # Teaching version: record crash information (Crashpad does the same in production, but at a lower level)
     logging.error("Agent loop crashed:\n%s", traceback.format_exc())
 ```
 
@@ -305,15 +305,15 @@ This comparison maps hash-chain audit logs, sandbox policy, and command-file saf
 
 ```
 ~/.workbuddy/audit-log/
-  2026-07-08.jsonl    ← 今天的审计日志
-  2026-07-07.jsonl    ← 昨天
+  2026-07-08.jsonl    ← today's audit log
+  2026-07-07.jsonl    ← yesterday
   2026-07-06.jsonl    ← ...
 ```
 
 ### Sandbox Policy
 
 ```javascript
-// 简化的哈希链构造
+// simplified hash-chain construction
 const crypto = require('crypto');
 
 function computeHash(entryData, prevHash) {
@@ -321,28 +321,28 @@ function computeHash(entryData, prevHash) {
     return crypto.createHash('sha256').update(payload).digest('hex');
 }
 
-// 创世记录的 prevHash
+// prevHash of the genesis record
 const GENESIS_HASH = '0'.repeat(64);
 ```
 
 ### Command File Safety
 
 ```javascript
-// Bash 工具执行前检查
+// check before executing a Bash tool
 if (!dangerouslyDisableSandbox) {
     const result = checkSandbox(command, sandboxConfig);
     if (!result.allowed) {
         return { error: `Sandbox blocked: ${result.reason}` };
     }
 }
-// 如果 dangerouslyDisableSandbox = true,
-// 需要用户在 UI 中明确点击"允许"
+// if dangerouslyDisableSandbox = true,
+// the user must explicitly click "Allow" in the UI
 ```
 
 ### Code Walkthrough
 
 ```
-- Desktop, Downloads, Documents, Home 是 HIGH-RISK zones
+- Desktop, Downloads, Documents, Home are HIGH-RISK zones
 - Scan = read-only (generate report only, don't act)
 - Vague requests = ask first
 - Warn + list + confirm before any destructive action

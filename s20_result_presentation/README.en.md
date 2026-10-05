@@ -49,18 +49,18 @@ The harness must turn internal outputs into useful handoff material while keepin
   │            present_files(files)              │
   │                                              │
   │  files = [                                   │
-  │    "/path/to/report.html",   ← 第一个自动打开 │
+  │    "/path/to/report.html",   ← opened automatically first │
   │    "/path/to/chart.svg",     ← artifact card │
   │    "/path/to/data.json",     ← artifact card │
-  │    "http://localhost:3000",  ← 浏览器预览    │
+  │    "http://localhost:3000",  ← browser preview    │
   │  ]                                           │
   └──────────────────────────────────────────────┘
        │
-       ├──► 第一个文件: 自动打开/聚焦
-       ├──► HTML 文件: 实时预览面板 + artifact card
-       ├──► localhost URL: 内置浏览器预览面板
-       ├──► 本地文件: artifact card (图片/报告/PPT/视频/代码)
-       └──► http/https URL: 内置浏览器预览面板
+       ├──► first file: open/focus automatically
+       ├──► HTML file: live preview panel + artifact card
+       ├──► localhost URL: built-in browser preview panel
+       ├──► local file: artifact card (image/report/PPT/video/code)
+       └──► http/https URL: built-in browser preview panel
 
   ┌──────────────────────────────────────────────┐
   │            WorkBuddy UI                       │
@@ -165,27 +165,27 @@ def create_artifact_card(file_path: str):
 This comparison maps artifact delivery, file previews, and presentation contracts to the corresponding WorkBuddy-style harness boundary.
 
 ```python
-# 正确: present 新生成的报告
+# Correct: present the newly generated report
 present_files(["/workspace/report.html", "/workspace/chart.svg"])
 
-# 错误: present 仅仅读取过的文件
-present_files(["/workspace/existing_config.json"])  # 只是读过，不是产出
+# Incorrect: present a file that was only read
+present_files(["/workspace/existing_config.json"])  # only read, not produced
 
-# 错误: present 修改过的源代码文件
-present_files(["/workspace/src/main.py"])  # 只是改了几行，不是交付物
+# Incorrect: present a source-code file that was modified
+present_files(["/workspace/src/main.py"])  # only edited a few lines, not a deliverable
 ```
 
 ### `present_files` Tool Contract
 
 ```python
-# Agent 的正确行为:
-# 1. 用文字简要说明做了什么
-# 2. 调用 present_files 展示交付物
-# 3. 文字 + 交付物一起呈现给用户
+# Correct Agent behavior:
+# 1. briefly explain what was done in text
+# 2. call present_files to show the deliverable
+# 3. present the text and deliverable together to the user
 
-# 错误行为:
-# 1. 只调用 present_files，不写任何文字说明
-# 2. 写了 500 字描述文件内容，而不是让用户直接看文件
+# Incorrect behavior:
+# 1. call present_files without any written explanation
+# 2. write a 500-word description instead of letting the user inspect the file directly
 ```
 
 ## WorkBuddy Architecture Comparison

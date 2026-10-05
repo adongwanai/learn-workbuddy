@@ -49,8 +49,8 @@ The harness must extend its tool surface without giving an external connector an
   configured ──► disconnected ──► trusted ──► connected
        │              │               │            │
        │              │               │            │
-  mcp.json 写入   进程未启动      用户点击 Trust   tools/list 发现
-  配置已保存      工具池不可见     信任持久化       再与 Skill Grant 求交集
+  mcp.json written   process not started      user clicks Trust   tools/list discovers tools
+  configuration saved      tool pool remains hidden     trust is persisted       then intersect with the Skill Grant
 
            ┌──────────────────────────────────────┐
            │         Agent Tool Pool              │
@@ -94,12 +94,12 @@ The harness must extend its tool surface without giving an external connector an
 TRUST_FILE = Path.home() / ".workbuddy" / "connector_trust.json"
 
 def is_trusted(connector_name: str) -> bool:
-    """检查连接器是否已被用户信任。"""
+    """Check whether the connector has been trusted by the user."""
     trust_data = json.loads(TRUST_FILE.read_text()) if TRUST_FILE.exists() else {}
     return trust_data.get(connector_name, {}).get("trusted", False)
 
 def trust_connector(connector_name: str):
-    """用户手动信任一个连接器。"""
+    """The user manually trusts a connector."""
     trust_data = json.loads(TRUST_FILE.read_text()) if TRUST_FILE.exists() else {}
     trust_data[connector_name] = {"trusted": True, "timestamp": time.time()}
     TRUST_FILE.write_text(json.dumps(trust_data, indent=2))
@@ -117,13 +117,13 @@ manager = ConnectorManager(MCP_CONFIG, grant)
 
 ```python
 def discover_tools(connector_name: str) -> list[dict]:
-    """通过 MCP 协议发现连接器提供的工具。"""
+    """Discover tools provided by the connector through MCP."""
     connector = connectors[connector_name]
     response = connector.request("tools/list", {})
 
     discovered = []
     for tool in response.get("tools", []):
-        # 命名空间化: mcp__connectorname__toolname
+        # namespace it: mcp__connectorname__toolname
         namespaced_name = f"mcp__{connector_name}__{tool['name']}"
         if not active_skill_grant.allows(namespaced_name):
             continue
@@ -140,27 +140,27 @@ def discover_tools(connector_name: str) -> list[dict]:
 This comparison maps connector configuration, trust, tool discovery, and deferred execution to the corresponding WorkBuddy-style harness boundary.
 
 ```python
-# 系统提示中只告诉 agent 有哪些延迟工具可用
-# 不包含完整的 schema
+# tell the agent in the system prompt only which deferred tools are available
+# do not include the full schema
 
 DEFERRED_TOOLS = [
     {"name": "mcp__github__create_pr", "description": "Create a GitHub PR"},
     {"name": "mcp__feishu__send_message", "description": "Send a Feishu message"},
-    # ... 只有 name + description，没有 input_schema
+    # ... only name + description, without input_schema
 ]
 
-# 当 agent 决定使用某个延迟工具时:
-# 1. ToolSearch 加载 schema
-schema = tool_search("mcp__github__create_pr")  # 再检查 Skill grant
-# 2. DeferExecuteTool 执行
-result = defer_execute_tool("mcp__github__create_pr", {"title": "...", "body": "..."})  # 再检查
+# When the agent decides to use a deferred tool:
+# 1. ToolSearch loads the schema
+schema = tool_search("mcp__github__create_pr")  # check the Skill grant again
+# 2. DeferExecuteTool executes
+result = defer_execute_tool("mcp__github__create_pr", {"title": "...", "body": "..."})  # check again
 ```
 
 ### Configuration Files
 
 ```python
 def build_connector_context() -> str:
-    """构建连接器状态上下文，注入系统提示。"""
+    """Build connector state context and inject it into the system prompt."""
     lines = ["<available_deferred_tools>"]
     for name, conn in connectors.items():
         if conn.status == "connected":

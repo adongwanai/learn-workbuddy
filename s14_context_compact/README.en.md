@@ -48,37 +48,37 @@ The harness needs to reduce prompt size without changing what has already been c
 ## The Solution
 
 ```
-每次 API 调用前检查上下文大小:
+Check context size before every API call:
 
   messages token count
         │
         ▼
   ┌─────────────┐
-  │ < 阈值?     │── Yes ──▶ 正常调用 API
+  │ < threshold?     │── Yes ──▶ call the API normally
   └─────────────┘
         │ No
         ▼
   ┌─────────────────────────────────────┐
-  │ Layer 1: 截断超大工具结果             │
-  │ (单条 tool_result > 5000 tokens?)    │
+  │ Layer 1: truncate oversized tool results             │
+  │ (a single tool_result > 5000 tokens?)    │
   └─────────────────────────────────────┘
-        │ 还超?
+        │ still over limit?
         ▼
   ┌─────────────────────────────────────┐
-  │ Layer 2: 文件内容去重                 │
-  │ (同一文件被读多次? 只留最新一次)       │
+  │ Layer 2: deduplicate file content                 │
+  │ (same file read multiple times? keep only the latest read)       │
   └─────────────────────────────────────┘
-        │ 还超?
+        │ still over limit?
         ▼
   ┌─────────────────────────────────────┐
-  │ Layer 3: 修剪旧消息                   │
-  │ (保留最近 N 轮, 旧的删除)             │
+  │ Layer 3: trim old messages                   │
+  │ (keep the most recent N turns and delete older ones)             │
   └─────────────────────────────────────┘
-        │ 还超?
+        │ still over limit?
         ▼
   ┌─────────────────────────────────────┐
-  │ Layer 4: 生成摘要替换历史              │
-  │ (调用模型总结, 替换全部旧消息)          │
+  │ Layer 4: generate a summary and replace history              │
+  │ (call the model to summarize and replace all old messages)          │
   └─────────────────────────────────────┘
 ```
 
@@ -118,13 +118,13 @@ class DurableContextState:
 ```
 
 ```text
-可压缩 messages                     不可有损 durable state
+Can be compacted messages                     Must not lossy-compress durable state
 ----------------                    -----------------------
-旧对话细节                          已确认事实
-重复文件读取                        未决事项
-大工具结果的上下文副本              source pointer
-探索过程                            last_confirmed_at
-已召回正文的重复表述                retrieval source / score / rank / conflict
+old conversation details                          confirmed facts
+duplicate file reads                        open items
+context copies of large tool results              source pointer
+exploration process                            last_confirmed_at
+repeated wording from recalled content                retrieval source / score / rank / conflict
 ```
 
 ### Source Pointers Preserve Evidence
@@ -152,13 +152,13 @@ durable_context = render_durable_context(
 ### Layer 1: Trim Tool Results
 
 ```python
-TOKEN_THRESHOLD = 100_000  # 触发压缩的阈值
+TOKEN_THRESHOLD = 100_000  # triggers compaction at the threshold
 
 def estimate_tokens(messages: list) -> int:
-    """粗略估算 messages 的 token 数。
+    """Roughly estimate the token count of messages.
 
-    生产级 harness 常用 tiktoken 精确计数。
-    教学版用 4 字符 ≈ 1 token 的粗略估算。
+    Production harnesses commonly use tiktoken for exact counting.
+    The teaching version uses the rough estimate of 4 characters ≈ 1 token.
     """
     total = 0
     for msg in messages:
@@ -180,7 +180,7 @@ def estimate_tokens(messages: list) -> int:
 MAX_TOOL_RESULT_TOKENS = 5000
 
 def truncate_tool_results(messages: list) -> list:
-    """Layer 1: 截断超过 5000 token 的工具结果。"""
+    """Layer 1: Truncate tool results that exceed 5,000 tokens."""
     for msg in messages:
         if msg["role"] != "user":
             continue
@@ -192,11 +192,11 @@ def truncate_tool_results(messages: list) -> list:
                 result = block.get("content", "")
                 tokens = len(str(result)) // 4
                 if tokens > MAX_TOOL_RESULT_TOKENS:
-                    # 这里只做有界截断；真正摘要属于 Layer 4
+                    # Only bounded truncation is done here; true summarization belongs to Layer 4
                     truncated = str(result)[:MAX_TOOL_RESULT_TOKENS * 4]
                     block["content"] = (
                         truncated +
-                        f"\n\n[... 已截断, 原始长度 {len(str(result))} 字符 ...]"
+                        f"\n\n[... truncated, original length {len(str(result))} characters ...]"
                     )
     return messages
 ```
@@ -224,8 +224,8 @@ def dedup_file_reads(messages: list) -> tuple[list, int]:
         if block.get("_read_path")
         and latest_reads[block["_read_path"]] != block["tool_use_id"]
     }
-    # 按 ID 同时删除旧 tool_use 与旧 tool_result；同一消息中的
-    # 其他并行调用、结果和文本 block 不受影响。
+    # delete the old tool_use and tool_result by ID together; other blocks in the same message
+    # including parallel calls, results, and text blocks, are unaffected.
     old_count = estimate_tokens(messages)
     deduplicated = _without_tool_interactions(messages, obsolete_ids)
     return deduplicated, old_count - estimate_tokens(deduplicated)
@@ -234,7 +234,7 @@ def dedup_file_reads(messages: list) -> tuple[list, int]:
 ### Layer 4: Summarize the Conversation
 
 ```python
-KEEP_RECENT_TURNS = 6  # 保留最近 6 轮
+KEEP_RECENT_TURNS = 6  # keep the most recent 6 turns
 
 def prune_old_messages(messages: list) -> tuple[list, int]:
     interactions = validate_tool_protocol(messages)
@@ -246,7 +246,7 @@ def prune_old_messages(messages: list) -> tuple[list, int]:
             != (pair.tool_result_message in selected))
     }
     kept = [msg for index, msg in enumerate(messages) if index in selected]
-    # 跨越裁剪边界的一侧也被移除；混合消息中的普通文本仍保留。
+    # the side crossing the trim boundary is also removed; ordinary text in mixed messages is preserved.
     old_count = estimate_tokens(messages)
     pruned = _without_tool_interactions(kept, crossing_ids)
     return pruned, old_count - estimate_tokens(pruned)
@@ -258,7 +258,7 @@ def prune_old_messages(messages: list) -> tuple[list, int]:
 def generate_summary(messages: list, summarizer) -> tuple[list, int]:
     interactions = validate_tool_protocol(messages)
     recent_start = len(messages) - 4
-    # 若固定边界切在 tool_use 与 result 之间，向前扩展到 tool_use。
+    # if the fixed boundary falls between tool_use and result, extend it backward to tool_use.
     while any(
         pair.tool_use_message < recent_start <= pair.tool_result_message
         for pair in interactions.values()
@@ -280,8 +280,8 @@ def generate_summary(messages: list, summarizer) -> tuple[list, int]:
         return messages, 0
 
     summarized = [
-        {"role": "user", "content": f"[对话摘要]\n{summary}"},
-        {"role": "assistant", "content": "好的, 我已了解之前的对话内容。"},
+        {"role": "user", "content": f"[conversation summary]\n{summary}"},
+        {"role": "assistant", "content": "Okay, I understand the previous conversation."},
     ] + recent
     return summarized, estimate_tokens(messages) - estimate_tokens(summarized)
 ```
@@ -304,23 +304,23 @@ def agent_loop(messages: list, durable_state: DurableContextState, resolver):
             messages=messages,
             ...,
         )
-        # ... 正常循环 ...
+        # ... normal loop ...
 ```
 
 ## Memory Writes after Compaction
 
 ```text
-低于 80,000 tokens ──> 不压缩，返回深拷贝
-达到 80,000 tokens ──> L1 → 检查 → L2 → 检查 → L3 → 检查 → L4
-                         └──────── 任一层达标即停止 ────────┘
-L4 后仍达到 120,000 ──> 抛出类型化错误，不请求 provider
+Below 80,000 tokens ──> do not compact; return a deep copy
+At 80,000 tokens ──> L1 → check → L2 → check → L3 → check → L4
+                         └──────── stop as soon as any layer meets the target ────────┘
+Still at 120,000 after L4 ──> raise a typed error without requesting the provider
 ```
 
 ## Select Memory Hits, Compress Messages, Preserve Selection Proof
 
 ```text
-Transcript events ──派生──> messages ──有损压缩──> compacted messages
-Memory records ───────────> DurableContextState ──无损渲染──> system context
+Transcript events ──derived──> messages ──lossy compaction──> compacted messages
+Memory records ───────────> DurableContextState ──lossless rendering──> system context
 ```
 
 ### What Must Remain Visible
@@ -331,7 +331,7 @@ Recall candidates
       ▼
 selected hits ──capture_retrieval_evidence()──> immutable RetrievalEvidence
       │                                              │
-      └── recalled text 进入 Prompt                  └── 绕过 L1–L4
+      └── recalled text enters the Prompt                  └── bypasses L1–L4
 ```
 
 ## Harness Boundary

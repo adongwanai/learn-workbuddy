@@ -46,25 +46,25 @@ The harness needs specialized behavior without forking the core agent loop or hi
   │           Expert Package               │
   │                                        │
   │  ┌──────────────────────────────────┐  │
-  │  │ system_prompt_specialization     │  │  ← 重塑 agent 人格
+  │  │ system_prompt_specialization     │  │  ← reshape the agent's persona
   │  │ "You are a senior software       │  │
   │  │  architect at a tech company..." │  │
   │  └──────────────────────────────────┘  │
   │                                        │
   │  ┌──────────────────────────────────┐  │
-  │  │ tool_configurations              │  │  ← 领域特定工具
+  │  │ tool_configurations              │  │  ← domain-specific tools
   │  │ preferred_tools: [arch, uml]     │  │
   │  │ disabled_tools: [casual_chat]    │  │
   │  └──────────────────────────────────┘  │
   │                                        │
   │  ┌──────────────────────────────────┐  │
-  │  │ skill_bundles                    │  │  ← 打包的技能集
+  │  │ skill_bundles                    │  │  ← bundled skill set
   │  │ [code_review, arch_design,       │  │
   │  │  tech_doc, api_design]           │  │
   │  └──────────────────────────────────┘  │
   │                                        │
   │  ┌──────────────────────────────────┐  │
-  │  │ behavior_guidelines              │  │  ← 行为准则
+  │  │ behavior_guidelines              │  │  ← behavior guidelines
   │  │ - Always consider scalability    │  │
   │  │ - Prefer documented patterns     │  │
   │  └──────────────────────────────────┘  │
@@ -73,8 +73,8 @@ The harness needs specialized behavior without forking the core agent loop or hi
          Skills vs Experts
          ─────────────────
 
-  Skill:  加一个能力 (点)        "我能做代码审查了"
-  Expert: 换一个人格 (面)        "我是软件架构师"
+  Skill:  add one capability (a point)        "I can now review code"
+  Expert: switch personas (a surface)        "I am a software architect"
 ```
 
 ## How It Works
@@ -85,14 +85,14 @@ The harness needs specialized behavior without forking the core agent loop or hi
 @dataclass
 class ExpertPackage:
     """A domain expert package."""
-    expert_id: str          # 唯一标识
-    name: str               # 显示名称
-    category: str           # 分类
-    system_prompt: str      # 专门的系统提示
-    tools_config: dict      # 工具配置
-    skill_bundles: list     # 打包的技能
-    guidelines: list        # 行为准则
-    description: str        # 简短描述
+    expert_id: str          # unique identifier
+    name: str               # display name
+    category: str           # category
+    system_prompt: str      # specialized system prompt
+    tools_config: dict      # tool configuration
+    skill_bundles: list     # bundled skills
+    guidelines: list        # behavior guidelines
+    description: str        # short description
 ```
 
 ### Session Persistence
@@ -138,10 +138,10 @@ You are now operating as: {expert.name}
 This comparison maps expert packages, prompt injection, registry state, and switching to the corresponding WorkBuddy-style harness boundary.
 
 ```python
-# sessions 表中的 expert_id 字段
+# the expert_id field in the sessions table
 session = {
     "session_id": "abc123",
-    "expert_id": "SoftwareCompany",  # 当前激活的专家
+    "expert_id": "SoftwareCompany",  # currently active expert
     "created_at": "...",
     # ...
 }
@@ -176,8 +176,8 @@ This comparison maps expert packages, prompt injection, registry state, and swit
 {
   "SoftwareCompany": {
     "expert_id": "SoftwareCompany",
-    "name": "软件公司专家",
-    "category": "软件开发",
+    "name": "Software Company Expert",
+    "category": "Software Development",
     "system_prompt": "You are a senior software architect...",
     "guidelines": ["Always consider scalability", "Prefer documented patterns"],
     "skills": ["code_review", "arch_design", "tech_doc"]

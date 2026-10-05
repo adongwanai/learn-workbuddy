@@ -71,9 +71,9 @@ memory.append_daily_log(
 ### Resolve Same-Key Conflicts
 
 ```text
-年龄达到 30 天
-AND 类型属于 decision / convention / pitfall
-AND (importance >= 4 OR 规范化后重复出现 >= 2 次)
+age reaches 30 days
+AND type is one of decision / convention / pitfall
+AND (importance >= 4 OR reappears after normalization >= 2 times)
 ```
 
 ### Append-Only Decisions

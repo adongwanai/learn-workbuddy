@@ -117,11 +117,11 @@ Memory candidates
 ### Display Order and Budget Values
 
 ```text
-构建片段并记录 provenance
-  → 先预留 required
-  → required 超预算时 fail-closed
-  → optional 按 budget_priority 尝试加入
-  → 已选片段按 priority 渲染
+Build fragments and record provenance
+  → reserve required fragments first
+  → fail closed when required fragments exceed the budget
+  → try to add optional fragments by budget_priority
+  → render selected fragments by priority
   → PromptPlan + SegmentDecision
 ```
 

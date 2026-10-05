@@ -41,9 +41,9 @@ The harness needs restart-safe state without making every runtime component resp
 
 ```
 ~/.workbuddy/
-  workbuddy.db          ← 主数据库文件
+  workbuddy.db          ← main database file
   workbuddy.db-wal      ← Write-Ahead Log (WAL)
-  workbuddy.db-shm      ← 共享内存索引
+  workbuddy.db-shm      ← shared-memory index
 ```
 
 ### How It Works
@@ -52,19 +52,19 @@ The harness needs restart-safe state without making every runtime component resp
 ┌─────────────────────────────────────────────────────┐
 │                  workbuddy.db                        │
 ├──────────────┬──────────────────────────────────────┤
-│ sessions     │ 会话元数据: cwd, title, model, mode   │
+│ sessions     │ session metadata: cwd, title, model, mode   │
 ├──────────────┼──────────────────────────────────────┤
-│ messages     │ 会话消息: role, content, tool_calls   │
+│ messages     │ session messages: role, content, tool_calls   │
 ├──────────────┼──────────────────────────────────────┤
-│ automations  │ 自动化定义: prompt, rrule, status     │
+│ automations  │ automation definitions: prompt, rrule, status     │
 ├──────────────┼──────────────────────────────────────┤
-│ auto_runtime │ 运行时状态: last_run, next_run        │
+│ auto_runtime │ runtime state: last_run, next_run        │
 ├──────────────┼──────────────────────────────────────┤
-│ auto_runs    │ 执行历史: started, completed, output  │
+│ auto_runs    │ execution history: started, completed, output  │
 ├──────────────┼──────────────────────────────────────┤
-│ tool_usage   │ 工具用量: tool_name, call_count       │
+│ tool_usage   │ tool usage: tool_name, call_count       │
 ├──────────────┼──────────────────────────────────────┤
-│ usage_track  │ Token 追踪: input, output, cost       │
+│ usage_track  │ token tracking: input, output, cost       │
 └──────────────┴──────────────────────────────────────┘
 ```
 
@@ -76,9 +76,9 @@ The harness needs restart-safe state without making every runtime component resp
 import sqlite3
 
 db = sqlite3.connect("~/.workbuddy/workbuddy.db")
-db.execute("PRAGMA journal_mode=WAL")    # 启用 WAL
-db.execute("PRAGMA synchronous=NORMAL")  # 平衡安全与性能
-db.execute("PRAGMA foreign_keys=ON")     # 外键约束
+db.execute("PRAGMA journal_mode=WAL")    # enable WAL
+db.execute("PRAGMA synchronous=NORMAL")  # balance safety and performance
+db.execute("PRAGMA foreign_keys=ON")     # foreign-key constraints
 ```
 
 ### 3. Session CRUD
@@ -188,7 +188,7 @@ This comparison maps SQLite schema, WAL persistence, soft deletion, and usage tr
 
 ```python
 def soft_delete(table, item_id):
-    """软删除: 标记为 deleted, 不从表中移除"""
+    """Soft delete: mark as deleted instead of removing from the table"""
     db.execute(
         f"UPDATE {table} SET status='deleted', updated_at=? WHERE id=?",
         (datetime.now().isoformat(), item_id)
@@ -203,7 +203,7 @@ This comparison maps SQLite schema, WAL persistence, soft deletion, and usage tr
 ### Soft Delete for Automations
 
 ```javascript
-// 简化的初始化模式
+// simplified initialization schema
 const db = new Database(path.join(homeDir, '.workbuddy', 'workbuddy.db'));
 db.pragma('journal_mode = WAL');
 db.pragma('synchronous = NORMAL');
@@ -212,7 +212,7 @@ db.pragma('synchronous = NORMAL');
 ### Usage Tracking in the UI
 
 ```javascript
-// 实际模式：标记 status 而非 DELETE
+// actual pattern: mark status instead of DELETE
 db.prepare(
   "UPDATE automations SET status = 'deleted', updated_at = ? WHERE id = ?"
 ).run(new Date().toISOString(), automationId);

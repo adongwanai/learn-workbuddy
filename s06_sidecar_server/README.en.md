@@ -66,10 +66,10 @@ The desktop shell must communicate with a long-running agent without owning its 
 ## How It Works
 
 ```javascript
-// Sidecar 入口模块 — Sidecar 启动
+// Sidecar entry module — Sidecar startup
 const net = require('net');
 const server = net.createServer((socket) => {
-    // 每个连接独立处理
+    // handle each connection independently
     handleConnection(socket);
 });
 server.listen(socketPath);
@@ -94,11 +94,11 @@ server.listen(socketPath);
 **RPC Domains**
 
 ```
-RingBuffer (固定大小)
+RingBuffer (fixed size)
 ┌──────────────────────────────────┐
-│ [old] ████████████░░░░░░ [new]  │  ← 写头追着读头跑
+│ [old] ████████████░░░░░░ [new]  │  ← the write cursor follows the read cursor
 └──────────────────────────────────┘
-     ↑ 被覆盖          ↑ 正在写
+     ↑ overwritten          ↑ currently writing
 ```
 
 ```javascript
@@ -117,7 +117,7 @@ class RingBuffer {
         this.totalWritten += data.length;
     }
     read() {
-        // 从 writePos 开始读一圈
+        // read one full cycle starting at writePos
         return this.buffer.slice(this.writePos).toString() +
                this.buffer.slice(0, this.writePos).toString();
     }
@@ -142,23 +142,23 @@ This comparison maps sidecar RPC, bounded streaming, and process communication t
 | **Session Process** | Agent loop for one logical session | ACP-like HTTP (s07) |
 
 ```javascript
-// 简化版结构
+// simplified structure
 class SidecarServer {
     constructor() {
-        this.ringBuffer = new RingBuffer(fixedLimit); // 固定大小
+        this.ringBuffer = new RingBuffer(fixedLimit); // fixed size
         this.sessions = new Map();  // sessionId → SessionProcess
         this.rpcHandlers = new Map(); // method → handler
         this.registerChannels();
     }
 
     registerChannels() {
-        // 多组领域化 handler 注册
+        // register multiple domain-specific handlers
         this.rpcHandlers.set('session/create', this.handleSessionCreate);
         this.rpcHandlers.set('session/destroy', this.handleSessionDestroy);
         this.rpcHandlers.set('sidecar/ping', () => ({ status: 'ok' }));
         this.rpcHandlers.set('tool/execute', this.handleToolExecute);
         this.rpcHandlers.set('memory/getProfile', this.handleMemoryGet);
-        // ... 更多
+        // ... more
     }
 
     start(socketPath) {
@@ -172,7 +172,7 @@ class SidecarServer {
         let buffer = '';
         socket.on('data', (data) => {
             buffer += data.toString();
-            // 按换行符分割消息（newline-delimited JSON）
+            // split messages by newline (newline-delimited JSON)
             while (buffer.includes('\n')) {
                 const line = buffer.slice(0, buffer.indexOf('\n'));
                 buffer = buffer.slice(buffer.indexOf('\n') + 1);
@@ -186,7 +186,7 @@ class SidecarServer {
 ### Main Process and Sidecar
 
 ```javascript
-// Main Process 启动 Sidecar
+// Main Process starts Sidecar
 const { spawn } = require('child_process');
 const sidecarEntry = resolveSidecarRuntime();
 
@@ -195,20 +195,20 @@ const sidecarProc = spawn(process.execPath, [sidecarEntry, '--socket', socketPat
     stdio: ['pipe', 'pipe', 'pipe']
 });
 
-// 捕获 sidecar stdout/stderr
-sidecarProc.stdout.on('data', (data) => { /* 日志 */ });
-sidecarProc.stderr.on('data', (data) => { /* 日志 */ });
+// capture sidecar stdout/stderr
+sidecarProc.stdout.on('data', (data) => { /* logs */ });
+sidecarProc.stderr.on('data', (data) => { /* logs */ });
 
-// 连接 Unix Socket
+// connect to the Unix socket
 const client = net.createConnection(socketPath);
 ```
 
 ### Communication and Routing
 
 ```
-用户输入 → Renderer → IPC → Main → Unix Socket → Sidecar → spawn → Session
+User input → Renderer → IPC → Main → Unix Socket → Sidecar → spawn → Session
                                                                     ↓
-用户看到 ← Renderer ← IPC ← Main ← Unix Socket ← Sidecar ← ACP HTTP ← Session
+What the user sees ← Renderer ← IPC ← Main ← Unix Socket ← Sidecar ← ACP HTTP ← Session
 ```
 
 **RPC Domains**

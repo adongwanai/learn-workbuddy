@@ -266,8 +266,8 @@ No match, invalid scope, provider failure, and malformed records remain explicit
 ## No-Key Composition Boundary
 
 ```text
-default_runtime()  -> 首次运行交互 CLI 或 recall_history 时创建教学 store
-runtime_client()   -> online agent_loop 真正请求模型时才校验 MODEL_ID
+default_runtime()  -> create the teaching store on the first interactive CLI run or recall_history call
+runtime_client()   -> validate MODEL_ID only when the online agent_loop actually requests a model
 ```
 
 ## Offline Verification

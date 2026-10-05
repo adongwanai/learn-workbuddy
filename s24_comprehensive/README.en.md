@@ -58,30 +58,30 @@ Integration failures usually come from hidden ownership, duplicated writes, or l
 ## The Problem
 
 ```
-s01  agent loop              → 循环本身
-s02  tool dispatch           → 循环里的工具分发
-s03  deferred loading        → 循环里的工具按需展开
-s04  permission hooks        → 循环里的安全门
-s05  electron shell          → 循环的进程外壳
-s06  sidecar server          → 循环的通信管道
-s07  session management      → 循环的生命周期
-s08  model routing           → 循环的模型选择
-s09  jsonl transcript        → 循环的事件记录
-s10  workspace memory        → 循环的工作区记忆
-s11  user memory             → 循环的用户级记忆
-s12  cloud memory            → 循环的远端召回抽象
-s13  output externalization  → 循环的大输出换出
-s14  context compact         → 循环的上下文压缩
-s15  prompt assembly         → 循环的 prompt 组装
-s16  skills system           → 循环的技能加载
-s17  mcp connectors          → 循环的外部工具协议
-s18  experts system          → 循环的领域专家
-s19  visualizer              → 循环的输出可视化
-s20  result presentation     → 循环的结果交付
-s21  sqlite database         → 循环的持久化层
-s22  automation scheduler    → 循环的定时触发
-s23  audit sandbox           → 循环的安全审计
-s24  comprehensive           → 所有机制回到一个循环
+s01  agent loop              → the loop itself
+s02  tool dispatch           → tool dispatch inside the loop
+s03  deferred loading        → tools expanded on demand inside the loop
+s04  permission hooks        → security gate for the loop
+s05  electron shell          → process shell for the loop
+s06  sidecar server          → communication channel for the loop
+s07  session management      → lifecycle of the loop
+s08  model routing           → model selection for the loop
+s09  jsonl transcript        → event log for the loop
+s10  workspace memory        → workspace memory for the loop
+s11  user memory             → user-level memory for the loop
+s12  cloud memory            → remote-recall abstraction for the loop
+s13  output externalization  → large-output externalization for the loop
+s14  context compact         → context compaction for the loop
+s15  prompt assembly         → prompt assembly for the loop
+s16  skills system           → skill loading for the loop
+s17  mcp connectors          → external-tool protocol for the loop
+s18  experts system          → domain experts for the loop
+s19  visualizer              → output visualization for the loop
+s20  result presentation     → result delivery for the loop
+s21  sqlite database         → persistence layer for the loop
+s22  automation scheduler    → scheduled triggering for the loop
+s23  audit sandbox           → security auditing for the loop
+s24  comprehensive           → all mechanisms return to one loop
 ```
 
 ## The Solution
@@ -148,13 +148,13 @@ def comprehensive_agent_loop(messages, session):
     while True:
         # ── 1. Prompt Assembly (s15) ──
         system = assemble_prompt(
-            soul=get_soul(),           # s11: 身份
-            user_mem=get_user_memory(), # s11: 用户偏好
-            workspace_mem=get_workspace_log(),  # s10: 工作区日志
-            cloud_profile=get_cloud_profile(),  # s12: 云端记忆
-            skills=list_skills(),       # s16: 技能目录
-            expert=get_expert(),        # s18: 领域专家
-            tools_context=get_tools_info()  # s17: MCP 连接器
+            soul=get_soul(),           # s11: identity
+            user_mem=get_user_memory(), # s11: user preferences
+            workspace_mem=get_workspace_log(),  # s10: workspace log
+            cloud_profile=get_cloud_profile(),  # s12: cloud memory
+            skills=list_skills(),       # s16: skill catalog
+            expert=get_expert(),        # s18: domain expert
+            tools_context=get_tools_info()  # s17: MCP connector
         )
 
         # ── 2. Context Compaction (s14) ──
@@ -220,7 +220,7 @@ def comprehensive_agent_loop(messages, session):
                 # ── 10e. Output Externalization (s13) ──
                 if should_externalize(output):
                     pointer = write_to_disk(output)
-                    output = make_pointer(pointer)  # 上下文只留指针
+                    output = make_pointer(pointer)  # Context keeps only a pointer
 
                 # ── 10f. Tool Usage (s21) + JSONL (s09) ──
                 db.record_tool_call(session.id, block.name)
@@ -245,14 +245,14 @@ def comprehensive_agent_loop(messages, session):
 │                       Agent Loop (s01)                            │
 │                                                                  │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────────────┐  │
-│  │ 工具层    │  │ 进程层    │  │ 持久层    │  │  记忆层         │  │
+│  │ Tool layer    │  │ Process layer    │  │ Persistence layer    │  │  Memory layer         │  │
 │  │ s02 s03  │  │ s05 s06  │  │ s09 s21  │  │  s10 s11 s12  │  │
 │  │ s16 s17  │  │ s07 s08  │  │ s22      │  │  s15          │  │
 │  │ s18      │  │          │  │          │  │                │  │
 │  └──────────┘  └──────────┘  └──────────┘  └────────────────┘  │
 │                                                                  │
 │  ┌──────────────┐  ┌──────────┐  ┌──────────┐                  │
-│  │ 上下文管理层  │  │ 安全层    │  │ 交互层    │                  │
+│  │ Context management layer  │  │ Security layer    │  │ Interaction layer    │                  │
 │  │ s13 s14      │  │ s04 s23  │  │ s19 s20  │                  │
 │  └──────────────┘  └──────────┘  └──────────┘                  │
 └──────────────────────────────────────────────────────────────────┘
@@ -263,13 +263,13 @@ def comprehensive_agent_loop(messages, session):
 This comparison maps the integrated harness and RAG-memory restart invariants to the corresponding WorkBuddy-style harness boundary.
 
 ```
-Agency 来自模型。
-Harness 让 agency 落地。
+Agency comes from the model.
+Harness makes agency operational.
 
-模型 = Claude / GPT / GLM (推理 + 决策)
-Harness = 24 个机制 (执行环境 + 安全 + 记忆 + 持久化)
+Model = Claude / GPT / GLM (reasoning + decision-making)
+Harness = 24 mechanisms (execution environment + safety + memory + persistence)
 
-Agent = 模型 × Harness
+Agent = Model × Harness
 ```
 
 ## WorkBuddy Architecture Comparison
@@ -306,9 +306,9 @@ Electron Main Process
 ### Code Walkthrough
 
 ```
-WorkBuddy-style harness = 一个 agent loop (s01)
-                        + 22 个累加机制 (s02-s23)
-                        + 一个综合收束 (s24)
+WorkBuddy-style harness = an agent loop (s01)
+                        + 22 cumulative mechanisms (s02-s23)
+                        + one integrated conclusion (s24)
 ```
 
 ## Code Walkthrough
@@ -347,30 +347,30 @@ Use these exercises to change one part of the integrated harness and RAG-memory 
 ## The 24-Lesson Takeaway
 
 ```
-s01  Agent Loop            ──▶  起点: 一个循环 + 一个工具
-s02  Tool Dispatch         ──▶  多个工具, 一个 dispatch map
-s03  Deferred Loading      ──▶  ToolSearch + DeferExecuteTool 两步调用
-s04  Permission Hooks      ──▶  先划边界, 再给自由
-s05  Electron Shell        ──▶  三个进程, 一个应用
+s01  Agent Loop            ──▶  starting point: one loop + one tool
+s02  Tool Dispatch         ──▶  multiple tools, one dispatch map
+s03  Deferred Loading      ──▶  ToolSearch + DeferExecuteTool two-step call
+s04  Permission Hooks      ──▶  set boundaries first, then grant freedom
+s05  Electron Shell        ──▶  three processes, one application
 s06  Sidecar Server        ──▶  JSON-RPC, RingBuffer
-s07  Session Management    ──▶  每个会话一个子进程
-s08  Model Routing         ──▶  lite/default/craft 三级路由
-s09  JSONL Transcript      ──▶  对话持久化, 追加写入, 崩溃恢复
-s10  Workspace Memory      ──▶  每天的工作记下来
-s11  User Memory           ──▶  跨项目的偏好
-s12  Cloud Memory          ──▶  服务端检索
-s13  Output Externalization──▶  大输出写磁盘, 上下文留指针
-s14  Context Compact       ──▶  四层压缩管线
-s15  Prompt Assembly       ──▶  运行时分段拼接
-s16  Skills System         ──▶  按需加载技能
-s17  MCP Connectors        ──▶  连接器生态
-s18  Experts System        ──▶  领域专家包
-s19  Visualizer            ──▶  SVG/HTML 可视化
-s20  Result Presentation   ──▶  文件交付
-s21  SQLite Database       ──▶  WAL 模式, 7 张表
-s22  Automation Scheduler  ──▶  到点自动跑
-s23  Audit & Sandbox       ──▶  每步留痕, 不可篡改
-s24  Comprehensive         ──▶  终点: 全部归到一个循环
+s07  Session Management    ──▶  one child process per session
+s08  Model Routing         ──▶  lite/default/craft three-tier routing
+s09  JSONL Transcript      ──▶  conversation persistence, append-only writes, crash recovery
+s10  Workspace Memory      ──▶  record each day's work
+s11  User Memory           ──▶  cross-project preferences
+s12  Cloud Memory          ──▶  server-side retrieval
+s13  Output Externalization──▶  write large output to disk, keep a pointer in context
+s14  Context Compact       ──▶  four-layer compaction pipeline
+s15  Prompt Assembly       ──▶  assemble segments at runtime
+s16  Skills System         ──▶  load skills on demand
+s17  MCP Connectors        ──▶  connector ecosystem
+s18  Experts System        ──▶  domain expert packages
+s19  Visualizer            ──▶  SVG/HTML visualization
+s20  Result Presentation   ──▶  file delivery
+s21  SQLite Database       ──▶  WAL mode, 7 tables
+s22  Automation Scheduler  ──▶  run automatically at the scheduled time
+s23  Audit & Sandbox       ──▶  leave an immutable trace for every step
+s24  Comprehensive         ──▶  endpoint: bring everything back to one loop
 ```
 
 - The final lesson composes the earlier contracts into one offline RAG-memory harness and verifies that restart does not change their meaning.

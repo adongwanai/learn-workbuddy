@@ -10,6 +10,7 @@ NAVIGATION = "[中文](README.md) · [English](README.en.md)"
 README_NAMES = ("README.md", "README.en.md")
 SVG_LINK = re.compile(r"\]\(([^)]+\.svg)\)")
 SVG_TEXT = re.compile(r"<(?:text|tspan)\b[^>]*>([^<>]*)</(?:text|tspan)>")
+NON_ENGLISH_TEXT = re.compile(r"[\u3400-\u9fff\u3000-\u303f\uff00-\uffef]")
 
 
 def module_readmes() -> list[tuple[Path, Path, Path]]:
@@ -148,17 +149,13 @@ def test_english_readmes_preserve_markdown_tables() -> None:
         assert english_tables == chinese_tables, module
 
 
-def test_english_readmes_keep_chinese_only_in_code_examples() -> None:
+def test_english_readmes_contain_no_chinese_outside_language_navigation() -> None:
     violations: list[str] = []
     for _, _, english in module_readmes():
-        in_fence = False
         for number, line in enumerate(read_text(english).splitlines(), 1):
-            if line.startswith("```"):
-                in_fence = not in_fence
-                continue
             if line.strip() == NAVIGATION:
                 continue
-            if not in_fence and re.search(r"[\u3400-\u9fff]", line):
+            if NON_ENGLISH_TEXT.search(line):
                 violations.append(f"{english.relative_to(ROOT)}:{number}")
     assert violations == []
 

@@ -129,9 +129,9 @@ DESIGN_GUIDES = {
 ```python
 def show_widget(title: str, widget_code: str, loading_messages: list[str]):
     """
-    title:          widget 标识符，用于引用和下载文件名
-    widget_code:    原始 SVG 或 HTML 代码
-    loading_messages: 渲染过程中显示的 1-4 条进度消息
+    title:          widget identifier, used for references and download filenames
+    widget_code:    raw SVG or HTML code
+    loading_messages: 1-4 progress messages shown during rendering
     """
 ```
 
@@ -174,7 +174,7 @@ def generate_architecture_svg(nodes: list, edges: list) -> str:
 This comparison maps widget rendering, artifact protocols, and failure-aware visualization to the corresponding WorkBuddy-style harness boundary.
 
 ```python
-# Agent 生成多 widget 叙事:
+# Agent generates a multi-widget narrative:
 #
 # Text: "Let me break this down into three parts..."
 #

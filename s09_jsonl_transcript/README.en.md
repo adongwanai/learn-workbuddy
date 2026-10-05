@@ -75,8 +75,8 @@ The harness needs durable conversation history without coupling event recovery t
 ```
 ~/.workbuddy/projects/
   ├── myproject/
-  │   ├── session_abc123.jsonl    ← 这次的对话
-  │   ├── session_def456.jsonl    ← 上次的对话
+  │   ├── session_abc123.jsonl    ← this conversation
+  │   ├── session_def456.jsonl    ← the previous conversation
   │   └── session_ghi789.jsonl
   └── another-project/
       └── session_xyz000.jsonl
@@ -197,17 +197,17 @@ def recover(self):
 ```python
 candidate = transcript.select_memory_candidate(
     "transcript:session_abc123:17",
-    summary="项目确定使用 SQLite WAL。",
-    reason="用户明确确认的持久化架构决策。",
+    summary="The project will use SQLite WAL.",
+    reason="A persistence architecture decision explicitly confirmed by the user.",
 )
 
-# candidate.source_metadata() 可交给后续 Memory 层；这里没有写入 Memory。
+# candidate.source_metadata() can be passed to the later Memory layer; it is not written to Memory here.
 ```
 
 ## Why JSONL
 
 ```
-         对话内容                          元数据
+         Conversation content                          Metadata
          ────────                          ──────
     ┌──────────────┐              ┌──────────────────┐
     │ session.jsonl│              │   workbuddy.db   │
@@ -266,12 +266,12 @@ const CODEBUDDY_SESSION_MAX_ITEMS = 1000;
 ### Code Walkthrough
 
 ```
-用户发送消息     → append message event
-模型开始推理     → append reasoning event
-模型调用工具     → append function_call event
-工具返回结果     → append function_call_result event
-文件被修改       → append file-history-snapshot event
-会话标题生成     → append ai-title event
+User sends a message     → append message event
+Model starts reasoning     → append reasoning event
+Model calls a tool     → append function_call event
+Tool returns a result     → append function_call_result event
+File is modified       → append file-history-snapshot event
+Session title is generated     → append ai-title event
 ```
 
 ## Code Walkthrough

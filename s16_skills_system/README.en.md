@@ -45,9 +45,9 @@ The harness needs extensibility without allowing a growing skill catalog to cons
 ## The Solution
 
 ```
-技能存储:
+Skill storage:
 
-  用户级: ~/.workbuddy/skills/          (个人, 跨项目)
+  user-level: ~/.workbuddy/skills/          (personal, shared across projects)
     ├── git-commit/
     │   └── SKILL.md
     ├── code-review/
@@ -55,7 +55,7 @@ The harness needs extensibility without allowing a growing skill catalog to cons
     └── deploy-check/
         └── SKILL.md
 
-  项目级: {workspace}/.workbuddy/skills/ (项目特定, 团队共享)
+  project-level: {workspace}/.workbuddy/skills/ (project-specific, shared with the team)
     ├── api-design/
     │   └── SKILL.md
     └── test-conventions/
@@ -63,21 +63,21 @@ The harness needs extensibility without allowing a growing skill catalog to cons
 ```
 
 ```
-启动时:
+At startup:
   ┌─────────────────────────────────────────────────┐
-  │ 1. 扫描两个目录下所有 SKILL.md                    │
-  │ 2. 只解析 frontmatter (title, summary, read_when)│
-  │ 3. 构建技能索引 (不加载完整内容)                   │
-  │ 4. 把索引注入系统提示 (只占几百 token)             │
+  │ 1. scan all SKILL.md files in both directories                    │
+  │ 2. parse only frontmatter (title, summary, read_when)│
+  │ 3. build the skill index (do not load full content)                   │
+  │ 4. inject the index into the system prompt (use only a few hundred tokens)             │
   └─────────────────────────────────────────────────┘
 
-用户输入时:
+When the user enters a request:
   ┌─────────────────────────────────────────────────┐
-  │ 1. 用户输入: "帮我提交代码"                        │
-  │ 2. 匹配触发词: "提交" → git-commit 技能            │
-  │ 3. 加载 git-commit/SKILL.md 完整内容              │
-  │ 4. 注入系统提示 (重新组装, s15)                    │
-  │ 5. agent 获得提交代码的完整指南                    │
+  │ 1. User input: "Help me commit code"                        │
+  │ 2. match trigger words: "commit" → git-commit Skill            │
+  │ 3. load the complete git-commit/SKILL.md              │
+  │ 4. inject into the system prompt (reassemble, s15)                    │
+  │ 5. agent receive the complete guide to committing code                    │
   └─────────────────────────────────────────────────┘
 ```
 
@@ -88,12 +88,12 @@ The harness needs extensibility without allowing a growing skill catalog to cons
 ```markdown
 ---
 title: git-commit
-summary: 规范的 git 提交流程
+summary: Standard Git commit workflow
 read_when:
-  - 提交代码
+  - commit code
   - commit
   - git push
-  - 保存修改
+  - preserve changes
 agent_created: false
 permissions:
   tools: [bash]
@@ -103,24 +103,24 @@ permissions:
     write: []
 ---
 
-# Git Commit 技能
+# Git Commit Skill
 
-## 步骤
-1. 运行 `git status` 查看变更
-2. 运行 `git diff` 检查改动
-3. 暂存相关文件 `git add`
-4. 生成规范的 commit message:
-   - 格式: `type(scope): description`
+## Steps
+1. Run `git status` to inspect changes
+2. Run `git diff` to inspect changes
+3. Stage relevant files `git add`
+4. generate a conventional commit message:
+   - format: `type(scope): description`
    - type: feat/fix/docs/refactor/test/chore
-5. 提交: `git commit -m`
+5. commit: `git commit -m`
 
-## 注意事项
-- 不要提交敏感信息
-- commit message 用中文
+## Notes
+- Do not commit sensitive information
+- Use Chinese for the commit message
 ```
 
 ```text
-Harness 基础权限 ∩ 当前已审核 Skill manifest
+Harness Base permissions ∩ currently approved Skill manifest
 ```
 
 ### Index Building
@@ -129,10 +129,10 @@ Harness 基础权限 ∩ 当前已审核 Skill manifest
 import yaml
 
 def parse_skill_md(filepath: Path) -> dict | None:
-    """解析 SKILL.md, 提取 frontmatter 和正文。"""
+    """parse SKILL.md and extract its frontmatter and body."""
     content = filepath.read_text()
 
-    # 提取 YAML frontmatter (--- 包裹)
+    # Extract YAML frontmatter (--- wrapped)
     if not content.startswith("---"):
         return None
 
@@ -158,17 +158,17 @@ def parse_skill_md(filepath: Path) -> dict | None:
 
 ```python
 def build_skill_index() -> list[dict]:
-    """扫描技能目录, 构建索引。
+    """Scan skill directories and build an index.
 
-    只提取 frontmatter 信息 (title, summary, read_when)。
-    完整内容 (content) 不加载 — 按需读取。
+    Extract only frontmatter fields (title, summary, read_when).
+    full content (content) not loaded — read on demand.
 
-    用户级和项目级都扫描。项目级优先 (更具体)。
+    scan both user-level and project-level directories. project-level first (more specific).
     """
     index = []
     skill_dirs = [
-        Path.home() / ".workbuddy" / "skills",           # 用户级
-        WORKDIR / ".workbuddy" / "skills",                # 项目级
+        Path.home() / ".workbuddy" / "skills",           # user-level
+        WORKDIR / ".workbuddy" / "skills",                # project-level
     ]
 
     for skill_dir in skill_dirs:
@@ -177,13 +177,13 @@ def build_skill_index() -> list[dict]:
         for skill_md in skill_dir.glob("*/SKILL.md"):
             skill = parse_skill_md(skill_md)
             if skill:
-                # 索引不含 content — 太大
+                # the index excludes content — it is too large
                 index.append({
                     "title": skill["title"],
                     "summary": skill["summary"],
                     "read_when": skill["read_when"],
                     "path": skill["path"],
-                    "loaded": False,  # 标记是否已加载完整内容
+                    "loaded": False,  # mark whether full content is loaded
                 })
 
     return index
@@ -193,9 +193,9 @@ def build_skill_index() -> list[dict]:
 
 ```python
 def match_skill(user_input: str) -> str | None:
-    """检查用户输入是否匹配某个技能的触发词。
+    """Check whether user input matches a skill's trigger words.
 
-    简单关键词匹配。Real WorkBuddy 可能用语义匹配。
+    simple keyword matching.Real WorkBuddy may use semantic matching.
     """
     input_lower = user_input.lower()
 
@@ -211,19 +211,19 @@ def match_skill(user_input: str) -> str | None:
 
 ```python
 def load_skill(title: str) -> bool:
-    """加载技能的完整内容到上下文。
+    """Load a skill's full content into context.
 
-    1. 在索引中找到技能
-    2. 读取 SKILL.md 完整内容
-    3. 标记为已加载
-    4. 触发系统提示重新组装 (s15)
+    1. Find the skill in the index
+    2. Read SKILL.md full content
+    3. Mark as loaded
+    4. Trigger system prompt reassembly (s15)
     """
     for skill in skill_index:
         if skill["title"] == title and not skill["loaded"]:
             full = parse_skill_md(Path(skill["path"]))
             skill["loaded"] = True
             skill["content"] = full["content"]
-            # 触发 prompt 重新组装
+            # trigger prompt reassembly
             reassemble_prompt()
             return True
     return False
@@ -233,22 +233,22 @@ def load_skill(title: str) -> bool:
 
 ```python
 def skill_tool(skill: str) -> str:
-    """模型调用的 Skill 工具。
+    """Skill tool called by the model.
 
-    模型在对话中判断需要某个技能时, 主动调用。
+    The model calls this tool when it determines that a skill is needed during a conversation.
     """
     if load_skill(skill):
-        return f"技能 '{skill}' 已加载。"
-    return f"未找到技能 '{skill}'。可用技能: {[s['title'] for s in skill_index]}"
+        return f"Skill '{skill}' loaded."
+    return f"Skill not found '{skill}'.Available skills: {[s['title'] for s in skill_index]}"
 ```
 
 ### Security Audit
 
 ```python
 def create_skill(title: str, summary: str, content: str) -> str:
-    """创建新技能。
+    """Create a new skill.
 
-    生产级 harness 常用 SkillManage 工具, 带 agent_created: true 标记。
+    Production harnesses commonly use a SkillManage tool with the agent_created: true marker.
     """
     skill_dir = Path.home() / ".workbuddy" / "skills" / title
     skill_dir.mkdir(parents=True, exist_ok=True)
@@ -265,7 +265,7 @@ agent_created: true
 """
     (skill_dir / "SKILL.md").write_text(skill_md)
 
-    # 加入索引
+    # Add to the index
     skill_index.append({
         "title": title,
         "summary": summary,
@@ -274,34 +274,34 @@ agent_created: true
         "loaded": False,
     })
 
-    return f"技能 '{title}' 已创建。"
+    return f"Skill '{title}' created."
 ```
 
 ### Deferred Tool Loading
 
 ```python
 def audit_skill(skill_path: Path) -> tuple[str, str]:
-    """安全检查技能内容。
+    """Check skill content for safety.
 
     Returns: (risk_level, report)
-    risk_level: P0 (禁止) / P1 (需审批) / P2 (允许)
+    risk_level: P0 (forbidden) / P1 (approval required) / P2 (allowed)
     """
     content = skill_path.read_text()
 
-    # P0: 硬禁止内容
+    # P0: hard-blocked content
     p0_patterns = ["rm -rf /", "sudo ", "eval(", "exec(", "os.system"]
     for pattern in p0_patterns:
         if pattern in content:
-            return ("P0", f"禁止安装: 包含危险模式 '{pattern}'")
+            return ("P0", f"forbidden installation: contains dangerous pattern '{pattern}'")
 
-    # P1: 需要用户确认
+    # P1: requires user confirmation
     p1_patterns = ["curl ", "wget ", "npm install", "pip install", "git clone"]
     for pattern in p1_patterns:
         if pattern in content:
-            return ("P1", f"需审批: 包含网络/安装操作 '{pattern}'")
+            return ("P1", f"approval required: contains network/install operations '{pattern}'")
 
-    # P2: 安全
-    return ("P2", "安全: 无危险模式")
+    # P2: Safe
+    return ("P2", "Safe: no dangerous patterns")
 ```
 
 ## The Tool Schema Token Problem
@@ -309,49 +309,49 @@ def audit_skill(skill_path: Path) -> tuple[str, str]:
 ### Two-Step Loading
 
 ```
-80+ 工具定义 × ~500 tokens/工具 = ~40,000 tokens
-  (不管用不用，都占着上下文)
+80+ tool definitions × ~500 tokens/tools = ~40,000 tokens
+  (consume context whether or not they are used)
 ```
 
 ### Teaching Implementation: CLI Bundle
 
 ```
-传统方式: 启动时全部加载
-  80个工具schema → 全部注入system prompt → 40K tokens
-  (不管用不用，都占着上下文)
+Traditional approach: load everything at startup
+  80 tool schemas → inject all into the system prompt → 40K tokens
+  (consume context whether or not they are used)
 
-WorkBuddy方式: 按需加载 (deferLoading)
-  Step 1: ToolSearch (轻量索引)
-    ├─ 输入: 关键词搜索
-    ├─ 输出: 匹配的工具名 + 简要描述
-    └─ 不加载完整schema
+WorkBuddy approach: load on demand (deferLoading)
+  Step 1: ToolSearch (lightweight index)
+    ├─ Input: keyword search
+    ├─ Output: matching tool names + brief descriptions
+    └─ do not load the full schema
 
-  Step 2: DeferExecuteTool (按需展开)
-    ├─ 输入: 工具名 + 参数
-    ├─ 此时才加载完整input_schema
-    └─ 验证参数后执行
+  Step 2: DeferExecuteTool (expand on demand)
+    ├─ Input: tool name + parameters
+    ├─ load the full input_schema only at this point
+    └─ validate parameters, then execute
 ```
 
 ### Key Clean-Room Pattern
 
 ```javascript
-// 工具注册时检查 deferLoading 标志
+// Check the deferLoading flag when registering a tool
 for (let tool of tools) {
     if (tool.deferLoading) {
-        // 只索引工具名 + 简短描述
+        // index only the tool name + short description
         let indexed = this.indexDeferredTool(tool);
         deferredTools.push(indexed);
     } else {
-        // 立即加载完整 schema
+        // load the full schema immediately
         fullTools.push(tool);
     }
 }
 
-// 当 agent 需要某个延迟工具时:
-// 1. Agent 调用 ToolSearch (关键词搜索)
-// 2. 系统返回匹配的工具名 + 描述
-// 3. Agent 调用 DeferExecuteTool (工具名 + 参数)
-// 4. 系统加载完整 schema, 验证参数, 执行
+// When the agent needs a deferred tool:
+// 1. Agent calls ToolSearch (keyword search)
+// 2. system returns matching tool names + descriptions
+// 3. Agent calls DeferExecuteTool (tool name + parameters)
+// 4. system loads the full schema, validates parameters, and executes
 ```
 
 ### Deferred Tools in WorkBuddy
@@ -359,40 +359,40 @@ for (let tool of tools) {
 ### Three Skill Storage Levels
 
 ```
-延迟工具 (用到时才加载):
-  - ImageGen: 文生图
-  - connect_cloud_service: 连接云服务
-  - EnterPlanMode / ExitPlanMode: 计划模式控制
-  - TaskStop: 停止后台任务
-  - ListMcpResources / ReadMcpResource: MCP 资源访问
-  - workbuddy_marketplace_skill: 技能市场搜索/安装
-  - mcp__ardot: 设计工具 MCP (20+ 子工具)
-  - mcp__weixinpay: 微信支付 MCP
+Deferred tools (loaded only when used):
+  - ImageGen: text-to-image generation
+  - connect_cloud_service: connect to cloud services
+  - EnterPlanMode / ExitPlanMode: plan-mode control
+  - TaskStop: stop background tasks
+  - ListMcpResources / ReadMcpResource: MCP resource access
+  - workbuddy_marketplace_skill: skill marketplace search/installation
+  - mcp__ardot: design-tool MCP (20+ sub-tools)
+  - mcp__weixinpay: WeChat Pay MCP
 ```
 
 ## Skill Directory Layout
 
 ```
 ┌─────────────────────────────────────────────┐
-│            Skill 存储层级                     │
+│            Skill storage hierarchy                     │
 ├─────────────────────────────────────────────┤
 │                                              │
-│  内置 Skills (10个)                           │
-│  位置: unpacked runtime resources/resources/         │
+│  Built-in Skills (10)                           │
+│  Location: unpacked runtime resources/resources/         │
 │         builtin-skills/                      │
-│  特点: 随应用分发，不可修改                    │
-│  示例: skill-creator, expert-manager,        │
+│  Characteristics: distributed with the application and cannot be modified                    │
+│  Examples: skill-creator, expert-manager,        │
 │        cloudstudio-deploy, westock-data      │
 │                                              │
-│  用户级 Skills                                │
-│  位置: ~/.workbuddy/skills/                  │
-│  特点: 跨项目共享，个人定制                    │
-│  示例: 用户自定义的工作流                      │
+│  User-level Skills                                │
+│  Location: ~/.workbuddy/skills/                  │
+│  Characteristics: shared across projects and personally customized                    │
+│  Examples: user-defined workflows                      │
 │                                              │
-│  项目级 Skills                                │
-│  位置: {workspace}/.workbuddy/skills/        │
-│  特点: 项目特定，团队共享                      │
-│  示例: 项目特定的部署流程                      │
+│  Project-level Skills                                │
+│  Location: {workspace}/.workbuddy/skills/        │
+│  Characteristics: project-specific and shared with the team                      │
+│  Examples: project-specific deployment flows                      │
 │                                              │
 └─────────────────────────────────────────────┘
 ```
@@ -403,12 +403,12 @@ This comparison maps skill discovery, frontmatter catalogs, deferred loading, an
 
 ```
 my-skill/
-  ├── SKILL.md          # 指令注入 (frontmatter + 正文)
-  ├── scripts/          # 可执行脚本
+  ├── SKILL.md          # instruction injection (frontmatter + body)
+  ├── scripts/          # executable scripts
   │   └── index.js
-  ├── references/       # 参考文档
+  ├── references/       # reference documents
   │   └── api-spec.md
-  └── assets/           # 资源文件
+  └── assets/           # resource files
       └── template.html
 ```
 
@@ -419,11 +419,11 @@ This comparison maps skill discovery, frontmatter catalogs, deferred loading, an
 ### Frontmatter Fields
 
 ```
-~/.workbuddy/skills/              # 用户级 (个人, 跨项目)
+~/.workbuddy/skills/              # user-level (personal, shared across projects)
   git-commit/SKILL.md
   code-review/SKILL.md
 
-{workspace}/.workbuddy/skills/    # 项目级 (团队共享)
+{workspace}/.workbuddy/skills/    # project-level (shared with the team)
   api-design/SKILL.md
 ```
 
@@ -431,13 +431,13 @@ This comparison maps skill discovery, frontmatter catalogs, deferred loading, an
 
 ```yaml
 ---
-title: skill-name           # 技能名 (唯一标识)
-summary: 一句话描述           # 用于索引展示
-read_when:                  # 触发条件 (关键词列表)
-  - 提交代码
+title: skill-name           # skill name (unique identifier)
+summary: one-line description           # shown in the index
+read_when:                  # trigger conditions (keyword list)
+  - commit code
   - commit
-agent_created: false         # 是否由模型创建
-permissions:                 # Skill 请求的最小能力
+agent_created: false         # whether created by the model
+permissions:                 # minimum capabilities requested by the Skill
   tools: [read_file]
   network: false
   paths:
@@ -449,23 +449,23 @@ permissions:                 # Skill 请求的最小能力
 ### Security Audit
 
 ```javascript
-// agent bridge 中的技能加载 (简化)
+// skill loading in the agent bridge (simplified)
 
-// 1. 启动时扫描索引
+// 1. scan the index at startup
 function buildSkillIndex() {
     const userSkills = scanSkillDir('~/.workbuddy/skills/');
     const projectSkills = scanSkillDir(`${workdir}/.workbuddy/skills/`);
-    return [...projectSkills, ...userSkills]; // 项目级优先
+    return [...projectSkills, ...userSkills]; // project-level first
 }
 
-// 2. 索引注入系统提示 (只含 title + summary)
+// 2. inject the index into the system prompt (title + summary only)
 function buildSkillIndexPrompt(skills) {
     return skills.map(s =>
         `- ${s.title}: ${s.summary}`
     ).join('\n');
 }
 
-// 3. 触发匹配
+// 3. trigger matching
 function matchSkills(userInput, skills) {
     return skills.filter(s =>
         s.read_when.some(trigger =>
@@ -474,14 +474,14 @@ function matchSkills(userInput, skills) {
     );
 }
 
-// 4. 加载完整内容
+// 4. load full content
 function loadSkillContent(skill) {
     const full = parseSkillMd(skill.path);
     loadedSkills.push(full);
     reassembleSystemPrompt(); // s15
 }
 
-// 5. Skill 工具
+// 5. Skill tool
 const SkillTool = {
     name: "Skill",
     description: "Load a skill by name...",
