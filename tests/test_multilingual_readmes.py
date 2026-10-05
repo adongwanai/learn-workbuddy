@@ -6,7 +6,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MODULES = [ROOT, *sorted(ROOT.glob("s[0-9][0-9]_*/"))]
-NAVIGATION = "[中文](README.md) · [English](README.en.md)"
+CHINESE_NAVIGATION = "[中文](README.md) · [English](README.en.md)"
+ENGLISH_NAVIGATION = "[Chinese](README.md) · [English](README.en.md)"
 README_NAMES = ("README.md", "README.en.md")
 SVG_LINK = re.compile(r"\]\(([^)]+\.svg)\)")
 SVG_TEXT = re.compile(r"<(?:text|tspan)\b[^>]*>([^<>]*)</(?:text|tspan)>")
@@ -81,9 +82,10 @@ def test_every_module_has_chinese_and_english_readmes() -> None:
 
 def test_every_readme_has_the_same_bilingual_navigation() -> None:
     for module, chinese, english in module_readmes():
-        for readme in (chinese, english):
-            lines = read_text(readme).splitlines()[:8]
-            assert NAVIGATION in lines, f"{module.name}: {readme.name}"
+        chinese_lines = read_text(chinese).splitlines()[:8]
+        english_lines = read_text(english).splitlines()[:8]
+        assert CHINESE_NAVIGATION in chinese_lines, f"{module.name}: {chinese.name}"
+        assert ENGLISH_NAVIGATION in english_lines, f"{module.name}: {english.name}"
 
 
 def test_local_markdown_links_exist_in_both_languages() -> None:
@@ -153,7 +155,7 @@ def test_english_readmes_contain_no_chinese_outside_language_navigation() -> Non
     violations: list[str] = []
     for _, _, english in module_readmes():
         for number, line in enumerate(read_text(english).splitlines(), 1):
-            if line.strip() == NAVIGATION:
+            if line.strip() in {CHINESE_NAVIGATION, ENGLISH_NAVIGATION}:
                 continue
             if NON_ENGLISH_TEXT.search(line):
                 violations.append(f"{english.relative_to(ROOT)}:{number}")

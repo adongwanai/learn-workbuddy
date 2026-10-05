@@ -1,6 +1,6 @@
 # s24: Comprehensive - Many Mechanisms, One Loop
 
-[中文](README.md) · [English](README.en.md)
+[Chinese](README.md) · [English](README.en.md)
 > *The mechanisms are many; the contract is one.*
 >
 > **Harness layer: integration. The loop belongs to the agent; the mechanisms belong to the harness.**

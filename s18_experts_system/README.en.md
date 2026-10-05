@@ -1,6 +1,6 @@
 # s18: Experts System - Load a Domain Bundle
 
-[中文](README.md) · [English](README.en.md)
+[Chinese](README.md) · [English](README.en.md)
 > *Skills add capabilities; expert bundles change how the agent approaches a domain.*
 >
 > **Harness layer: domain knowledge, routing, and persona/tool/memory composition.**

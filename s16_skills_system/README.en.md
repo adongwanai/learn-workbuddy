@@ -1,6 +1,6 @@
 # s16: Skills System - List First, Expand on Demand
 
-[中文](README.md) · [English](README.en.md)
+[Chinese](README.md) · [English](README.en.md)
 > *Skills are indexed as short instructions and loaded only when a task needs them.*
 >
 > **Harness layer: extensibility, lazy loading, and skill permission boundaries.**
@@ -77,7 +77,7 @@ When the user enters a request:
   │ 2. match trigger words: "commit" → git-commit Skill            │
   │ 3. load the complete git-commit/SKILL.md              │
   │ 4. inject into the system prompt (reassemble, s15)                    │
-  │ 5. agent receive the complete guide to committing code                    │
+   │ 5. agent receives the complete guide to committing code                   │
   └─────────────────────────────────────────────────┘
 ```
 

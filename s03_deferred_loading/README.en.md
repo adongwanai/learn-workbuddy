@@ -1,6 +1,6 @@
 # s03: Deferred Tool Loading — Discover first, then load, then execute
 
-[中文](README.md) · [English](README.en.md)
+[Chinese](README.md) · [English](README.en.md)
 > "Tools list the directory first, and then expand the schema after it is used."
 >
 > **Harness layer**: Controls which tool contracts are exposed to the model at each round.
@@ -138,7 +138,7 @@ There are two common progressive solutions for harness production:
 1. After searching, directly add the hit tool to the provider’s `tools` list in the next round;
 2. After searching, call the hit tool through a common execution entry.
 
-This chapter chooses the second option because it enables direct observation of the complete state machine in an offline, single-file demo, and does not depend on whether a specific provider supports modifying the tool set on the fly. The two solutions share the core principle: **The accurate schema must be obtained before the model is executed, and harness only exposes a small amount of schema required for the current task. **
+This chapter chooses the second option because it enables direct observation of the complete state machine in an offline, single-file demo, and does not depend on whether a specific provider supports modifying the tool set on the fly. The two solutions share the core principle: **The accurate schema must be obtained before the model is executed, and the harness only exposes the minimal schema required for the current task.**
 
 ## Correct pronunciation of Token estimate
 

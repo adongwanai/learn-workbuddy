@@ -1,6 +1,6 @@
 # s09: JSONL Transcript - Append Evidence and Rebuild Runtime State
 
-[中文](README.md) · [English](README.en.md)
+[Chinese](README.md) · [English](README.en.md)
 > *The transcript is evidence; replay state is derived from that evidence.*
 >
 > **Harness layer: persistence and crash recovery.**

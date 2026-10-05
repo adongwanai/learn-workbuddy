@@ -1,6 +1,6 @@
 # 🔥 Desktop AI assistant from scratch · Replicate the WorkBuddy architecture in 24 lessons
-[中文](README.md) · [English](README.en.md)
-**An open source teaching blueprint - not product source code, but a runnable Agent engineering course. **
+[Chinese](README.md) · [English](README.en.md)
+**An open source teaching blueprint - not product source code, but a runnable Agent engineering course.**
 
 > The model is the brain and the Harness is the operating system.
 
@@ -27,7 +27,7 @@
   </tr>
 </table>
 
-> ⭐ **If this project is helpful to you, please give a star to support us in continuing to provide classes! **
+> ⭐ **If this project is helpful to you, please give a star to support us in continuing to provide classes!**
 
 ![Architecture Overview](./images/architecture-overview-en.svg)
 
@@ -44,7 +44,7 @@ You have written a CLI agent, which can run through `while True` + tool calling,
 - 😫 Agent can execute commands - how to design permissions so as not to become a backdoor
 - 😫 Front-end, sidecar, runtime, model, tools - how to decouple each layer of the six-layer architecture
 
-**This repository breaks these questions down into 24 lessons. Each lesson only adds one new mechanism, and each lesson has a `code.py` and a picture. **
+**This repository breaks these questions down into 24 lessons. Each lesson only adds one new mechanism, and each lesson has a `code.py` and a picture.**
 
 ---
 
@@ -403,7 +403,7 @@ This project splits the desktop agent’s memory into five layers:
 | Transcript | Additional writing of session events, recoverable and replayable | [s09](./s09_jsonl_transcript/) |
 | Tool-result swap | Large output externalization, history only retains summary and pointer | [s13](./s13_output_externalization/) |
 
-Core idea: **Context window is RAM, JSONL, SQLite, memory files and tool-results are disk. **
+Core idea: **Context window is RAM, JSONL, SQLite, memory files and tool-results are disk.**
 
 To see how the five categories of states work together without confusing ownership, you can run the completely offline [Layered Memory Walkthrough](./examples/layered_memory_walkthrough/). It directly cascades S09–S14, demonstrating writing, repeated fact distillation, user isolation, source recall, artifact references, compressed invariants, and fresh-process recovery without adding a second set of Memory packages.
 

@@ -1,6 +1,6 @@
 # s10: Workspace Memory - Turn Work Logs into Durable Project Facts
 
-[中文](README.md) · [English](README.en.md)
+[Chinese](README.md) · [English](README.en.md)
 > *Workspace memory records facts that belong to a project, not to a person or a single turn.*
 >
 > **Harness layer: scoped memory and durable project context.**

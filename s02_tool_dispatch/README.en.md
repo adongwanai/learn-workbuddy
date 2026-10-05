@@ -1,6 +1,6 @@
 # s02: Tool Dispatch — A registry is the tool boundary
 
-[中文](README.md) · [English](README.en.md)
+[Chinese](README.md) · [English](README.en.md)
 > *"The model only proposes the calling intent, Harness determines whether and how it can become a local execution." *
 >
 > **Harness layer**: Tool distribution — crossing the boundary from model protocols into real Python code.

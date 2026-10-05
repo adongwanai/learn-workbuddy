@@ -1,5 +1,5 @@
 # s01: Agent Loop — One loop is enough
-[中文](README.md) · [English](README.en.md)
+[Chinese](README.md) · [English](README.en.md)
 > *"One loop + one tool = one Agent"* — tool_use driver continues, explicit result specification stops.
 >
 > **Harness layer**: Loop — the first connection between the model and the real world.

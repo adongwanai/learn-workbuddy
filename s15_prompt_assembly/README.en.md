@@ -1,6 +1,6 @@
 # s15: Prompt Assembly - Select First, Assemble at Runtime
 
-[中文](README.md) · [English](README.en.md)
+[Chinese](README.md) · [English](README.en.md)
 > *A prompt is assembled from governed blocks; it is not one unstructured string.*
 >
 > **Harness layer: context selection, budget, authority, and system prompt assembly.**

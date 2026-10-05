@@ -1,6 +1,6 @@
 # s20: Result Presentation - Finish by Delivering the Artifact
 
-[中文](README.md) · [English](README.en.md)
+[Chinese](README.md) · [English](README.en.md)
 > *A task is complete when the user can see the result, not when the agent says it is done.*
 >
 > **Harness layer: interaction and final artifact delivery.**

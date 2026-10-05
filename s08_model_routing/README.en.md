@@ -1,6 +1,6 @@
 # s08: Model Routing - Use AI to Manage AI
 
-[中文](README.md) · [English](README.en.md)
+[Chinese](README.md) · [English](README.en.md)
 > *Let inexpensive models filter; reserve expensive models for reasoning and user-facing decisions.*
 >
 > **Harness layer: cost and latency control. A model is the agent's CPU.**

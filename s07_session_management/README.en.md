@@ -1,6 +1,6 @@
 # s07: Session Management - Restore the Logical Session, Rebuild the Runtime
 
-[中文](README.md) · [English](README.en.md)
+[Chinese](README.md) · [English](README.en.md)
 > *A session identity can survive a runtime; processes, ports, locks, and clients cannot.*
 >
 > **Harness layer: session lifecycle, runtime isolation, and recovery boundaries.**

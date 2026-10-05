@@ -1,6 +1,6 @@
 # s19: Visualizer - The Agent Can Draw
 
-[中文](README.md) · [English](README.en.md)
+[Chinese](README.md) · [English](README.en.md)
 > *Useful agent output is not limited to plain text.*
 >
 > **Harness layer: visual output and in-conversation artifacts.**
