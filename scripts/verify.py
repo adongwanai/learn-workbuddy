@@ -378,6 +378,8 @@ def check_project_shape() -> None:
         if not is_skipped(path)
     )
     missing_images = [path.relative_to(ROOT).as_posix() for path in images if path.name not in markdown]
+    source_images = [path for path in images if not path.stem.endswith("-en")]
+    english_variants = [path for path in images if path.stem.endswith("-en")]
     readme_diagram_missing: list[str] = []
     for readme in sorted(ROOT.rglob("README.md")):
         if is_skipped(readme):
@@ -385,7 +387,14 @@ def check_project_shape() -> None:
         text = readme.read_text(encoding="utf-8")
         if "## 代码架构图" not in text or "```mermaid" not in text:
             readme_diagram_missing.append(readme.relative_to(ROOT).as_posix())
-    if missing or missing_images or bad_readmes or readme_diagram_missing or len(images) != 31:
+    if (
+        missing
+        or missing_images
+        or bad_readmes
+        or readme_diagram_missing
+        or len(source_images) != 31
+        or len(english_variants) != 27
+    ):
         raise SystemExit(
             "Project shape failed:\n"
             + "\n".join(missing)
@@ -398,7 +407,8 @@ def check_project_shape() -> None:
             )
             + ("\n" if readme_diagram_missing and missing_images else "")
             + "\n".join(f"unreferenced image: {item}" for item in missing_images)
-            + f"\nimage count: {len(images)}"
+            + f"\nsource image count: {len(source_images)}"
+            + f"\nEnglish image count: {len(english_variants)}"
         )
     print("ok project shape")
 
