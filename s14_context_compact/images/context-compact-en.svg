@@ -57,7 +57,7 @@
   <text x="525" y="227" font-size="11" fill="#5f6368">content + source_pointer + last_confirmed_at</text>
   <line x1="525" y1="240" x2="825" y2="240" stroke="#dadce0"/>
   <text x="525" y="263" font-size="13" font-weight="700" fill="#137333">Pending work</text>
-  <text x="525" y="283" font-size="11" fill="#5f6368">description + source_pointer + last_confirmed_at</text>
+  <text x="525" y="283" font-size="11" fill="#5f6368">status + description + source_pointer + last_confirmed_at</text>
   <line x1="525" y1="296" x2="825" y2="296" stroke="#dadce0"/>
   <text x="525" y="319" font-size="13" font-weight="700" fill="#137333">Selected retrieval evidence</text>
   <text x="525" y="339" font-size="11" fill="#5f6368">source + score + rank + captured_at</text>

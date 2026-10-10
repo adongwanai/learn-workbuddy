@@ -136,6 +136,8 @@ class PendingItem:
     description: str
     source_pointer: str
     last_confirmed_at: str
+    reason: str | None = None
+    status: str = "open"  # open / blocked / done
 
 @dataclass(frozen=True)
 class RetrievalEvidence:
@@ -168,6 +170,34 @@ class DurableContextState:
 ```
 
 生成式摘要即使遗漏任务，甚至错误地把“SQLite WAL”写成“JSON 文件”，也只能污染一次 conversation summary，不能修改 `DurableContextState`。下一轮 Prompt 由 `render_durable_context()` 重新注入原始结构化事实。
+
+### Pending 生命周期：只有 harness 能结案
+
+**问题**：摘要不能改 durable state，但 pending item 总要被完成或卡住。如果没有归 harness 所有的入口，学习者只知道“谁不能改”，不知道“谁能改、怎么改、审计字段怎么更新”。
+
+**解决方案**：`PendingItem` 末尾追加 `reason` 与 `status`（默认 `open`，旧的 4 参数构造不变）。状态迁移只走纯函数 `transition_pending_item()`，返回新的冻结 state；`compact_context()` / `generate_summary()` 从不调用它。
+
+**工作原理**：
+
+```python
+state = transition_pending_item(
+    state, "ship-docs", "done",
+    last_confirmed_at="2026-10-01T10:00:00+00:00",  # 必须带时区
+    source_pointer="transcript:demo:7",             # 迁入 done / blocked 必填
+)
+```
+
+| 迁移 | 额外要求 |
+| --- | --- |
+| `open → blocked` / `open → done` | 新 `source_pointer`；blocked 还要 `reason` |
+| `blocked → open` / `blocked → done` | 离开 blocked 时清空 `reason` |
+| `done → *` | 终态，抛错 |
+
+渲染为 `- <id>: <desc> (status=<s>[; reason=<r>]; source=...; confirmed=...)`。`HARD_LIMIT` 只统计 messages，durable 区不在其内，所以只增不减的 done 会悄悄撑大 Prompt：`open` / `blocked` 全部渲染，`done` 只渲染按 `last_confirmed_at` 最新的 `MAX_RENDERED_DONE_ITEMS = 3` 条，其余折叠为 `- done_omitted=<n>`；state 本身保留全部 done 项供审计。
+
+**试一下**：运行本章 REPL，输入 `/pending-demo`，观察 harness 把 `ship-docs` 从 open 迁到 done，再尝试 done → open 被拒绝。不需要 API key。
+
+**架构对照**：摘要里的一句“已完成”只污染 conversation summary；真正的结案来自 harness 拿到的新证据（source pointer + 确认时间），这与 Memory 写入必须经过 owner 边界是同一条原则。
 
 ### Source pointer 不是证据本身
 
@@ -487,13 +517,13 @@ S24 综合章直接复用本章的 `capture_retrieval_evidence()`、`DurableCont
 python s14_context_compact/code.py
 ```
 
-试试持续对话，观察 token 计数增长和压缩触发。可以输入 `stats` 查看当前上下文使用情况。
+试试持续对话，观察 token 计数增长和压缩触发。可以输入 `stats` 查看当前上下文使用情况，输入 `/pending-demo` 离线演示 pending 生命周期。
 
 ---
 
 ## 练习
 
-1. 给 pending item 增加状态机（open / blocked / done）。思考：完成状态由谁确认，如何避免摘要中的一句“已完成”越权修改 durable state？
+1. 为 done 项设计带审计记录的归档：由 harness 把超过保留期的 done 项移出 `DurableContextState`，并证明归档后仍能用 source_pointer 追溯结案证据。追问：完成状态由谁确认？如果让模型工具也能调用迁移函数，摘要里的一句“已完成”会从哪条路径越权？
 2. 当前 Layer 4 的摘要是一次性生成。实现增量摘要：每次只摘要新增的 messages，与之前的摘要合并；然后设计测试证明 durable state 不参与摘要合并。
 3. 为远端 object store 实现 resolver adapter，保持同一五态输出和前置授权契约。设计测试证明重定向、过期签名与跨租户 key 不能越过 owner 边界。
 4. `estimate_tokens` 用 4 字符 ≈ 1 token 估算。安装 tokenizer 做精确计数，对比中英文和结构化 tool result 的偏差。

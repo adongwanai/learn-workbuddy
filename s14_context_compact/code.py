@@ -53,7 +53,7 @@ import re
 import sys
 import time
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
@@ -141,6 +141,7 @@ TOKEN_THRESHOLD = 80_000        # Trigger compaction at 80K tokens
 HARD_LIMIT = 120_000            # Hard limit — must compact before this
 MAX_TOOL_RESULT_TOKENS = 5_000  # Layer 1: truncate tool results above this
 KEEP_RECENT_TURNS = 6           # Layer 3: keep this many recent messages
+MAX_RENDERED_DONE_ITEMS = 3     # done 只渲染最新几条，其余折叠为计数
 
 
 def _required_text(value: str, *, field_name: str) -> str:
@@ -558,6 +559,20 @@ class DurableFact:
         object.__setattr__(self, "last_confirmed_at", _confirmed_at(self.last_confirmed_at))
 
 
+class PendingStatus(str, Enum):
+    OPEN = "open"
+    BLOCKED = "blocked"
+    DONE = "done"
+
+
+# 只有 harness 调用迁移；done 是终态
+_PENDING_TRANSITIONS = {
+    PendingStatus.OPEN: {PendingStatus.BLOCKED, PendingStatus.DONE},
+    PendingStatus.BLOCKED: {PendingStatus.OPEN, PendingStatus.DONE},
+    PendingStatus.DONE: set(),
+}
+
+
 @dataclass(frozen=True)
 class PendingItem:
     """Unfinished work that must survive even when its original turn is pruned."""
@@ -566,8 +581,13 @@ class PendingItem:
     description: str
     source_pointer: str
     last_confirmed_at: str
+    reason: str | None = None
+    status: str = "open"
 
     def __post_init__(self) -> None:
+        if type(self.status) is not str and type(self.status) is not PendingStatus:
+            raise ValueError("status must be a plain str or PendingStatus")
+        object.__setattr__(self, "status", PendingStatus(self.status).value)
         object.__setattr__(self, "item_id", _required_text(self.item_id, field_name="item_id"))
         object.__setattr__(
             self,
@@ -718,6 +738,59 @@ class DurableContextState:
             raise ValueError("retrieval evidence memory ids must be unique")
 
 
+def transition_pending_item(
+    state: DurableContextState,
+    item_id: str,
+    new_status: str,
+    *,
+    last_confirmed_at: str,
+    source_pointer: str | None = None,
+    reason: str | None = None,
+) -> DurableContextState:
+    """Harness-owned lifecycle change; returns a new frozen state."""
+
+    # 入口严格校验：拒绝 str 子类/非 str，防止自定义 __eq__ 冒充匹配
+    if type(item_id) is not str:
+        raise ValueError("item_id must be a plain str")
+    if type(new_status) is not str and type(new_status) is not PendingStatus:
+        raise ValueError("new_status must be a plain str or PendingStatus")
+    if reason is not None and type(reason) is not str:
+        raise ValueError("reason must be a plain str or None")
+    key = _required_text(item_id, field_name="item_id")
+    matches = [item for item in state.pending_items if item.item_id == key]
+    if not matches:
+        raise KeyError(f"unknown pending item: {key}")
+    item = matches[0]
+    current, target = PendingStatus(item.status), PendingStatus(new_status)
+    if target not in _PENDING_TRANSITIONS[current]:
+        raise ValueError(f"illegal pending transition: {current.value} -> {target.value}")
+    def _instant(value: str) -> datetime:
+        return datetime.fromisoformat(_confirmed_at(value).replace("Z", "+00:00"))
+
+    if _instant(last_confirmed_at) <= _instant(item.last_confirmed_at):
+        raise ValueError("last_confirmed_at must be later than the current confirmation")
+    pointer = item.source_pointer
+    if target is not PendingStatus.OPEN:
+        pointer = _required_text(source_pointer or "", field_name="source_pointer")
+    elif source_pointer is not None:
+        pointer = source_pointer
+    if target is PendingStatus.BLOCKED:
+        reason = _required_text(reason or "", field_name="reason")
+    else:
+        reason = None  # 离开 blocked 时清空原因
+    updated = replace(
+        item,
+        status=target.value,
+        source_pointer=pointer,
+        last_confirmed_at=last_confirmed_at,
+        reason=reason,
+    )
+    return replace(
+        state,
+        pending_items=tuple(updated if i is item else i for i in state.pending_items),
+    )
+
+
 def resolve_durable_sources(
     state: DurableContextState,
     resolver: SourcePointerResolver,
@@ -834,13 +907,25 @@ def render_durable_context(
             )
     if state.pending_items:
         lines.append("Pending work:")
+        done = sorted(
+            (i for i in state.pending_items if i.status == PendingStatus.DONE.value),
+            key=lambda i: datetime.fromisoformat(i.last_confirmed_at.replace("Z", "+00:00")),
+            reverse=True,
+        )
+        shown_done = {id(i) for i in done[:MAX_RENDERED_DONE_ITEMS]}
         for item in state.pending_items:
+            if item.status == PendingStatus.DONE.value and id(item) not in shown_done:
+                continue
+            reason = f"; reason={rendered_pointer(item.reason)}" if item.reason else ""
             lines.append(
                 f"- {item.item_id}: {item.description} "
-                f"(source={rendered_pointer(item.source_pointer)}"
+                f"(status={item.status}{reason}; "
+                f"source={rendered_pointer(item.source_pointer)}"
                 f"{source_status(item.source_pointer)}; "
                 f"confirmed={item.last_confirmed_at})"
             )
+        if len(done) > MAX_RENDERED_DONE_ITEMS:
+            lines.append(f"- done_omitted={len(done) - MAX_RENDERED_DONE_ITEMS}")
     if state.retrieval_evidence:
         lines.append("Selected retrieval evidence:")
         for evidence in state.retrieval_evidence:
@@ -1489,7 +1574,7 @@ if __name__ == "__main__":
     print(f"\033[90m  L2: 文件内容去重 (同文件只留最新)\033[0m")
     print(f"\033[90m  L3: 消息修剪 (保留最近 {KEEP_RECENT_TURNS} 轮)\033[0m")
     print(f"\033[90m  L4: 全对话摘要 (模型生成)\033[0m")
-    print(f"\033[90m  输入 stats 查看当前 token 使用\033[0m")
+    print(f"\033[90m  输入 stats 查看当前 token 使用，/pending-demo 演示 pending 生命周期\033[0m")
     print()
 
     history = []
@@ -1500,6 +1585,23 @@ if __name__ == "__main__":
             break
         if query.strip().lower() in ("q", "exit"):
             break
+
+        if query.strip() == "/pending-demo":
+            # harness 侧可信调用点：模型和摘要都不能结案
+            demo = DurableContextState(pending_items=(PendingItem(
+                "ship-docs", "更新部署文档", "transcript:demo:3", "2026-10-01T09:00:00+00:00"),))
+            print("[before] " + render_durable_context(demo).splitlines()[-1])
+            demo = transition_pending_item(
+                demo, "ship-docs", "done",
+                last_confirmed_at="2026-10-01T10:00:00+00:00", source_pointer="transcript:demo:7")
+            print("[harness] ship-docs: open -> done")
+            print("[after]  " + render_durable_context(demo).splitlines()[-1])
+            try:
+                transition_pending_item(
+                    demo, "ship-docs", "open", last_confirmed_at="2026-10-01T11:00:00+00:00")
+            except ValueError:
+                print("[harness] ship-docs: done -> open rejected")
+            continue
 
         if query.strip().lower() == "stats":
             tokens = estimate_tokens(history)

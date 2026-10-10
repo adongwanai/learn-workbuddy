@@ -98,6 +98,8 @@ class PendingItem:
     description: str
     source_pointer: str
     last_confirmed_at: str
+    reason: str | None = None
+    status: str = "open"  # open / blocked / done
 
 @dataclass(frozen=True)
 class RetrievalEvidence:
@@ -126,6 +128,34 @@ context copies of large tool results              source pointer
 exploration process                            last_confirmed_at
 repeated wording from recalled content                retrieval source / score / rank / conflict
 ```
+
+### Pending Lifecycle: Only the Harness Closes Work
+
+**Problem**: summaries must not change durable state, yet pending items eventually finish or get stuck. Without a harness-owned entrypoint, learners only see who must not change state, not who may, how, and which audit fields update.
+
+**Solution**: `PendingItem` appends `reason` and `status` (default `open`, so existing 4-argument construction is unchanged). Transitions go only through the pure function `transition_pending_item()`, which returns a new frozen state; `compact_context()` / `generate_summary()` never call it.
+
+**How it works**:
+
+```python
+state = transition_pending_item(
+    state, "ship-docs", "done",
+    last_confirmed_at="2026-10-01T10:00:00+00:00",  # timezone required
+    source_pointer="transcript:demo:7",             # required for done / blocked
+)
+```
+
+| Transition | Extra requirement |
+| --- | --- |
+| `open → blocked` / `open → done` | new `source_pointer`; blocked also needs `reason` |
+| `blocked → open` / `blocked → done` | leaving blocked clears `reason` |
+| `done → *` | terminal, raises |
+
+Each item renders as `- <id>: <desc> (status=<s>[; reason=<r>]; source=...; confirmed=...)`. `HARD_LIMIT` counts messages only, so ever-growing done items would silently inflate the Prompt: `open` / `blocked` always render, while `done` renders only the newest `MAX_RENDERED_DONE_ITEMS = 3` by `last_confirmed_at`, and the rest collapse into `- done_omitted=<n>`; the state keeps every done item for audit.
+
+**Try it**: run the chapter REPL and type `/pending-demo` to watch the harness move `ship-docs` from open to done, then see done → open rejected. No API key needed.
+
+**Architecture mapping**: a summary saying "done" only pollutes the conversation summary; real closure comes from new evidence the harness holds (source pointer + confirmation time), the same owner boundary that guards Memory writes.
 
 ### Source Pointers Preserve Evidence
 
