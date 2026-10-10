@@ -33,6 +33,7 @@ This map turns a curated resource list into a reading path for this tutorial. Th
 | [Agent Client Protocol](https://agentclientprotocol.com) | UI/client to agent communication model. | s07, s24 |
 | [Claude Code Skills](https://docs.claude.com/en/docs/claude-code/skills) / [Agent Skills](https://www.anthropic.com/news/skills) | Skill packaging patterns. | s16 |
 | [datawhale: 如何写出好的 Skill](https://github.com/datawhalechina/hello-agents/blob/main/Extra-Chapter/Extra08-%E5%A6%82%E4%BD%95%E5%86%99%E5%87%BA%E5%A5%BD%E7%9A%84Skill.md) | Practical Chinese guide to writing skills. | s16 |
+| [Awesome WorkBuddy](https://github.com/sandbaseai/awesome-workbuddy) | Bilingual directory of WorkBuddy guides, Skills, MCP servers, and projects with license, provenance, permission, and data-flow review notes. | s16, s17, s23 |
 | [Skill survey: Evaluation and Evolution](https://arxiv.org/pdf/2606.11435) | 4 evolution paradigms, 6 benchmark families, SKILL-INJECT attack taxonomy. Local digest: [skill-evolution-and-evaluation.md](./skill-evolution-and-evaluation.md) | s16, s17, s23 |
 
 ## Memory Systems
