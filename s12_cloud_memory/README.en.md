@@ -244,6 +244,68 @@ total DESC
 </remote_profile>
 ```
 
+## Retraction: Forget Without Rewriting History
+
+### Problem
+
+A wrong memory, or one the user explicitly asks to forget, is recalled forever once it lands in the append-only JSONL, and a mistaken profile snapshot keeps winning `latest_profile`. Editing or deleting JSONL lines would destroy audit evidence and break the append-under-lock contract.
+
+### Solution
+
+Forgetting is another append: a `RETRACTION` record points at the retracted `memory_id`.
+
+```python
+class MemoryKind(str, Enum):
+    PROFILE = "profile"
+    CONVERSATION = "conversation"
+    RETRACTION = "retraction"
+
+
+@dataclass(frozen=True)
+class StoredMemory:
+    ...
+    retracts: str | None = None  # only RETRACTION records carry the target id
+
+
+store.retract("memory-wrong", reason="user said this was wrong", source=request_source)
+```
+
+The store now exposes two views:
+
+| View | Contents | Used by |
+|---|---|---|
+| `read_all()` | Every record, including originals and retractions | Audit, replay, debugging |
+| `active_records()` | Drops retracted targets and the retraction records themselves | `RecallEngine.recall`, `latest_profile` |
+
+### How It Works
+
+```text
+retract(memory_id, reason, source)
+  -> validate reason / source before locking
+  -> take the exclusive lock, read_all()
+  -> unknown target (another user's id)       -> reject
+  -> target is itself a retraction            -> reject
+  -> target already retracted                 -> return the existing record
+  -> append one RETRACTION record
+```
+
+Each user scope has its own store file, so another user's `memory_id` is simply absent and is rejected as unknown; a foreign-scope record mixed into the file still makes `read_all()` raise `RemoteMemoryScopeError`. The target is matched against the raw `memory_id` exactly, with no whitespace normalization or length limit, because `append` stores the raw id; otherwise two ids differing only in whitespace could be confused and an already stored long id could never be retracted. Both `memory_id` and `retraction_id` go through one write-side check: omitted or empty ids are generated, anything else must be a string, because an integer `123` silently stored as `"123"` would dodge the duplicate check and make the whole store unreadable on reload. Validation and append share one critical section with `append`, so concurrent retractions of the same id persist exactly one record. `append(kind=RETRACTION)` is rejected. Ordinary records omit `retracts` when serialized, and legacy lines without the field load as `None`. `RecallResult.retracted_records` reports how many conversation records were hidden, so a trace can explain a missing hit. Physical purge is out of scope and left as an exercise.
+
+### Try It
+
+```bash
+python3 -m pytest -q tests/test_remote_memory.py -k "retract or legacy"
+```
+
+### Architecture Mapping
+
+| Teaching implementation | Production counterpart |
+|---|---|
+| `RETRACTION` record with a `retracts` pointer | Tombstone or delete event in an event-sourced log |
+| `read_all()` versus `active_records()` | Audit log versus materialized current state |
+| Check-and-append under one lock | Unique constraint or conditional write |
+| Logical delete, purge out of scope | User-facing "forget this" kept separate from compliance deletion |
+
 ## Why There Is No Reranker Yet
 
 ```text

@@ -343,6 +343,83 @@ Remote Profile 也是一种 stored record，但选择策略不同：
 
 这比匿名 `<memory>` 文本更容易解释：调用方能知道注入了哪一个 snapshot，以及它何时产生。
 
+## 撤回：逻辑删除，不改写历史
+
+### 问题
+
+一条写错的记忆，或者用户明确说“别记这个”的记忆，一旦写进只追加的 JSONL，就会在每次相关 query 中被召回；写错的 Profile snapshot 也会一直被选为最新。s10 用 supersession 让新事实取代旧事实，s11 用 `delete_preference` 删除显式偏好，但到了远端存储这一层，如果直接改写或删除 JSONL 里的行，就会同时丢掉审计证据，并破坏 s12 已经建立的“只追加 + 加锁写入”契约。
+
+### 解决方案
+
+遗忘也是一次追加：写入一条 `RETRACTION` 记录，指向被撤回的 `memory_id`。
+
+```python
+class MemoryKind(str, Enum):
+    PROFILE = "profile"
+    CONVERSATION = "conversation"
+    RETRACTION = "retraction"
+
+
+@dataclass(frozen=True)
+class StoredMemory:
+    ...
+    retracts: str | None = None  # 只有 RETRACTION 记录才带，指向目标 memory_id
+
+
+store.retract("memory-wrong", reason="用户指出这条记录写错了", source=request_source)
+```
+
+于是存储层出现两个视图：
+
+| 视图 | 内容 | 谁在用 |
+|---|---|---|
+| `read_all()` | 全部记录，包括原记录与撤回记录 | 审计、重放、排查 |
+| `active_records()` | 去掉被撤回的目标和撤回记录本身 | `RecallEngine.recall`、`latest_profile` |
+
+### 工作原理
+
+```text
+retract(memory_id, reason, source)
+  -> 校验 reason / source（加锁前）
+  -> 进入排他锁，read_all()
+  -> 目标不存在（含其他作用域） -> 拒绝
+  -> 目标本身是撤回记录         -> 拒绝
+  -> 目标已被撤回               -> 幂等返回已有的那条
+  -> 追加一条 RETRACTION 记录
+```
+
+几个设计取舍：
+
+- 校验和追加在同一个临界区里，与 `append` 共用同一个写入点。并发撤回同一个 id 时，只有第一个线程真正落盘，其余线程读到它并原样返回；
+- 每个用户作用域使用独立的 store 文件，别人的 `memory_id` 不在本作用域的文件里，所以跨作用域撤回按“未知目标”拒绝，不会碰到对方的文件；文件里混入其他作用域的记录，则在 `read_all()` 读取时直接抛出 `RemoteMemoryScopeError`；
+- 不允许“撤回一条撤回”。如果想恢复被撤回的内容，应该重新追加一条新记录，让历史保持单向、可判定；
+- 重复撤回时以第一条为准，后来的 `reason` 不会覆盖已有的审计记录；
+- 目标按原始 `memory_id` 精确匹配，不做空白归一化，也不加长度限制。`append` 存的是原始 ID，两边必须一致：否则只差空白的两个 ID 会撤错，已经存下的长 ID 也撤不掉；
+- `memory_id` 和 `retraction_id` 在写入端共用一套校验：不传或传空串时自动生成，传了就必须是字符串。整数 `123` 如果被悄悄写成 `"123"`，会绕过查重、和已有记录撞 ID，重新读取时整个 store 都会被判为损坏；
+- `append(kind=RETRACTION)` 会被拒绝，撤回只能走带目标校验的 `retract()`；
+- 普通记录序列化时不写 `retracts` 字段，旧 JSONL 读取时默认 `None`，已有数据不需要迁移。字段不一致（撤回记录缺 `retracts`，或普通记录带 `retracts`）按损坏处理。
+
+召回结果多了一个 `retracted_records` 计数，表示有多少条 conversation 记录因为被撤回而没有进入候选。它会出现在 `recall_history` 的结构化 JSON 中，排查“为什么没召回”时能直接看到原因，而不是只看到一个空列表。
+
+撤回是逻辑删除，原文仍留在 JSONL 中。真正的物理清除（purge，例如应对合规删除请求）需要重写文件或在服务端执行压缩，涉及另一套原子替换与审计设计，不在本节范围内，留作练习。
+
+### 试一下
+
+```bash
+python3 -m pytest -q tests/test_remote_memory.py -k "retract or legacy"
+```
+
+这组测试覆盖：撤回后 recall 不再命中、审计链完整；撤回最新 Profile 后回落到上一份；未知目标、跨作用域、撤回撤回都会被拒绝；重复撤回幂等；8 个线程用 `threading.Barrier` 同时撤回同一个 id，最终只落盘一条；没有 `retracts` 字段的旧记录照常读取。
+
+### 架构对照
+
+| 本章教学实现 | 生产中的对应做法 |
+|---|---|
+| `RETRACTION` 记录 + `retracts` 指针 | 事件溯源中的 tombstone / 删除事件 |
+| `read_all()` 与 `active_records()` 两个视图 | 审计日志与“当前生效状态”的物化视图分离 |
+| 锁内“查重 + 追加”保证只有一条撤回 | 服务端的唯一约束或条件写入 |
+| 逻辑删除，purge 不在范围内 | 用户在记忆产品里“忘掉这条”，与合规场景下的物理删除分开处理 |
+
 ## 为什么今天不加复杂 reranker
 
 当前章节要先稳定的是接口，而不是追求更花哨的召回分数：
@@ -392,7 +469,10 @@ s09 transcript 可以成为 s12 StoredMemory 的 source，但“有 transcript�
 - 没有匹配：返回带 query、searched/candidate count 和
   `empty_reason="no_matching_terms"` 的空 `hits`，renderer 不注入空上下文；
 - Recall 多次执行：不会改变 durable store；
-- Profile snapshot：只用于 profile selection，不混入 conversation hits。
+- Profile snapshot：只用于 profile selection，不混入 conversation hits；
+- 撤回不存在、其他作用域或本身就是撤回记录的 `memory_id`：拒绝写入；
+- 重复或并发撤回同一个 `memory_id`：幂等，只保留第一条撤回记录；
+- 被撤回的记录：不进入召回和 Profile 选择，但仍保留在 `read_all()` 的审计视图中。
 
 ## 无 key 组合边界
 
@@ -421,6 +501,7 @@ runtime_client()   -> online agent_loop 真正请求模型时才校验 MODEL_ID
 - Prompt context 保留 query/source/score；
 - 工具输出是结构化 JSON，而非预格式化历史文本。
 - 导入 S12 时不构造 provider client，也不创建默认 store。
+- 撤回：召回与 Profile 回落、拒绝非法目标、幂等与并发、旧记录兼容。
 
 运行：
 

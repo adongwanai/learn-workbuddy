@@ -54,6 +54,7 @@ PROGRESSION = {
         "query-scoped recall hits",
         "normalize-candidate-score-rank-render recall pipeline",
         "per-hit score breakdown, scope, and provenance",
+        "append-only retraction records that forget without rewriting history",
     ],
     "preserves": ["workspace and user memory ownership boundaries"],
 }
@@ -160,6 +161,8 @@ class MemoryKind(str, Enum):
 
     PROFILE = "profile"
     CONVERSATION = "conversation"
+    # 撤回记录：本身不参与召回，只负责指向被撤回的 memory_id。
+    RETRACTION = "retraction"
 
 
 @dataclass(frozen=True)
@@ -196,11 +199,15 @@ class StoredMemory:
     source: MemorySource
     stored_at: str
     schema_version: int = SCHEMA_VERSION
+    # 只有 RETRACTION 记录才带这个字段，指向被撤回的 memory_id。
+    # 旧 JSONL 没有这个字段，读取时默认为 None，保持向后兼容。
+    retracts: str | None = None
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, object]) -> "StoredMemory":
         try:
-            return cls(
+            raw_retracts = payload.get("retracts")
+            record = cls(
                 memory_id=str(payload["memory_id"]),
                 user_scope=str(payload["user_scope"]),
                 kind=MemoryKind(str(payload["kind"])),
@@ -209,13 +216,23 @@ class StoredMemory:
                 source=MemorySource.from_dict(dict(payload["source"])),
                 stored_at=str(payload["stored_at"]),
                 schema_version=int(payload.get("schema_version", SCHEMA_VERSION)),
+                retracts=None if raw_retracts is None else str(raw_retracts),
             )
         except (KeyError, TypeError, ValueError) as exc:
             raise RemoteMemoryCorruptionError(f"invalid stored memory: {exc}") from exc
+        # 撤回记录必须指向目标；普通记录不能带 retracts，否则语义不明。
+        if (record.kind is MemoryKind.RETRACTION) != (record.retracts is not None):
+            raise RemoteMemoryCorruptionError(
+                f"memory {record.memory_id} has inconsistent retraction fields"
+            )
+        return record
 
     def to_dict(self) -> dict[str, object]:
         payload = asdict(self)
         payload["kind"] = self.kind.value
+        # 普通记录不写 retracts 字段，旧记录的落盘格式保持逐字节不变。
+        if self.retracts is None:
+            payload.pop("retracts")
         return payload
 
 
@@ -371,6 +388,8 @@ class RecallResult:
     searched_records: int
     candidate_records: int
     empty_reason: str | None = None
+    # 被撤回、因而没有进入候选的 conversation 记录数，便于在 trace 中解释“为什么没召回”。
+    retracted_records: int = 0
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -378,6 +397,7 @@ class RecallResult:
             "hits": [hit.to_dict() for hit in self.hits],
             "searched_records": self.searched_records,
             "candidate_records": self.candidate_records,
+            "retracted_records": self.retracted_records,
             "empty_reason": self.empty_reason,
         }
 
@@ -416,6 +436,28 @@ def _clean_text(value: object, *, field_name: str, max_chars: int) -> str:
         raise RemoteMemoryValidationError(
             f"{field_name} exceeds the {max_chars}-character teaching limit"
         )
+    return text
+
+
+def _record_id(value: object, *, field_name: str, generate: bool = True) -> str:
+    """写入端统一的记录 ID 校验：None 或空串自动生成，其余必须是字符串且原样保存。
+
+    不做空白归一化，也不做 str() 隐式转换：整数 123 若被写成 "123"，就会和已有的
+    字符串 ID 撞在一起，或者让调用方拿到的 ID 与落盘的 ID 不一致。
+    generate=False 时（撤回目标）None 和空串都直接拒绝。
+    """
+
+    if value is None and generate:
+        return uuid.uuid4().hex
+    # 先校验类型，再做任何比较：非法对象的 __eq__ 不会被调用
+    if not isinstance(value, str):
+        raise RemoteMemoryValidationError(f"{field_name} must be a string")
+    # 字符串子类固化成内建 str，判空、查重、匹配都只看文本，不受子类的 __eq__/__hash__/__bool__ 影响
+    text = str.__str__(value)
+    if len(text) == 0:
+        if not generate:
+            raise RemoteMemoryValidationError(f"{field_name} must be a non-empty string")
+        return uuid.uuid4().hex
     return text
 
 
@@ -631,6 +673,25 @@ def _exclusive_store_lock(path: Path) -> Iterator[None]:
         os.close(descriptor)
 
 
+def _split_retracted(
+    records: Sequence[StoredMemory],
+) -> tuple[list[StoredMemory], list[StoredMemory]]:
+    """把完整记录拆成（生效记录，被撤回的目标记录），撤回记录本身两边都不放。"""
+
+    retracted_ids = {
+        record.retracts
+        for record in records
+        if record.kind is MemoryKind.RETRACTION and record.retracts is not None
+    }
+    active: list[StoredMemory] = []
+    retracted: list[StoredMemory] = []
+    for record in records:
+        if record.kind is MemoryKind.RETRACTION:
+            continue
+        (retracted if record.memory_id in retracted_ids else active).append(record)
+    return active, retracted
+
+
 class RemoteMemoryStore:
     """Append-only local simulation of a user-scoped remote memory service.
 
@@ -662,8 +723,11 @@ class RemoteMemoryStore:
         check-then-act race between concurrent harness retries.
         """
 
+        if MemoryKind(kind) is MemoryKind.RETRACTION:
+            # 撤回必须经过 retract() 的目标校验，不能当作普通记录直接追加。
+            raise RemoteMemoryValidationError("use retract() to write retraction records")
         record = StoredMemory(
-            memory_id=memory_id or uuid.uuid4().hex,
+            memory_id=_record_id(memory_id, field_name="memory_id"),
             user_scope=self.user_scope,
             kind=MemoryKind(kind),
             content=_clean_text(
@@ -674,32 +738,110 @@ class RemoteMemoryStore:
             stored_at=_iso(stored_at),
         )
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        encoded = (
-            json.dumps(record.to_dict(), ensure_ascii=False, separators=(",", ":"))
-            + "\n"
-        ).encode("utf-8")
         with _exclusive_store_lock(self.path):
             existing_ids = {item.memory_id for item in self.read_all()}
             if record.memory_id in existing_ids:
                 raise RemoteMemoryDuplicateError(
                     f"duplicate memory_id: {record.memory_id}"
                 )
-
-            descriptor = os.open(
-                self.path,
-                os.O_APPEND | os.O_CREAT | os.O_WRONLY,
-                0o600,
-            )
-            try:
-                written = os.write(descriptor, encoded)
-                if written != len(encoded):
-                    raise OSError(
-                        f"short remote-memory write: {written}/{len(encoded)} bytes"
-                    )
-                os.fsync(descriptor)
-            finally:
-                os.close(descriptor)
+            self._write_locked(record)
         return record
+
+    def _write_locked(self, record: StoredMemory) -> None:
+        """在调用方已持有排他锁时追加一行；append 与 retract 共用这一个写入点。"""
+
+        encoded = (
+            json.dumps(record.to_dict(), ensure_ascii=False, separators=(",", ":"))
+            + "\n"
+        ).encode("utf-8")
+        descriptor = os.open(
+            self.path,
+            os.O_APPEND | os.O_CREAT | os.O_WRONLY,
+            0o600,
+        )
+        try:
+            written = os.write(descriptor, encoded)
+            if written != len(encoded):
+                raise OSError(
+                    f"short remote-memory write: {written}/{len(encoded)} bytes"
+                )
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+
+    def retract(
+        self,
+        memory_id: str,
+        *,
+        reason: str,
+        source: MemorySource,
+        retraction_id: str | None = None,
+        stored_at: datetime | None = None,
+    ) -> StoredMemory:
+        """追加一条撤回记录，让目标从召回和 profile 选择中消失，但不改写历史。
+
+        校验与追加放在同一个排他临界区内：
+        - 目标必须存在于本用户作用域。每个作用域使用独立的 store 文件，别人的 memory_id
+          不在本文件里，因此按未知目标拒绝；文件里混入其他作用域的记录则在 read_all 时直接报错；
+        - 不能撤回一条撤回记录，避免“撤回的撤回”让语义变得不可判定；
+        - 同一目标已被撤回时幂等返回已有的那条，并发重试也只会落盘一条；
+        - 目标按原始 memory_id 精确匹配，与 append 存下的 ID 保持一致。
+        """
+
+        # 目标按原始 memory_id 精确匹配：append 存的就是原始 ID，这里不做空白归一化或
+        # 长度限制，否则只差空白的两个 ID 会撤错，已存下的长 ID 也撤不掉。
+        target_id = _record_id(memory_id, field_name="retract memory_id", generate=False)
+        clean_reason = _clean_text(
+            reason, field_name="retraction reason", max_chars=2_000
+        )
+        clean_source = _validate_source(source)
+        # 撤回记录的 ID 与普通记录共用一套写入端校验，在加锁前拒绝非字符串。
+        new_id = _record_id(retraction_id, field_name="retraction_id")
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        with _exclusive_store_lock(self.path):
+            records = self.read_all()
+            target = next(
+                (record for record in records if record.memory_id == target_id), None
+            )
+            if target is None:
+                raise RemoteMemoryValidationError(
+                    f"cannot retract unknown memory_id in this scope: {target_id}"
+                )
+            if target.kind is MemoryKind.RETRACTION:
+                raise RemoteMemoryValidationError(
+                    f"cannot retract a retraction record: {target_id}"
+                )
+            existing = next(
+                (record for record in records if record.retracts == target_id), None
+            )
+            if existing is not None:
+                return existing
+
+            record = StoredMemory(
+                memory_id=new_id,
+                user_scope=self.user_scope,
+                kind=MemoryKind.RETRACTION,
+                content=clean_reason,
+                summary=f"Retracted {target_id}",
+                source=clean_source,
+                stored_at=_iso(stored_at),
+                retracts=target_id,
+            )
+            if any(item.memory_id == record.memory_id for item in records):
+                raise RemoteMemoryDuplicateError(
+                    f"duplicate memory_id: {record.memory_id}"
+                )
+            self._write_locked(record)
+        return record
+
+    def active_records(self) -> list[StoredMemory]:
+        """返回仍然生效的记录：去掉被撤回的目标，以及撤回记录本身。
+
+        read_all 保持不变，仍是完整的审计视图；召回和 profile 选择改读这里。
+        """
+
+        active, _retracted = _split_retracted(self.read_all())
+        return active
 
     def read_all(self) -> list[StoredMemory]:
         if not self.path.exists():
@@ -727,7 +869,9 @@ class RemoteMemoryStore:
     def latest_profile(self) -> StoredMemory | None:
         """Select the newest profile snapshot without treating it as recall."""
 
-        profiles = [record for record in self.read_all() if record.kind is MemoryKind.PROFILE]
+        profiles = [
+            record for record in self.active_records() if record.kind is MemoryKind.PROFILE
+        ]
         if not profiles:
             return None
         return max(
@@ -765,11 +909,14 @@ class RecallEngine:
             query_id=query_id,
             issued_at=current,
         )
+        # 召回只看仍然生效的记录；被撤回的条数单独计数，写进结果供 trace 解释。
+        active, retracted = _split_retracted(self.store.read_all())
         conversation_records = [
-            record
-            for record in self.store.read_all()
-            if record.kind is MemoryKind.CONVERSATION
+            record for record in active if record.kind is MemoryKind.CONVERSATION
         ]
+        retracted_conversations = sum(
+            1 for record in retracted if record.kind is MemoryKind.CONVERSATION
+        )
         candidates = build_recall_candidates(query, conversation_records)
         hits = stable_rank_recall_candidates(
             query,
@@ -782,6 +929,7 @@ class RecallEngine:
             searched_records=len(conversation_records),
             candidate_records=len(candidates),
             empty_reason=None if hits else "no_matching_terms",
+            retracted_records=retracted_conversations,
         )
 
 

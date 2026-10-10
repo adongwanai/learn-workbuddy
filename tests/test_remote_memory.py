@@ -470,6 +470,7 @@ def test_tool_payload_is_structured_json_not_preformatted_history(
         "hits",
         "searched_records",
         "candidate_records",
+        "retracted_records",
         "empty_reason",
     }
     assert payload["query"]["text"] == "layered memory design"
@@ -483,3 +484,199 @@ def test_tool_payload_is_structured_json_not_preformatted_history(
         }.issubset(hit)
         for hit in payload["hits"]
     )
+
+
+# ---------------------------------------------------------------------------
+# 撤回：只追加的逻辑删除。read_all 保留完整审计链，召回与 profile 只看生效记录。
+# ---------------------------------------------------------------------------
+
+
+def _conversation(s12, store, memory_id: str, content: str, day: int):
+    return store.append(
+        kind=s12.MemoryKind.CONVERSATION,
+        memory_id=memory_id,
+        content=content,
+        summary=content,
+        source=_source(s12, f"transcript-{memory_id}", day),
+        stored_at=_time(day),
+    )
+
+
+def _user_request(s12, day: int = 10):
+    return _source(s12, "user-request-1", day, source_type="user_request")
+
+
+def test_retraction_hides_record_from_recall_but_keeps_audit_trail(
+    s12, tmp_path: Path
+) -> None:
+    store = s12.RemoteMemoryStore(tmp_path / "records.jsonl", user_id="alice")
+    _conversation(s12, store, "memory-wrong", "Layered memory uses Redis as the store.", 8)
+    _conversation(s12, store, "memory-right", "Layered memory uses SQLite WAL as the store.", 9)
+    engine = s12.RecallEngine(store)
+
+    before = engine.recall("layered memory store", query_id="q-before", as_of=_time(10))
+    retraction = store.retract(
+        "memory-wrong",
+        reason="用户指出这条记录写错了。",
+        source=_user_request(s12),
+        retraction_id="retraction-1",
+        stored_at=_time(10),
+    )
+    after = engine.recall("layered memory store", query_id="q-after", as_of=_time(10))
+
+    assert {hit.memory_id for hit in before.hits} == {"memory-wrong", "memory-right"}
+    assert [hit.memory_id for hit in after.hits] == ["memory-right"]
+    assert after.searched_records == 1
+    assert after.retracted_records == 1
+    assert after.to_dict()["retracted_records"] == 1
+    assert retraction.kind is s12.MemoryKind.RETRACTION
+    assert retraction.retracts == "memory-wrong"
+    # 审计视图完整：原记录和撤回记录都还在，且能跨重启读回。
+    restarted = s12.RemoteMemoryStore(store.path, user_id="alice")
+    assert [record.memory_id for record in restarted.read_all()] == [
+        "memory-wrong",
+        "memory-right",
+        "retraction-1",
+    ]
+    assert [record.memory_id for record in restarted.active_records()] == ["memory-right"]
+
+
+def test_retracting_latest_profile_falls_back_to_previous_snapshot(
+    s12, tmp_path: Path
+) -> None:
+    store = s12.RemoteMemoryStore(tmp_path / "records.jsonl", user_id="alice")
+    for memory_id, day, content in (
+        ("profile-old", 1, "Response preference: concise."),
+        ("profile-bad", 9, "Response preference: written by mistake."),
+    ):
+        store.append(
+            kind=s12.MemoryKind.PROFILE,
+            memory_id=memory_id,
+            content=content,
+            summary="Remote profile",
+            source=_source(s12, f"snapshot-{memory_id}", day, source_type="profile_snapshot"),
+            stored_at=_time(day),
+        )
+    assert store.latest_profile().memory_id == "profile-bad"
+
+    store.retract("profile-bad", reason="错误的 profile 快照。", source=_user_request(s12))
+
+    assert store.latest_profile().memory_id == "profile-old"
+    prompt = s12.build_system_prompt(store)
+    assert "profile-old" in prompt
+    assert "written by mistake" not in prompt
+
+
+def test_retract_rejects_unknown_foreign_or_retraction_targets(
+    s12, tmp_path: Path
+) -> None:
+    alice = s12.RemoteMemoryStore(tmp_path / "alice.jsonl", user_id="alice")
+    bob = s12.RemoteMemoryStore(tmp_path / "bob.jsonl", user_id="bob")
+    _conversation(s12, alice, "alice-memory", "Alice project history.", 8)
+    _conversation(s12, bob, "bob-memory", "Bob project history.", 8)
+    retraction = alice.retract(
+        "alice-memory", reason="不再需要。", source=_user_request(s12)
+    )
+    bob_before = bob.path.read_bytes()
+
+    with pytest.raises(s12.RemoteMemoryValidationError, match="unknown memory_id"):
+        alice.retract("missing-memory", reason="不存在。", source=_user_request(s12))
+    # 每个作用域使用独立的 store 文件，别人的 memory_id 不在本文件里，按未知目标拒绝，也不会动到对方的文件。
+    with pytest.raises(s12.RemoteMemoryValidationError, match="unknown memory_id"):
+        alice.retract("bob-memory", reason="越权撤回。", source=_user_request(s12))
+    with pytest.raises(s12.RemoteMemoryValidationError, match="retraction record"):
+        alice.retract(retraction.memory_id, reason="撤回撤回。", source=_user_request(s12))
+    # 撤回记录只能经由 retract() 写入，绕开目标校验的 append 会被拒绝。
+    with pytest.raises(s12.RemoteMemoryValidationError, match="use retract"):
+        alice.append(
+            kind=s12.MemoryKind.RETRACTION,
+            content="伪造的撤回。",
+            summary="Forged retraction",
+            source=_user_request(s12),
+        )
+
+    assert bob.path.read_bytes() == bob_before
+    assert len(alice.read_all()) == 2
+
+
+def test_retract_is_idempotent_for_the_same_target(s12, tmp_path: Path) -> None:
+    store = s12.RemoteMemoryStore(tmp_path / "records.jsonl", user_id="alice")
+    _conversation(s12, store, "memory-1", "Agent loop dispatch contract.", 8)
+
+    first = store.retract("memory-1", reason="第一次撤回。", source=_user_request(s12))
+    second = store.retract("memory-1", reason="重试撤回。", source=_user_request(s12))
+
+    assert second == first
+    assert second.content == "第一次撤回。"
+    kinds = [record.kind for record in store.read_all()]
+    assert kinds.count(s12.MemoryKind.RETRACTION) == 1
+
+
+def test_concurrent_retractions_leave_exactly_one_record(s12, tmp_path: Path) -> None:
+    path = tmp_path / "records.jsonl"
+    _conversation(s12, s12.RemoteMemoryStore(path, user_id="alice"), "memory-1", "Shared fact.", 8)
+    workers = 8
+    # Barrier 让所有线程在同一时刻起跑，竞争完全交给文件锁裁决，不依赖 sleep。
+    start = threading.Barrier(workers)
+    results: list[object] = [None] * workers
+
+    def retract(index: int) -> None:
+        store = s12.RemoteMemoryStore(path, user_id="alice")
+        start.wait(timeout=5)
+        try:
+            results[index] = store.retract(
+                "memory-1",
+                reason=f"并发撤回 {index}",
+                source=_user_request(s12),
+            )
+        except Exception as exc:  # 记录下来，让线程内的失败可以被断言
+            results[index] = exc
+
+    threads = [threading.Thread(target=retract, args=(index,)) for index in range(workers)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(timeout=10)
+
+    assert not any(thread.is_alive() for thread in threads)
+    assert all(isinstance(result, s12.StoredMemory) for result in results)
+    assert len({result.memory_id for result in results}) == 1
+    records = s12.RemoteMemoryStore(path, user_id="alice").read_all()
+    assert [record.kind for record in records].count(s12.MemoryKind.RETRACTION) == 1
+
+
+def test_legacy_records_without_retracts_field_still_load(s12, tmp_path: Path) -> None:
+    store = s12.RemoteMemoryStore(tmp_path / "records.jsonl", user_id="alice")
+    legacy = {
+        "memory_id": "legacy-1",
+        "user_scope": store.user_scope,
+        "kind": "conversation",
+        "content": "Legacy layered memory record.",
+        "summary": "Legacy layered memory record.",
+        "source": {
+            "source_id": "transcript-legacy",
+            "source_type": "transcript",
+            "title": "legacy",
+            "captured_at": "2026-08-09T12:00:00Z",
+        },
+        "stored_at": "2026-08-09T12:00:00Z",
+        "schema_version": 1,
+    }
+    store.path.write_text(json.dumps(legacy) + "\n", encoding="utf-8")
+
+    (record,) = store.read_all()
+    result = s12.RecallEngine(store).recall("layered memory", as_of=_time(10))
+
+    assert record.retracts is None
+    # 普通记录序列化时不带 retracts，旧格式保持不变。
+    assert record.to_dict() == legacy
+    assert [hit.memory_id for hit in result.hits] == ["legacy-1"]
+    assert result.retracted_records == 0
+
+    # 撤回记录缺少 retracts，或普通记录多出 retracts，都视为损坏而不是静默接受。
+    for bad in (
+        {**legacy, "memory_id": "bad-retraction", "kind": "retraction"},
+        {**legacy, "memory_id": "bad-conversation", "retracts": "legacy-1"},
+    ):
+        with pytest.raises(s12.RemoteMemoryCorruptionError, match="inconsistent"):
+            s12.StoredMemory.from_dict(bad)
