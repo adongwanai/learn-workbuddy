@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
+import re
 import stat
 import threading
 import time
@@ -29,6 +31,11 @@ _RESERVED_TRANSCRIPT_FIELDS = frozenset(
 )
 _TRANSCRIPT_LOCKS: dict[Path, threading.Lock] = {}
 _TRANSCRIPT_LOCKS_GUARD = threading.Lock()
+_MEMORY_SCOPE_SAFE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,63}\Z")
+_WINDOWS_RESERVED_MEMORY_SCOPE = re.compile(
+    r"(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?\Z",
+    re.IGNORECASE,
+)
 
 
 class TranscriptCorruptionError(RuntimeError):
@@ -59,6 +66,34 @@ def _transcript_lock(path: Path) -> threading.Lock:
     key = path.resolve()
     with _TRANSCRIPT_LOCKS_GUARD:
         return _TRANSCRIPT_LOCKS.setdefault(key, threading.Lock())
+
+
+def _memory_scope_filename(scope: str) -> str:
+    """Map a scope to one stable file name without aliasing other scopes.
+
+    Replacing separators with underscores made ``team/a`` and ``team_a``
+    share one file.  Keep the readable legacy form only for lowercase,
+    case-insensitive-filesystem-safe scopes.  Every other spelling gets an
+    underscore prefix that the canonical form cannot produce plus a digest,
+    so distinct scopes cannot read one another's memory.
+    """
+
+    if type(scope) is not str:
+        raise TypeError("memory scope must be a built-in str")
+    normalized = scope or "workspace"
+    try:
+        encoded = normalized.encode("utf-8")
+    except UnicodeEncodeError as exc:
+        raise ValueError("memory scope must be valid UTF-8") from exc
+    if (
+        normalized == normalized.lower()
+        and _MEMORY_SCOPE_SAFE.fullmatch(normalized)
+        and _WINDOWS_RESERVED_MEMORY_SCOPE.fullmatch(normalized) is None
+    ):
+        return f"{normalized}.md"
+    slug = re.sub(r"[^A-Za-z0-9._-]+", "_", normalized).strip("._-")[:32]
+    digest = hashlib.sha256(encoded).hexdigest()[:16]
+    return f"_scope-{slug or 'scope'}-{digest}.md"
 
 
 class Storage:
@@ -315,16 +350,14 @@ class Storage:
         return path / f"{tool_call_id}.txt"
 
     def append_memory(self, scope: str, content: str) -> Path:
-        safe_scope = scope.replace("/", "_").replace(" ", "_") or "workspace"
-        path = self.config.memory_dir / f"{safe_scope}.md"
+        path = self.config.memory_dir / _memory_scope_filename(scope)
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("a", encoding="utf-8") as fh:
             fh.write(content.rstrip() + "\n")
         return path
 
     def read_memory(self, scope: str) -> str:
-        safe_scope = scope.replace("/", "_").replace(" ", "_") or "workspace"
-        path = self.config.memory_dir / f"{safe_scope}.md"
+        path = self.config.memory_dir / _memory_scope_filename(scope)
         if not path.exists():
             return ""
         return path.read_text(encoding="utf-8")
