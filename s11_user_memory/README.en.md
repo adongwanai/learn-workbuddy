@@ -30,9 +30,9 @@ This chapter designs user memory as two distinct contracts:
 
 Both belong to the user scope, but they cannot be mixed into arbitrary Markdown: Profile needs field-level updates, and Preference needs conflict replacement and idempotent retries.
 
-## Learning Goals
+## Design Goals
 
-The core of this chapter is not "store one more file" but letting the harness answer five questions:
+The core of this chapter is not "store one more file" but letting the harness answer seven questions:
 
 1. **Who is the owner?** Every piece of state carries a stable `user_scope`, so one root directory can safely hold multiple users.
 2. **Is the write explicit?** Only explicit tools such as `update_user_profile` and `save_user_preference` can change state.
