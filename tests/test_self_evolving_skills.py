@@ -245,3 +245,45 @@ def test_readme_validation_glob_covers_exactly_all_self_evolving_tests():
     assert all(path.is_file() for path in matched)
     assert {path.name for path in matched} == expected
     assert len(matched) == 7
+
+
+@pytest.mark.parametrize("line_break", ["\u2028", "\u2029", "\x85"])
+def test_trajectory_reader_keeps_unicode_line_breaks_in_strings(
+    evolution, tmp_path: Path, line_break: str
+) -> None:
+    store = evolution.EvolutionStore(tmp_path / "evolution")
+    path = store.traces_dir / "unicode-evidence.jsonl"
+    header = {
+        "type": "trajectory",
+        "trace_id": "unicode-run",
+        "task_family": "python-test-validation",
+        "task": "Validate a Python change.",
+        "split": "train",
+        "outcome": "success",
+    }
+    steps = [
+        {
+            "type": "step",
+            "intent": f"Inspect{line_break}the test configuration.",
+            "tool": "read_file",
+            "ok": True,
+        },
+        {
+            "type": "step",
+            "intent": "Run the focused tests.",
+            "tool": "bash",
+            "ok": True,
+        },
+    ]
+    rendered = "".join(
+        json.dumps(record, ensure_ascii=False) + "\n" for record in [header, *steps]
+    )
+    assert line_break in rendered
+    path.write_text(rendered, encoding="utf-8")
+
+    trajectory = store.load_trajectory(path)
+
+    assert trajectory.trace_id == "unicode-run"
+    assert len(trajectory.steps) == 2
+    assert trajectory.steps[0].intent == "Inspect the test configuration."
+    assert trajectory.steps[1].tool == "bash"
