@@ -48,6 +48,13 @@ def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
+def _split_jsonl(raw: bytes) -> list[str]:
+    """Split persisted records on physical newlines, not Unicode line breaks."""
+
+    text = raw.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+    return [line for line in text.split("\n") if line.strip()]
+
+
 def _contains_blocked_text(value: str) -> str | None:
     lowered = value.casefold()
     return next((pattern for pattern in BLOCKED_TEXT if pattern in lowered), None)
@@ -229,7 +236,7 @@ class EvolutionStore:
         if blocked := _contains_blocked_text(text):
             raise EvolutionError(f"trajectory contains blocked text: {blocked}")
         try:
-            records = [json.loads(line) for line in text.splitlines() if line.strip()]
+            records = [json.loads(line) for line in _split_jsonl(raw)]
         except json.JSONDecodeError as exc:
             raise EvolutionError(f"invalid trajectory JSONL: {path.name}") from exc
         if not records or records[0].get("type") != "trajectory":
