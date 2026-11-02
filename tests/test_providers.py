@@ -45,6 +45,9 @@ def clean_provider_env(monkeypatch):
         "OPENAI_CHAT_API_KEY",
         "OPENAI_CHAT_BASE_URL",
         "OPENAI_CHAT_MODEL",
+        "ATLAS_CLOUD_API_KEY",
+        "ATLAS_CLOUD_BASE_URL",
+        "ATLAS_CLOUD_MODEL",
     ]:
         monkeypatch.delenv(key, raising=False)
     yield
@@ -82,6 +85,46 @@ def test_explicit_openai_chat_uses_gateway_env(monkeypatch):
     assert provider.name == "openai-chat"
     assert provider.base_url == "http://127.0.0.1:8080/v1"
     assert provider.model == "gateway-model"
+
+
+def test_atlas_cloud_provider_uses_named_defaults(monkeypatch):
+    monkeypatch.setenv("ATLAS_CLOUD_API_KEY", "atlas-test")
+    provider = P.AtlasCloudProvider()
+    assert provider.name == "atlas-cloud"
+    assert provider.base_url == "https://api.atlascloud.ai/v1"
+    assert provider.model == "deepseek-ai/deepseek-v4-flash"
+    assert provider.api_key == "atlas-test"
+
+
+def test_atlas_cloud_transport_sets_user_agent(monkeypatch):
+    captured = {}
+
+    class FakeResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return None
+
+        def read(self):
+            return b'{"choices": [{"message": {"content": "OK"}}]}'
+
+    def fake_urlopen(request, timeout):
+        captured.update({"request": request, "timeout": timeout})
+        return FakeResponse()
+
+    monkeypatch.setattr(P.urllib.request, "urlopen", fake_urlopen)
+    provider = P.AtlasCloudProvider(api_key="atlas-test")
+    provider._post_json("/chat/completions", {"model": provider.model})
+
+    assert captured["request"].get_header("User-agent") == "learn-workbuddy/atlas-cloud"
+    assert captured["timeout"] == 60
+
+
+def test_select_provider_accepts_atlas_cloud(monkeypatch):
+    monkeypatch.setenv("ATLAS_CLOUD_API_KEY", "atlas-test")
+    provider = P.select_provider("atlas-cloud")
+    assert provider.name == "atlas-cloud"
 
 
 def test_auto_prefers_deepseek_before_openai_when_deepseek_key_present(monkeypatch):
@@ -122,6 +165,9 @@ def test_named_provider_without_keys_exits_cleanly(monkeypatch):
     with pytest.raises(SystemExit) as exc4:
         P.select_provider("openai-chat")
     assert "OPENAI_CHAT_API_KEY" in str(exc4.value) or "OPENAI_API_KEY" in str(exc4.value)
+    with pytest.raises(SystemExit) as exc5:
+        P.select_provider("atlas-cloud")
+    assert "ATLAS_CLOUD_API_KEY" in str(exc5.value)
 
 
 def test_unknown_provider_exits():

@@ -31,6 +31,7 @@ Providers
 - OpenAIResponsesProvider    — Responses API, function_call / function_call_output
 - DeepSeekProvider           — Anthropic-compatible API, tool_use / tool_result
 - OpenAIChatProvider         — OpenAI-compatible /v1/chat/completions
+- AtlasCloudProvider         — Atlas Cloud's OpenAI-compatible endpoint
 - OfflineMockProvider        — deterministic, no network, for tests/offline demo
 
 The offline provider is what lets CI and keyless readers exercise the
@@ -39,11 +40,13 @@ tool-using agent that proves the harness plumbing works end to end.
 
 Config (.env)
 -------------
-    PROVIDER=anthropic|deepseek|openai|openai-chat|offline   (default: auto — see select_provider)
+    PROVIDER=anthropic|deepseek|openai|openai-chat|atlas-cloud|offline
+        (default: auto — see select_provider)
     ANTHROPIC_API_KEY, MODEL_ID         (anthropic)
     DEEPSEEK_API_KEY, DEEPSEEK_MODEL    (deepseek)
     OPENAI_API_KEY, OPENAI_MODEL        (openai)
     OPENAI_CHAT_API_KEY, OPENAI_CHAT_BASE_URL, OPENAI_CHAT_MODEL (openai-chat)
+    ATLAS_CLOUD_API_KEY, ATLAS_CLOUD_MODEL                    (atlas-cloud)
 """
 
 from __future__ import annotations
@@ -296,6 +299,7 @@ class OpenAIChatProvider(Provider):
     """OpenAI-compatible gateway provider using only the standard library."""
 
     name = "openai-chat"
+    user_agent: str | None = None
 
     def __init__(
         self,
@@ -363,14 +367,17 @@ class OpenAIChatProvider(Provider):
         ]
 
     def _post_json(self, path: str, payload: dict[str, Any]) -> dict[str, Any]:
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+        if self.user_agent:
+            headers["User-Agent"] = self.user_agent
         req = urllib.request.Request(
             self.base_url + path,
             data=json.dumps(payload).encode("utf-8"),
             method="POST",
-            headers={
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json",
-            },
+            headers=headers,
         )
         try:
             with urllib.request.urlopen(req, timeout=60) as resp:
@@ -378,6 +385,28 @@ class OpenAIChatProvider(Provider):
         except urllib.error.HTTPError as exc:
             body = exc.read().decode("utf-8", errors="replace")
             raise RuntimeError(f"OpenAI-compatible gateway HTTP {exc.code}: {body[:1000]}") from exc
+
+
+class AtlasCloudProvider(OpenAIChatProvider):
+    """Named Atlas Cloud adapter over the shared Chat Completions transport."""
+
+    name = "atlas-cloud"
+    user_agent = "learn-workbuddy/atlas-cloud"
+
+    def __init__(
+        self,
+        model: str | None = None,
+        base_url: str | None = None,
+        api_key: str | None = None,
+    ) -> None:
+        key = api_key or os.getenv("ATLAS_CLOUD_API_KEY")
+        if not key:
+            raise SystemExit("PROVIDER=atlas-cloud requires ATLAS_CLOUD_API_KEY.")
+        super().__init__(
+            model=model or os.getenv("ATLAS_CLOUD_MODEL", "deepseek-ai/deepseek-v4-flash"),
+            base_url=base_url or os.getenv("ATLAS_CLOUD_BASE_URL", "https://api.atlascloud.ai/v1"),
+            api_key=key,
+        )
 
 
 # --------------------------------------------------------------------------
@@ -460,6 +489,8 @@ def provider_env_ready(provider: str) -> bool:
         return bool(os.getenv("OPENAI_API_KEY"))
     if provider == "openai-chat":
         return bool(os.getenv("OPENAI_CHAT_API_KEY") or os.getenv("OPENAI_API_KEY"))
+    if provider == "atlas-cloud":
+        return bool(os.getenv("ATLAS_CLOUD_API_KEY"))
     if provider == "offline":
         return True
     return False
@@ -482,6 +513,8 @@ def select_provider(explicit: str | None = None) -> Provider:
             choice = "openai"
         elif provider_env_ready("openai-chat"):
             choice = "openai-chat"
+        elif provider_env_ready("atlas-cloud"):
+            choice = "atlas-cloud"
         else:
             choice = "offline"
 
@@ -515,9 +548,20 @@ def select_provider(explicit: str | None = None) -> Provider:
                 "Copy .env.example to .env and fill it, or use PROVIDER=offline."
             )
         return OpenAIChatProvider()
+    if choice in {"atlas-cloud", "atlas_cloud", "atlas"}:
+        if not provider_env_ready("atlas-cloud"):
+            raise SystemExit(
+                "PROVIDER=atlas-cloud requires ATLAS_CLOUD_API_KEY "
+                "(optional: ATLAS_CLOUD_MODEL, ATLAS_CLOUD_BASE_URL). "
+                "Copy .env.example to .env and fill it, or use PROVIDER=offline."
+            )
+        return AtlasCloudProvider()
     if choice == "offline":
         return OfflineMockProvider()
-    raise SystemExit(f"Unknown PROVIDER '{choice}'. Use anthropic | deepseek | openai | openai-chat | offline.")
+    raise SystemExit(
+        f"Unknown PROVIDER '{choice}'. Use anthropic | deepseek | openai | "
+        "openai-chat | atlas-cloud | offline."
+    )
 
 
 def append_provider_message(messages: list[Any], item: Any) -> None:
