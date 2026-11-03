@@ -158,6 +158,30 @@ def test_storage_appends_and_reads_memory(tmp_path: Path) -> None:
     assert "small verified steps" in storage.read_memory("workspace")
 
 
+def test_storage_memory_scopes_do_not_alias_or_escape_the_store(tmp_path: Path) -> None:
+    storage = Storage(HarnessConfig(root_dir=tmp_path / "home"))
+    scopes = [
+        "team/a",
+        "team_a",
+        "Team_a",
+        "team a",
+        r"..\outside",
+        "../outside",
+        "CON",
+        "con.txt",
+    ]
+
+    paths = {
+        scope: storage.append_memory(scope, f"only-{index}")
+        for index, scope in enumerate(scopes)
+    }
+
+    assert len(set(paths.values())) == len(scopes)
+    assert all(path.parent == storage.config.memory_dir for path in paths.values())
+    for index, scope in enumerate(scopes):
+        assert storage.read_memory(scope) == f"only-{index}\n"
+
+
 def test_audit_log_verifies_hash_chain_and_detects_tampering(tmp_path: Path) -> None:
     audit = AuditLog(HarnessConfig(root_dir=tmp_path / "home"))
 
