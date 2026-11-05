@@ -126,6 +126,55 @@ def test_repeated_promotion_is_idempotent(evolution, tmp_path: Path) -> None:
     assert list(first.parents[1].glob("v*/SKILL.md")) == [first]
 
 
+def test_promotion_audit_failure_rolls_back_manifest_release_and_audit(
+    evolution, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store, first_candidate, first_report, _ = _prepared(evolution, tmp_path)
+    first_release = store.promote(first_candidate, first_report, approved_by="alice")
+    manifest_path = first_release.parents[1] / "manifest.json"
+    manifest_before = manifest_path.read_bytes()
+
+    pipeline = evolution.SkillEvolutionPipeline(store)
+    trajectories = evolution.seed_demo_trajectories(store, "revised")
+    training, _ = pipeline.triage(
+        trajectories,
+        task_family="python-test-validation",
+    )
+    second_candidate = pipeline.distill(
+        training,
+        task_family="python-test-validation",
+    )
+    validation = next(item for item in trajectories if item.split == "validation")
+    second_report = pipeline.evaluate(second_candidate, validation=validation)
+    second_release = first_release.parents[1] / "v2" / "SKILL.md"
+    audit_before = store.audit_path.read_bytes()
+    failure = OSError("audit unavailable")
+
+    def torn_append(action: str, details: dict) -> None:
+        with store.audit_path.open("ab") as handle:
+            handle.write(b'{"action": "skill_pro')
+        raise failure
+
+    with monkeypatch.context() as patch:
+        patch.setattr(store, "append_audit", torn_append)
+        with pytest.raises(OSError) as raised:
+            store.promote(second_candidate, second_report, approved_by="alice")
+
+    assert raised.value is failure
+    assert manifest_path.read_bytes() == manifest_before
+    assert not second_release.exists()
+    assert not second_release.parent.exists()
+    assert store.audit_path.read_bytes() == audit_before
+    assert store.active_skill_path(second_candidate.title) == first_release
+
+    assert store.promote(second_candidate, second_report, approved_by="alice") == second_release
+    suffix = store.audit_path.read_bytes()[len(audit_before):]
+    events = [json.loads(line) for line in suffix.splitlines()]
+    promoted = [event for event in events if event.get("action") == "skill_promoted"]
+    assert len(promoted) == 1
+    assert promoted[0]["details"]["version"] == 2
+
+
 def test_distillation_requires_distinct_supporting_trajectories(
     evolution, tmp_path: Path
 ) -> None:
