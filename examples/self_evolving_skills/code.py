@@ -331,8 +331,10 @@ class EvolutionStore:
         skill_root = self.skills_dir / candidate.title
         manifest_path = skill_root / "manifest.json"
         if manifest_path.exists():
-            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            old_manifest = manifest_path.read_text(encoding="utf-8")
+            manifest = json.loads(old_manifest)
         else:
+            old_manifest = None
             manifest = {"title": candidate.title, "active_version": None, "history": []}
 
         for item in manifest["history"]:
@@ -341,15 +343,10 @@ class EvolutionStore:
 
         version = len(manifest["history"]) + 1
         release_path = skill_root / f"v{version}" / "SKILL.md"
-        _atomic_write_text(
-            release_path,
-            render_skill(
-                candidate,
-                status="approved",
-                version=version,
-                approved_by=approver,
-            ),
-        )
+        release_existed = release_path.exists()
+        release_directory_existed = release_path.parent.exists()
+        old_release = release_path.read_text(encoding="utf-8") if release_existed else None
+        audit_size = self.audit_path.stat().st_size if self.audit_path.is_file() else 0
         manifest["active_version"] = version
         manifest["history"].append(
             {
@@ -360,19 +357,46 @@ class EvolutionStore:
                 "path": str(release_path),
             }
         )
-        _atomic_write_text(
-            manifest_path,
-            json.dumps(manifest, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
-        )
-        self.append_audit(
-            "skill_promoted",
-            {
-                "candidate_id": candidate.candidate_id,
-                "title": candidate.title,
-                "version": version,
-                "approved_by": approver,
-            },
-        )
+        try:
+            _atomic_write_text(
+                release_path,
+                render_skill(
+                    candidate,
+                    status="approved",
+                    version=version,
+                    approved_by=approver,
+                ),
+            )
+            _atomic_write_text(
+                manifest_path,
+                json.dumps(manifest, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
+            )
+            self.append_audit(
+                "skill_promoted",
+                {
+                    "candidate_id": candidate.candidate_id,
+                    "title": candidate.title,
+                    "version": version,
+                    "approved_by": approver,
+                },
+            )
+        except BaseException:
+            if old_manifest is None:
+                with contextlib.suppress(OSError):
+                    manifest_path.unlink()
+            else:
+                _atomic_write_text(manifest_path, old_manifest)
+            if old_release is None:
+                with contextlib.suppress(OSError):
+                    release_path.unlink()
+                if not release_directory_existed:
+                    with contextlib.suppress(OSError):
+                        release_path.parent.rmdir()
+            else:
+                _atomic_write_text(release_path, old_release)
+            with contextlib.suppress(OSError):
+                os.truncate(self.audit_path, audit_size)
+            raise
         return release_path
 
     def _load_candidate(self, candidate_id: str) -> SkillCandidate:
