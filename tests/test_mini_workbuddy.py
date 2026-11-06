@@ -158,6 +158,22 @@ def test_storage_appends_and_reads_memory(tmp_path: Path) -> None:
     assert "small verified steps" in storage.read_memory("workspace")
 
 
+def test_storage_read_transcript_nonpositive_limit_returns_empty_window(
+    tmp_path: Path,
+) -> None:
+    storage = Storage(HarnessConfig(root_dir=tmp_path / "home"))
+    session = storage.create_session(cwd=str(tmp_path), title="window")
+    storage.append_event(session, {"type": "message", "content": "first"})
+    storage.append_event(session, {"type": "message", "content": "second"})
+
+    assert storage.read_transcript(session, limit=0) == []
+    assert storage.read_transcript(session, limit=-1) == []
+    assert [event["content"] for event in storage.read_transcript(session)] == [
+        "first",
+        "second",
+    ]
+
+
 def test_audit_log_verifies_hash_chain_and_detects_tampering(tmp_path: Path) -> None:
     audit = AuditLog(HarnessConfig(root_dir=tmp_path / "home"))
 
