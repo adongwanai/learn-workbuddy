@@ -150,10 +150,12 @@ class Storage:
             return envelope
 
     def read_transcript(self, record: SessionRecord, limit: int = 1000) -> list[dict[str, Any]]:
+        """Return the last ``limit`` events; a non-positive limit is empty."""
+
         path = self.transcript_path(record)
         with _transcript_lock(path):
             events, _ = self._read_transcript_unlocked(path, record)
-        return events[-limit:]
+        return events[-limit:] if limit > 0 else []
 
     def _read_transcript_unlocked(
         self,
